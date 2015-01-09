@@ -1,0 +1,8 @@
+.git
+.settings
+.gitignore
+.jshintrc
+.project
+.tern-project
+test
+tmp
