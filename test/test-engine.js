@@ -1,6 +1,7 @@
 var assert = require("assert");
 var inferno = require("../lib/core.js");
 
+/* jshint ignore:start */
 
 describe("Testing engine construction with an initial state", function() {
 
@@ -100,3 +101,5 @@ describe("Testing a simple incrementation rule", function() {
     });
 
 });
+
+/* jshint ignore:end */
