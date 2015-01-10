@@ -18,5 +18,8 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/formix/infernal-engine.git"
+    },
+    "scripts": {
+    	"test": "mocha ./test/test*.js"
     }
 }
