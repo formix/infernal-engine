@@ -127,7 +127,7 @@ engine.on("step", function(info) {
 	}
 	for(i = 0; i < info.results; i++) {
 		result = info.results[i];
-		if (result.level === "critical") {
+		if (result.data.level === "critical") {
 			console.error(result.data.text);
 			info.stop = true;
 			return;
