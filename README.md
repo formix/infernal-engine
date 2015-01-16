@@ -57,7 +57,7 @@ Right, me too. I'll try to simplify that one soon enough. But meanwhile, you mus
 concede that the previous example was a little bit stupid as well. Why doing `i++` 
 when we could assign "i" directly to "5"? For the sake of the example I'd say. And by
 the way, changing a value behind the back of that good user isn't fair at all. He 
-should be warned at least! Then this is how to do that:
+should be warned at least! This is how to do that:
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -106,13 +106,13 @@ Simply put, the infernal-engine implements EventEmitter. Subscribe to the event
 reason to do that is to count the number of steps taken for a single `infer()` 
 call. 
 
-A complex series of rules could lead to an infinite loop setting values to 
-the same set of facts without ever converging. If `info.step` gets over 500 
-(for example) you could suppose that the inference takes too long and decide 
-to stop it. You could limit by execution time or even decide that a user 
-input is so dumb that there is no point to waist computer cycles anymore. 
-It's up to you to decide and this is how to do it (reusing my initial stupid 
-example):
+For example, a complex series of rules could lead to an infinite loop setting 
+values to the same set of facts without ever converging. If `info.step` 
+gets over 500 (for example) you could suppose that the inference takes too 
+long and decide to stop it. You could limit by execution time or even decide
+that a user input is so dumb that there is no point to waist computer cycles
+anymore. It's up to you to decide and this is how to do it. So reusing my 
+initial stupid example:
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
