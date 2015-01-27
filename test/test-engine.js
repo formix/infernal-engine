@@ -8,7 +8,7 @@ describe("Testing engine construction with an initial state", function() {
     it("shall create a fact named " +
        "'product.properties.size' having the value 55", function(done) {
         var engine = new InfernalEngine();
-        engine.setState({
+        engine.setFacts({
             product: {
                 properties: {
                     size: 55
@@ -25,7 +25,7 @@ describe("Testing engine construction with an initial state", function() {
 
         it("shall work properly.", function(done) {
             var engine = new InfernalEngine();
-            engine.setState({
+            engine.setFacts({
                 product: {
                     properties: {
                         size: 66
@@ -35,8 +35,8 @@ describe("Testing engine construction with an initial state", function() {
 
             engine.infer(function(err, report) {
                 assert.ifError(err);
-                var state = engine.getState();
-                assert.equal(state.product.properties.size, 66);
+                var facts = engine.getFacts();
+                assert.equal(facts.product.properties.size, 66);
                 done();
             });
 
@@ -82,7 +82,7 @@ describe("Testing a simple incrementation rule", function() {
     describe("by setting a value to the fact 'i'", function() {
         it("shall add one planned rule named 'increment'", function(done) {
             engine.set("i", 0);
-            assert.equal(typeof(engine.planning["increment"]), "function");
+            assert.equal(typeof(engine.agenda["increment"]), "function");
             done();
         });
     })
@@ -107,6 +107,90 @@ describe("Testing a simple incrementation rule", function() {
 
     });
 
+});
+
+
+describe("Testing a dual rule entity with an array", function() {
+	
+	var engine = new InfernalEngine();
+	engine.addRule("checkCategory", function(self, done) {
+		var categories = self.get("categories");
+		var category = self.get("category");
+		if (categories.indexOf(category) === -1) {
+			if (category === null) {
+				done({
+					level: "warning",
+					message: "Please select a category in " + JSON.stringify(categories)
+				});
+			} else {
+				done({
+					level: "error",
+					message: "The selected category \"" + category + 
+						"\" is not in the valid category list: " + 
+						JSON.stringify(categories)
+				});
+			}
+			return;
+		}
+		done();
+	});
+	
+	var initialFacts = {
+			categories: ["compact", "mid-size", "minivan", "suv", "pickup"],
+			category: null
+	};
+	
+	engine.setFacts(initialFacts);
+	
+	
+	it("should return a warning asking to select a valid category", function(done) {
+		engine.infer(function(err, info) {
+			assert.ifError(err);
+			assert.equal(info.results.length, 1);
+			assert.equal(info.results[0].data.level, "warning");
+			done();
+		});
+	});
+	
+
+	it("should return an error telling that category is invalid", function(done) {
+		engine.reset(initialFacts);
+		engine.set("category", "asdasd");
+		engine.infer(function(err, info) {
+			assert.ifError(err);
+			assert.equal(info.results.length, 1);
+			assert.equal(info.results[0].data.level, "error");
+			done();
+		});
+	});
+	
+	
+	it("should terminate with an empty result set", function(done) {
+		engine.reset(initialFacts);
+		engine.set("category", "compact");
+		engine.infer(function(err, info) {
+			assert.ifError(err);
+			assert.equal(info.results.length, 0);
+			done();
+		});
+	});
+
+	describe("and changing the valid categories array", function() {
+		it("should return an error telling that the category is invalid", function(done) {
+			engine.reset(initialFacts);
+			engine.set("category", "compact");
+			engine.infer(function(err, info) {
+				engine.set("categories", ["mid-size", "minivan", "suv", "pickup"]);
+				engine.infer(function(err, info) {
+					assert.ifError(err);
+					assert.equal(info.results.length, 1);
+					assert.equal(info.results[0].data.level, "error");
+					done();
+				});
+			});
+		});
+	});
+	
 });
 
 /* jshint ignore:end */
