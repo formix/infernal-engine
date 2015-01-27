@@ -44,12 +44,12 @@ relationship between the specified fact (the "self.get" method's parameter)
 and the rule is kept within the engine (a fact is the inference engine name 
 for a variable). Then whenever the "engine.set" method is called on a fact, 
 the engine scans the relations table to find each affected rules. If an
-affected rule is found, then it is added to the planning. Calling 
-"engine.infer()" executes every rules in the current planning. For sure, 
-executing the current planning can cause some more facts to be changed. Those
-changes are simply added to the next planning. So the "engine.infer()" method
-will also execute all rules from the next planning and so on... until the 
-next planning is empty, then it stops.
+affected rule is found, then it is added to the agenda. Calling 
+"engine.infer()" executes every rules in the current agenda. For sure, 
+executing the current agenda can cause some more facts to be changed. Those
+changes are simply added to the next agenda. So the "engine.infer()" method
+will also execute all rules from the next agenda and so on... until the 
+next agenda is empty, then it stops.
 
 _I hate your explanation._
 
