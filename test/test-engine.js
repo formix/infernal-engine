@@ -52,6 +52,9 @@ describe("Testing engine construction with an initial state", function() {
 describe("Testing a simple incrementation rule", function() {
 
     var engine = new InfernalEngine();
+
+    engine.enableTracing();
+
     engine.addRule("increment", function(self, done) {
         var i = self.get("i");
         if (i < 5) {
@@ -106,6 +109,9 @@ describe("Testing a simple incrementation rule", function() {
         });
 
     });
+
+
+    console.log(JSON.stringify(engine.getTraces(), null, "  "));
 
 });
 
