@@ -52,6 +52,7 @@ describe("Testing engine construction with an initial state", function() {
 describe("Testing a simple incrementation rule", function() {
 
     var engine = new InfernalEngine();
+
     engine.addRule("increment", function(self, done) {
         var i = self.get("i");
         if (i < 5) {
