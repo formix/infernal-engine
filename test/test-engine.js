@@ -266,9 +266,9 @@ describe("Socrates is a human", function() {
             console.log(message);
         });
 
-        engine.addRule("humanMortal", function(self, match, done) {
+        engine.addRule("humanMortal", function(self, done) {
             if (self.get("*.isHuman")) {
-                self.set(match + ".isMortal", true);
+                self.set("*.isMortal", true);
             }
             done();
         });
