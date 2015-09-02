@@ -209,27 +209,27 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
             fs.appendFileSync("zeros.txt", message + "\n");
         });
 
-        engine.addRule("next_x1", function(self, next) {
+        engine.addRule("next_x1", function(self, done) {
             var x = self.get("x1");
             var x1 = (6 * x - 8) / x;
             if (tolerance(x, x1, 4)) {
                 self.set("x1", x1);
             }
-            next();
+            done();
         });
-        engine.addRule("next_x2", function(self, next) {
+        engine.addRule("next_x2", function(self, done) {
             var x = self.get("x2");
             var x2 = (Math.pow(x, 2) + 8) / 6;
             if (tolerance(x, x2, 4)) {
                 self.set("x2", x2);
             }
-            next();
+            done();
         });
-        engine.addRule("initialize", function(self, next) {
+        engine.addRule("initialize", function(self, done) {
             var initialValue = self.get("initialValue");
             self.set("x1", initialValue);
             self.set("x2", initialValue);
-            next();
+            done();
         });
         
         engine.set("initialValue", 1);
@@ -252,6 +252,36 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
         });
 
     });
+});
+
+
+describe("Socrates is a human", function() {
+
+    it("he should be mortal", function(done) {
+
+        var engine = new InfernalEngine();
+
+        engine.on("trace", function(message) {
+//            fs.appendFileSync("socrates.txt", message + "\n");
+            console.log(message);
+        });
+
+        engine.addRule("humanMortal", function(self, match, done) {
+            if (self.get("*.isHuman")) {
+                self.set(match + ".isMortal", true);
+            }
+            done();
+        });
+
+        engine.set("socrates.isHuman", true);
+
+        engine.infer(function(err) {
+            assert(engine.get("socrates.isMortal"));
+            done();
+        });
+
+    });
+
 });
 
 
