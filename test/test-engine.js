@@ -193,4 +193,72 @@ describe("Testing a dual rule entity with an array", function() {
 	
 });
 
+
+describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
+    it("it should be 2 and 4", function(done) {
+
+        var engine = new InfernalEngine();
+
+        var fs = require("fs");
+        if (fs.existsSync("zeros.txt")) {
+            fs.unlinkSync("zeros.txt");
+        }
+
+        engine.on("trace", function(message) {
+            fs.appendFileSync("zeros.txt", message + "\n");
+        });
+
+        engine.addRule("next_x1", function(self, next) {
+            var x = self.get("x1");
+            var x1 = (6 * x - 8) / x;
+            if (tolerance(x, x1, 4)) {
+                self.set("x1", x1);
+            }
+            next();
+        });
+        engine.addRule("next_x2", function(self, next) {
+            var x = self.get("x2");
+            var x2 = (Math.pow(x, 2) + 8) / 6;
+            if (tolerance(x, x2, 4)) {
+                self.set("x2", x2);
+            }
+            next();
+        });
+        engine.addRule("initialize", function(self, next) {
+            var initialValue = self.get("initialValue");
+            self.set("x1", initialValue);
+            self.set("x2", initialValue);
+            next();
+        });
+        
+        engine.set("initialValue", 1);
+
+        engine.infer(function(err) {
+            assert.ifError(err);
+
+            var x1 = Math.round(engine.get("x1"));
+            var x2 = Math.round(engine.get("x2"));
+
+            fs.appendFileSync("zeros.txt", "\n");
+            fs.appendFileSync("zeros.txt", "********** RESULTS **********\n");
+            fs.appendFileSync("zeros.txt", "*** x1 = " + x1 + " ***\n");
+            fs.appendFileSync("zeros.txt", "*** x2 = " + x2 + " ***\n");
+
+            assert.equal(x1, 4);
+            assert.equal(x2, 2);
+
+            done();
+        });
+
+    });
+});
+
+
+function tolerance(oldValue, newValue, decimals) {
+    var mult = Math.pow(10, decimals);
+    var oldVal = oldValue * mult;
+    var newVal = newValue * mult;
+    return Math.abs(oldVal - newVal) >= 1;
+}
+
 /* jshint ignore:end */
