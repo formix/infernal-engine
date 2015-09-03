@@ -273,10 +273,15 @@ describe("Socrates is a human", function() {
             done();
         });
 
+        
+        assert(engine.wildRelations["(.*)\\.isHuman"], 
+            "There is no wild relation for *.isHuman");
+        
+
         engine.set("socrates.isHuman", true);
 
         engine.infer(function(err) {
-            assert(engine.get("socrates.isMortal"));
+            assert(engine.get("socrates.isMortal", "Fact 'isMortal' not set to true."));
             done();
         });
 
