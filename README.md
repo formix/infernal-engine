@@ -2,12 +2,8 @@ infernal-engine
 ===============
 
 This is the first JavaScript inference engine implementation around. The 
-engine is developed using NodeJS and is intended to work both inside a 
-server or in any browser. An inference engine is a tool to build 
-[expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
-are the earliest implementations of artificial intelligence (late 1970). They 
-are still widely used in video games and product configuration softwares 
-these days. 
+engine is developed using NodeJS. An inference engine is a tool to build 
+[expert systems](http://en.wikipedia.org/wiki/Expert_system).
 
 Usage
 =====
