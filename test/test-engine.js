@@ -51,19 +51,24 @@ describe("Testing engine construction with an initial state", function() {
 
 describe("Testing a simple incrementation rule", function() {
 
-    var engine = new InfernalEngine();
 
-    engine.addRule("increment", function(self, done) {
-        var i = self.get("i");
-        if (i < 5) {
-            i++;
-        }
-        self.set("i", i);
-        done();
-    });
+    function createEngine() {
+        var engine = new InfernalEngine();
+        engine.addRule("increment", function(self, done) {
+            var i = self.get("i");
+            if (i < 5) {
+                i++;
+            }
+            self.set("i", i);
+            done();
+        });
+        return engine;
+    }
 
  
     describe("the engine", function() {
+        
+        var engine = createEngine();
 
         it("shall contain a rule named 'increment'", function(done) {
             assert.equal(typeof(engine.rules["increment"]), "function");
@@ -81,15 +86,21 @@ describe("Testing a simple incrementation rule", function() {
 
 
     describe("by setting a value to the fact 'i'", function() {
+        
+        var engine = createEngine();
+
         it("shall add one planned rule named 'increment'", function(done) {
             engine.set("i", 0);
-            assert.equal(typeof(engine.agenda["increment"]), "function");
+            assert.equal(typeof(engine.agenda["increment"]), "object");
             done();
         });
     })
 
 
     describe("by executing engine.infer()", function() {
+
+        var engine = createEngine();
+        engine.set("i", 0);
 
         it("shall set the fact value to 5", function(done) {
         	
@@ -205,9 +216,9 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
             fs.unlinkSync("zeros.txt");
         }
 
-        engine.on("trace", function(message) {
-            fs.appendFileSync("zeros.txt", message + "\n");
-        });
+//        engine.on("trace", function(message) {
+//            fs.appendFileSync("zeros.txt", message + "\n");
+//        });
 
         engine.addRule("next_x1", function(self, done) {
             var x = self.get("x1");
@@ -262,7 +273,6 @@ describe("Socrates is a human", function() {
         var engine = new InfernalEngine();
 
         engine.on("trace", function(message) {
-//            fs.appendFileSync("socrates.txt", message + "\n");
             console.log(message);
         });
 
@@ -274,7 +284,7 @@ describe("Socrates is a human", function() {
         });
 
         
-        assert(engine.wildRelations["(.*)\\.isHuman"], 
+        assert(engine.wildRelations["*.isHuman"], 
             "There is no wild relation for *.isHuman");
         
 
