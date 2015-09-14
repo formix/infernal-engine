@@ -217,7 +217,7 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
         }
 
 //        engine.on("trace", function(message) {
-//            fs.appendFileSync("zeros.txt", message + "\n");
+//            console.log(message);
 //        });
 
         engine.addRule("next_x1", function(self, done) {
@@ -272,9 +272,9 @@ describe("Socrates is a human", function() {
 
         var engine = new InfernalEngine();
 
-        engine.on("trace", function(message) {
-            console.log(message);
-        });
+//        engine.on("trace", function(message) {
+//            console.log(message);
+//        });
 
         engine.addRule("humanMortal", function(self, done) {
             if (self.get("*.isHuman")) {
