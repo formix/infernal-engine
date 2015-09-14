@@ -4,9 +4,9 @@ infernal-engine
 This is the first JavaScript inference engine implementation around. The 
 engine is developed using NodeJS. An inference engine is a tool to build 
 [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
-are used for many artificial intelligence systems based on knowledge.  
-Video games use it to script opponents or NPC reactions and industries use 
-the concept to configure complex manufacturing products.
+are used for many artificial intelligence systems based on knowledge. Video 
+games use it to script opponents or NPC reactions and industries use the 
+concept to configure complex manufacturing products.
 
 Usage
 =====
@@ -93,7 +93,7 @@ callback function (infer). This is the structure of the 'information' object:
 	
 ## Stopping the inference
 
-If something goes really wrong, it may not be a good idea to not the 
+If something goes really wrong, it may not be a good idea to let the 
 inference go on. In this case, you can add a hint to the `data` object
 passed to the `done` callback. Then you have to register for the 
 InfernalEngine *step* event to scan the results of the last inference step 
