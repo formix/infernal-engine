@@ -3,10 +3,15 @@ infernal-engine
 
 This is the first JavaScript inference engine implementation around. The 
 engine is developed using NodeJS. An inference engine is a tool to build 
-[expert systems](http://en.wikipedia.org/wiki/Expert_system).
+[expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
+are used for many artificial intelligence systems based on knowledge.  
+Video games use it to script opponents or NPC reactions and industries use 
+the concept to configure complex manufacturing products.
 
 Usage
 =====
+
+## Simple incrementation rule with direct fact reference
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -32,28 +37,16 @@ engine.infer(callback() {
 });
 ```
 
-_Woah! What happened? No loop but still, "i" is now "5"!_ 
+Direct fact reference involves using a fact full name within the rule. As a
+convention, a fact can be contextualized using dot notation. For example:
+`character.race` implies that the "race" fact is within the "character"
+context. The context can be of any dept and thus form a complex hierarchy
+of facts.
 
-Simple: when adding a rule to the engine, the "addRule" method scans the 
-source code for each "self.get" method call. For each "self.get" found, a 
-relationship between the specified fact (the "self.get" method's parameter)
-and the rule is kept within the engine (a fact is the inference engine name 
-for a variable). Then whenever the "engine.set" method is called on a fact, 
-the engine scans the relations table to find each affected rules. If an
-affected rule is found, then it is added to the agenda. Calling 
-"engine.infer()" executes every rules in the current agenda. For sure, 
-executing the current agenda can cause some more facts to be changed. Those
-changes are simply added to the next agenda. So the "engine.infer()" method
-will also execute all rules from the next agenda and so on... until the 
-next agenda is empty, then it stops.
+A rule can refer to (`self.get`) or change (`self.set`) any number of facts 
+using direct reference.
 
-_I hate your explanation._
-
-Right, me too. I'll try to simplify that one soon enough. But meanwhile, you must 
-concede that the previous example was a little bit stupid as well. Why doing `i++` 
-when we could assign "i" directly to "5"? For the sake of the example I'd say. And by
-the way, changing a value behind the back of that good user isn't fair at all. He 
-should be warned at least! This is how to do that:
+## Returning data from a rule
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -83,32 +76,38 @@ engine.infer(callback(info) {
 });
 ```
 
-Well, this is a good start. Now you know how to communicate back with the 
-programmer. Note that the returned data from the "done" callback of the 
-rule can pass on any kind of javascript data or object. it's up to you to 
-decide. One other thing that could be useful here is the structure of the 
-`info` object:
+Since infernal-engine is asynchronous, you need to tell the engine when the 
+current rule is done executing. You do that by calling the `done` callback 
+function. This function can optionally take a `data` parameter of any type.
+If you elect to pass data back to the engine, this object will be added to 
+the results of the final execution information object passed to the inference 
+callback function (infer). This is the structure of the 'information' object:
 
-* step: the number of steps the inference engine took to complete.
+* step: the last step the engine executed before ending.
 * stop: a flag telling if the inference loop have been stopped before it ends.
-* results: an array of all results sent from the rule callback. The result object:
+* results: an array of all results sent from the rule's `done` callback. The result object:
 	* rule: the rule name from which this result originate.
+    * context: the context of execution of the rule, if applicable, empty string otherwise
 	* step: the step at which that result originate
 	* data: the data received from the rule's `done` callback.
 	
-Finally, how do you stop the inference loop when something goes really wrong?
-Simply put, the infernal-engine implements EventEmitter. Subscribe to the event
-"step" and your function will be called after every inference step. One good
-reason to do that is to count the number of steps taken for a single `infer()` 
-call. 
+## Stopping the inference
 
-For example, a complex series of rules could lead to an infinite loop setting 
-values to the same set of facts without ever converging. If `info.step` 
-gets over 500 (for example) you could suppose that the inference takes too 
-long and decide to stop it. You could limit by execution time or even decide
-that a user input is so dumb that there is no point to waist computer cycles
-anymore. It's up to you to decide and this is how to do it. So reusing my 
-initial stupid example:
+If something goes really wrong, it may not be a good idea to not the 
+inference go on. In this case, you can add a hint to the `data` object
+passed to the `done` callback. Then you have to register for the 
+InfernalEngine *step* event to scan the results of the last inference step 
+(an inference step may involve calling many rules) for the hint you sent. If 
+you receive the indication to stop the inference, then set the 'information' 
+object property 'stop' to true. Note that InfernalEngine object is an 
+EventEmitter with a single event registered on it named *step*.
+
+It's a good practice to add a 'step' listener with a watchdog on the number 
+of steps executed. If this number exceeds an arbitrary large value you have 
+set in advance, then it may imply an infinite looping inference and thus stop
+the engine to investigate.
+
+The two cases stated above are demonstrated in the following example:
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -158,3 +157,83 @@ engine.infer(callback() {
 });
 ``` 
 
+## Wild Rules or indirect fact reference
+
+A real inference engine would not be good without some way to access and set
+a fact inside an undefined or semi-defined context. For example, how can we 
+define a rule that says that if "someone" is human then this "someone" is 
+mortal? This is how to do it using an undefined context:
+
+```javascript
+var InfernalEngine = require("infernal-engine");
+var engine = new InfernalEngine();
+
+engine.addRule("humanMortal", function(self, done) {
+    if (self.get("*.isHuman")) {
+        self.set("*.isMortal", true);
+    }
+    done();
+});
+
+engine.set("socrates.isHuman", true);
+
+// launches inference
+engine.infer(callback() {
+	// will print "true"
+	console.log(engine.get("socrates.isMortal"));
+});
+``` 
+
+This is how to do it with a semi-defined context:
+
+```javascript
+var InfernalEngine = require("infernal-engine");
+var engine = new InfernalEngine();
+
+engine.addRule("humanMortal", function(self, done) {
+    if (self.get("planetEarth.*.isHuman")) {
+        self.set("*.isMortal", true);
+    }
+    done();
+});
+
+engine.set("planetEarth.socrates.isHuman", true);
+engine.set("valhalla.odin.isHuman", true);
+
+// launches inference
+engine.infer(callback() {
+	// will print "true"
+	console.log(engine.get("planetEarth.socrates.isMortal"));
+	
+    // will print "undefined"
+	console.log(engine.get("valhalla.odin.isMortal"));
+});
+``` 
+
+In this particular case, the "humanMortal" rule do not apply to the "valhalla"
+context, which is fine. Note that when you get a value from a undefined or 
+semi-defined context, you can't get out of the given context other than to 
+set fully defined fact values. Every other "get" calls have to be done in the
+same context definition. Then setting a contextualized value can be done with
+the asterisk notation. In this particular case, the asterisk refer to the full 
+context.
+
+## Tracing and Debugging Execution
+
+The infernal-engine offers a very simple tracing macanism. To receive trace 
+messages, register to the *trace* event and do whatever you like with the 
+message. The most obvious option would be to write the message to the console 
+or to a file.
+
+```javascript
+var engine = new InfernalEngine();
+engine.on("trace", function(message) {
+    console.log(message);
+});
+
+```
+
+Tracing is quite slow. Don't expect great performances while doing it!
+
+To debug it is quite easy. Since infernal-engine is a Nodejs application,
+simply start your program with `node debug` or your favorite Nodejs debugger.
