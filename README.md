@@ -4,9 +4,9 @@ infernal-engine
 This is the first JavaScript inference engine implementation around. The 
 engine is developed using NodeJS. An inference engine is a tool to build 
 [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
-are used for many artificial intelligence systems based on knowledge. Video 
-games use it to script opponents or NPC reactions and industries use the 
-concept to configure complex manufacturing products.
+are used for many artificial intelligence implementations based on knowledge.
+Video games use it to script opposing character interactions and industries 
+use the concept to configure complex manufacturing products.
 
 Usage
 =====
@@ -100,7 +100,7 @@ InfernalEngine *step* event to scan the results of the last inference step
 (an inference step may involve calling many rules) for the hint you sent. If 
 you receive the indication to stop the inference, then set the 'information' 
 object property 'stop' to true. Note that InfernalEngine object is an 
-EventEmitter with a single event registered on it named *step*.
+EventEmitter with an event registered on it named *step*.
 
 It's a good practice to add a 'step' listener with a watchdog on the number 
 of steps executed. If this number exceeds an arbitrary large value you have 
@@ -116,10 +116,14 @@ var engine = new InfernalEngine();
 engine.on("step", function(info) {
 	var i, result;
 	
+    // watches for infinite loops
 	if (info.step > 500) {
 		info.stop = true;
 		return;
 	}
+
+    // stops inference if any result from the current step returns a 
+    // critical error
 	for(i = 0; i < info.results; i++) {
 		result = info.results[i];
 		if (result.data.level === "critical") {
@@ -152,7 +156,7 @@ engine.set("i", 1);
 
 // launches inference
 engine.infer(callback() {
-	// will print "5"
+	// will print "3"
 	console.log(engine.get("i"));
 });
 ``` 
@@ -217,6 +221,11 @@ set fully defined fact values. Every other "get" calls have to be done in the
 same context definition. Then setting a contextualized value can be done with
 the asterisk notation. In this particular case, the asterisk refer to the full 
 context.
+
+You can not access any variable outside the current scope with the "get"
+method. But it's still possible to `peek` a value using `self.peek(fact)`.
+By doing this, accessing a fully defined fact will not create a relation 
+between the given fact and the current rule.
 
 ## Tracing and Debugging Execution
 

@@ -291,7 +291,7 @@ describe("Socrates is a human", function() {
         engine.set("socrates.isHuman", true);
 
         engine.infer(function(err) {
-            assert(engine.get("socrates.isMortal", "Fact 'isMortal' not set to true."));
+            assert(engine.get("socrates.isMortal"), "Fact 'isMortal' not set to true.");
             done();
         });
 
@@ -300,11 +300,52 @@ describe("Socrates is a human", function() {
 });
 
 
+describe("Undefined rules", function() {
+
+    it("should not be affected by the peek usage", function(done) {
+        
+        var engine = new InfernalEngine();
+
+        engine.set("human.age.max", 115);
+        
+        engine.addRule("humanMortal", function(self, done) {
+            if (self.get("*.isHuman")) {
+                self.set("*.isMortal", true);
+                var deathAge = self.peek("human.age.max") - 
+                    Math.floor(Math.random() * 30 + 1);
+                self.set("*.deathAge", deathAge); 
+            }
+            done();
+        });
+
+        engine.set("socrates.isHuman", true);
+
+        engine.infer(function() {
+            assert(engine.get("socrates.deathAge"), "Socrates should have a death age.");
+            engine.set("human.age.max", 50);
+            engine.infer(function() {
+                assert(engine.get("socrates.deathAge") > 50, 
+                    "Setting the fact 'human.max.age' should not trigger " +
+                    "the 'humanMortal' rule.");
+                done();
+            });
+        });
+
+
+    });
+
+});
+
+
+
 function tolerance(oldValue, newValue, decimals) {
     var mult = Math.pow(10, decimals);
     var oldVal = oldValue * mult;
     var newVal = newValue * mult;
     return Math.abs(oldVal - newVal) >= 1;
 }
+
+
+
 
 /* jshint ignore:end */
