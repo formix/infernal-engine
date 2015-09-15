@@ -206,8 +206,9 @@ describe("Testing a dual rule entity with an array", function() {
 });
 
 
-describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
-    it("it should be 2 and 4", function(done) {
+describe("Advanced inference", function() {
+
+    it("Zeros of 'x^2 - 6x + 8 = 0' should be 2 and 4", function(done) {
 
         var engine = new InfernalEngine();
 
@@ -251,10 +252,10 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
             var x1 = Math.round(engine.get("x1"));
             var x2 = Math.round(engine.get("x2"));
 
-            fs.appendFileSync("zeros.txt", "\n");
-            fs.appendFileSync("zeros.txt", "********** RESULTS **********\n");
-            fs.appendFileSync("zeros.txt", "*** x1 = " + x1 + " ***\n");
-            fs.appendFileSync("zeros.txt", "*** x2 = " + x2 + " ***\n");
+//            fs.appendFileSync("zeros.txt", "\n");
+//            fs.appendFileSync("zeros.txt", "********** RESULTS **********\n");
+//            fs.appendFileSync("zeros.txt", "*** x1 = " + x1 + " ***\n");
+//            fs.appendFileSync("zeros.txt", "*** x2 = " + x2 + " ***\n");
 
             assert.equal(x1, 4);
             assert.equal(x2, 2);
@@ -263,12 +264,9 @@ describe("Finding zeros of 'x^2 - 6x + 8 = 0'", function() {
         });
 
     });
-});
 
 
-describe("Socrates is a human", function() {
-
-    it("he should be mortal", function(done) {
+    it("Socrates is a human, he should be mortal", function(done) {
 
         var engine = new InfernalEngine();
 
@@ -297,12 +295,8 @@ describe("Socrates is a human", function() {
 
     });
 
-});
 
-
-describe("Undefined rules", function() {
-
-    it("should not be affected by the peek usage", function(done) {
+    it("Undefined rules should not be affected by the peek usage", function(done) {
         
         var engine = new InfernalEngine();
 
@@ -325,7 +319,7 @@ describe("Undefined rules", function() {
             engine.set("human.age.max", 50);
             engine.infer(function() {
                 assert(engine.get("socrates.deathAge") > 50, 
-                    "Setting the fact 'human.max.age' should not trigger " +
+                    "Setting the fact 'human.age.max' should not trigger " +
                     "the 'humanMortal' rule.");
                 done();
             });
@@ -335,8 +329,6 @@ describe("Undefined rules", function() {
     });
 
 });
-
-
 
 function tolerance(oldValue, newValue, decimals) {
     var mult = Math.pow(10, decimals);
