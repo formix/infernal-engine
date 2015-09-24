@@ -5,7 +5,7 @@ This is the first JavaScript inference engine implementation around. The
 engine is developed using NodeJS. An inference engine is a tool to build 
 [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
 are used for many artificial intelligence implementations based on knowledge.
-Video games use it to script opposing character interactions and industries 
+Video games use it to script opponents character AI and industries 
 use the concept to configure complex manufacturing products.
 
 Usage
