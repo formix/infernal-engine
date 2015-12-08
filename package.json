@@ -13,7 +13,7 @@
   ],
   "license": "MIT",
   "author": "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
-  "main": "lib/core.js",
+  "main": "lib/index.js",
   "homepage": "https://github.com/formix/infernal-engine",
   "bugs": "https://github.com/formix/infernal-engine/issues",
   "repository": {
