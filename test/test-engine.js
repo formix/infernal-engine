@@ -20,6 +20,27 @@ describe("InfernalEngine", function() {
             done();
         });
 
+
+        it("should get the fact with the parent folder notation at " +
+           "'/root/parent/child1/../child2/value'",
+        function(done) {
+            var engine = new InfernalEngine();
+            engine.facts = {
+                root: {
+                    parent: {
+                        child1: {
+                            value: "child1"
+                        },
+                        child2: {
+                            value: "child2"
+                        }
+                    }
+                }
+            };
+            assert.equal("child2", engine.get("/root/parent/child1/../child2/value"));
+            done();
+        });
+
     });
 
 
