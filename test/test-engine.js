@@ -62,22 +62,40 @@ describe("InfernalEngine", function() {
         it("should add a relation between fact 'i' and rule 'increment'", 
         function(done) {
             var engine = new InfernalEngine();
-            engine.addRule("increment", function(done) {
-                var i = this.get("i");
-                if (i < 5) {
-                    i++;
-                }
-                this.set("i", i);
-            });
+            engine.addRule(increment);
             assert(engine.relations["i"]["increment"]);
             done();
         });
 
     });
 
+
+    describe("#set('i', 1)", function() {
+
+        it("should add a rule named 'increment' to the agenda", 
+        function(done) {
+            var engine = new InfernalEngine();
+            engine.addRule(increment); 
+            engine.set("i", 1);
+            assert(engine.agenda["increment"]);
+            done();
+        });
+
+    });
+
+
 });
 
 
+
+function increment(done) {
+    var i = this.get("i");
+    if (i < 5) {
+        i++;
+    }
+    this.set("i", i);
+    done();
+}
 
 
 function tolerance(oldValue, newValue, decimals) {
