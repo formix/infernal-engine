@@ -84,6 +84,22 @@ describe("InfernalEngine", function() {
     });
 
 
+
+    describe("#infer", function() {
+
+        it("should set the fact 'i' to 5", function(done) {
+            var engine = new InfernalEngine();
+            engine.addRule(increment); 
+            engine.set("i", 1);
+            engine.infer(function() {
+                assert.equal(engine.get("i"), 5);
+                done();
+            });
+        });
+
+    });
+
+
 });
 
 
