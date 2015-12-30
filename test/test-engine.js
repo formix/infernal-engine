@@ -68,7 +68,7 @@ describe("InfernalEngine", function() {
             done();
         });
 
-        it("should add a rule and use relative path correctly",
+        it("should add a rule that uses relative path correctly",
         function(done) {
             var engine = new InfernalEngine();
             engine.addRule("/units/convert_lbs_to_kg", function(done) {
@@ -79,7 +79,8 @@ describe("InfernalEngine", function() {
             engine.set("/units/lbs", 110);
             engine.infer(function(err) {
                 assert.ifError(err);
-                assert.equal(55, engine.get("/units/kg"));
+                var kg = Math.round(engine.get("/units/kg"));
+                assert.equal(kg, 50);
                 done();
             });
         });
