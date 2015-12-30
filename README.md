@@ -8,6 +8,23 @@ are used for many artificial intelligence implementations based on knowledge.
 Video games use it to script opponents character AI and industries 
 use the concept to configure complex manufacturing products.
 
+Update Notes
+============
+
+## Version 0.10
+
+This version is a major rewrite of the engine. After a year of self education
+and some professional project developed in NodeJS, I rewrote the library. You 
+will see a lot of algorithmic improvements (if you care about my source code)
+and a better asynchronous API. The major change is the way to declare rule 
+and fact names. Instead of using the "dot" notation (i.e. 
+"department.marketting.updateScore"), we switched to a directory like notation
+(i.e. "/department/marketting/updateScore"). This is a great improvement since
+its now possible to access facts relative to the current rule path, specifiy
+fact by its absolute name (starting with "/") and move up in the path using 
+"..". See the documentation for more information.
+
+
 Usage
 =====
 
@@ -18,12 +35,12 @@ var InfernalEngine = require("infernal-engine");
 var engine = new InfernalEngine();
 
 // adds a rule named "increment" to increment the value of 'i' up to 5.
-engine.addRule("increment", function(self, done) {
-	var i = self.get("i");
+engine.addRule("increment", function(done) {
+	var i = this.get("i");
 	if (i < 5) {
 		i++;
 	}
-	self.set("i", i);
+	this.set("i", i);
 	done();
 });
 
@@ -37,13 +54,23 @@ engine.infer(callback() {
 });
 ```
 
-Direct fact reference involves using a fact full name within the rule. As a
-convention, a fact can be contextualized using dot notation. For example:
-`character.race` implies that the "race" fact is within the "character"
-context. The context can be of any dept and thus form a complex hierarchy
-of facts.
+##Absolute fact reference
 
-A rule can refer to (`self.get`) or change (`self.set`) any number of facts 
+Absolute fact reference involves using a fact full name, including the 
+leading "/" within the rule. As a convention, a fact can be 
+contextualized using a directory like notation. For example: 
+`/character/race` implies that the "race" fact is within the  "character"
+context starting at the root context. The context can be of any dept and thus 
+form a complex hierarchy of facts.
+
+## Relative fact reference 
+
+Relative fact reference involves using a fact partial name within the current rule
+context. To refer to a relative fact, use the fact path without the leading "/" in 
+the fact name. For example, getting or setting a fact within the rule 
+`/departments/marketting/updateScore`
+
+A rule can refer to (`this.get`) or change (`this.set`) any number of facts 
 using direct reference.
 
 ## Returning data from a rule
