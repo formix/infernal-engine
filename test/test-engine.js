@@ -37,7 +37,8 @@ describe("InfernalEngine", function() {
                     }
                 }
             };
-            assert.equal("child2", engine.get("/root/parent/child1/../child2/value"));
+            assert.equal("child2", engine.get("/root/parent/child1/" +
+                "../child2/value"));
             done();
         });
 
@@ -63,8 +64,24 @@ describe("InfernalEngine", function() {
         function(done) {
             var engine = new InfernalEngine();
             engine.addRule(increment);
-            assert(engine.relations["i"]["increment"]);
+            assert(engine.relations["/i"]["/increment"]);
             done();
+        });
+
+        it("should add a rule and use relative path correctly",
+        function(done) {
+            var engine = new InfernalEngine();
+            engine.addRule("/units/convert_lbs_to_kg", function(done) {
+                var lbs = this.get("lbs");
+                this.set("kg", lbs / 2.2);
+                done();
+            });
+            engine.set("/units/lbs", 110);
+            engine.infer(function(err) {
+                assert.ifError(err);
+                assert.equal(55, engine.get("/units/kg"));
+                done();
+            });
         });
 
     });
@@ -77,7 +94,7 @@ describe("InfernalEngine", function() {
             var engine = new InfernalEngine();
             engine.addRule(increment); 
             engine.set("i", 1);
-            assert(engine.agenda["increment"]);
+            assert(engine.agenda["/increment"]);
             done();
         });
 
