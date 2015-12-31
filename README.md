@@ -20,26 +20,29 @@ and a better asynchronous API. The major change is the way to declare rule
 and fact names. Instead of using the "dot" notation (i.e. 
 "department.marketting.updateScore"), we switched to a directory like notation
 (i.e. "/department/marketting/updateScore"). This is a great improvement since
-its now possible to access facts relative to the current rule path, specifiy
-fact by its absolute name (starting with "/") and move up in the path using 
-"..". See the documentation for more information.
+it is now possible to access facts relative to the current rule context,
+specifiy fact by its absolute name (starting with "/") and move up in the path
+using "..". See the *Usage* section below for more information.
 
 
 Usage
 =====
 
-## Simple incrementation rule with direct fact reference
+## Example
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
 var engine = new InfernalEngine();
 
-// adds a rule named "increment" to increment the value of 'i' up to 5.
+// Adds a rule named "increment" to increment the value of 'i' up to 5.
 engine.addRule("increment", function(done) {
 	var i = this.get("i");
 	if (i < 5) {
 		i++;
-	}
+	} else if (i > 5) {
+        done(new Error("'i' must be lower or equal to 5."));
+        return;
+    }
 	this.set("i", i);
 	done();
 });
@@ -54,222 +57,32 @@ engine.infer(callback() {
 });
 ```
 
-##Absolute fact reference
+## Calling `done` Within a Rule
+
+You must call the `done` callback to tell the inference engine that the current
+rule finished executing. Otherwise, the engine will wait until it timeout. You
+can call the `done` callback with a single error parameter. This will stop the
+inference and call the `infer` callback with the error parameter you have set.
+
+## Absolute Fact Reference
 
 Absolute fact reference involves using a fact full name, including the 
-leading "/" within the rule. As a convention, a fact can be 
-contextualized using a directory like notation. For example: 
-`/character/race` implies that the "race" fact is within the  "character"
-context starting at the root context. The context can be of any dept and thus 
-form a complex hierarchy of facts.
+leading "/". As a convention, a fact can be contextualized using a directory
+like notation. For example: `/character/race` implies that the "race" fact is
+within the "character" context starting at the root context. The context can 
+be of any dept and thus form a complex hierarchy of facts.
 
-## Relative fact reference 
+## Relative Fact Reference 
 
-Relative fact reference involves using a fact partial name within the current rule
-context. To refer to a relative fact, use the fact path without the leading "/" in 
-the fact name. For example, getting or setting a fact within the rule 
-`/departments/marketting/updateScore`
+Relative fact reference involves using a fact partial name within the current 
+rule context. To refer to a relative fact, use the fact context without the 
+leading "/" in the fact name. For eaxmple a rule named 
+`/hoist/engine/checkPhaseCount` is within the base context 
+`/hoist/engine/`. Accessing any fact without a leading "/", will 
+use the given base context. 
 
-A rule can refer to (`this.get`) or change (`this.set`) any number of facts 
-using direct reference.
+It is also possible to move up in the current context using "..". For example,
+given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
+`../liftCapacity` will let the `checkPhaseCount` access `/hoist/liftCapacity`. 
 
-## Returning data from a rule
-
-```javascript
-var InfernalEngine = require("infernal-engine");
-var engine = new InfernalEngine();
-
-// adds a rule named "increment" to increment the value of 'i' up to 5.
-engine.addRule("increment", function(self, done) {
-	var i = self.get("i");
-	if (i < 5) {
-		self.set("i", 5);
-		done("Warning, 'i' value was too small, changed back to 5.");
-		return;
-	}
-	done();
-});
-
-// Set a value to the fact "i"
-engine.set("i", 1);
-
-// launches inference
-engine.infer(callback(info) {
-	// will print "5"
-	console.log(engine.get("i"));
-	if (info.results.length > 0) {
-		console.log(info.results[0].data);
-	}
-});
-```
-
-Since infernal-engine is asynchronous, you need to tell the engine when the 
-current rule is done executing. You do that by calling the `done` callback 
-function. This function can optionally take a `data` parameter of any type.
-If you elect to pass data back to the engine, this object will be added to 
-the results of the final execution information object passed to the inference 
-callback function (infer). This is the structure of the 'information' object:
-
-* step: the last step the engine executed before ending.
-* stop: a flag telling if the inference loop have been stopped before it ends.
-* results: an array of all results sent from the rule's `done` callback. The result object:
-	* rule: the rule name from which this result originate.
-    * context: the context of execution of the rule, if applicable, empty string otherwise
-	* step: the step at which that result originate
-	* data: the data received from the rule's `done` callback.
-	
-## Stopping the inference
-
-If something goes really wrong, it may not be a good idea to let the 
-inference go on. In this case, you can add a hint to the `data` object
-passed to the `done` callback. Then you have to register for the 
-InfernalEngine *step* event to scan the results of the last inference step 
-(an inference step may involve calling many rules) for the hint you sent. If 
-you receive the indication to stop the inference, then set the 'information' 
-object property 'stop' to true. Note that InfernalEngine object is an 
-EventEmitter with an event registered on it named *step*.
-
-It's a good practice to add a 'step' listener with a watchdog on the number 
-of steps executed. If this number exceeds an arbitrary large value you have 
-set in advance, then it may imply an infinite looping inference and thus stop
-the engine to investigate.
-
-The two cases stated above are demonstrated in the following example:
-
-```javascript
-var InfernalEngine = require("infernal-engine");
-var engine = new InfernalEngine();
-
-engine.on("step", function(info) {
-	var i, result;
-	
-    // watches for infinite loops
-	if (info.step > 500) {
-		info.stop = true;
-		return;
-	}
-
-    // stops inference if any result from the current step returns a 
-    // critical error
-	for(i = 0; i < info.results; i++) {
-		result = info.results[i];
-		if (result.data.level === "critical") {
-			console.error(result.data.text);
-			info.stop = true;
-			return;
-		}
-	}
-});
-
-// adds a rule named "increment" to increment the value of 'i' up to 5.
-engine.addRule("increment", function(self, done) {
-	var i = self.get("i");
-	if (i < 5) {
-		i++;
-	}
-	if (i === 3) {
-		done({
-			level: "critical",
-			text: "The value of 'i' can never EVER be equal to 3!"
-		});
-		return;
-	}
-	self.set("i", i);
-	done();
-});
-
-// Set a value to the fact "i"
-engine.set("i", 1);
-
-// launches inference
-engine.infer(callback() {
-	// will print "3"
-	console.log(engine.get("i"));
-});
-``` 
-
-## Wild Rules or indirect fact reference
-
-A real inference engine would not be good without some way to access and set
-a fact inside an undefined or semi-defined context. For example, how can we 
-define a rule that says that if "someone" is human then this "someone" is 
-mortal? This is how to do it using an undefined context:
-
-```javascript
-var InfernalEngine = require("infernal-engine");
-var engine = new InfernalEngine();
-
-engine.addRule("humanMortal", function(self, done) {
-    if (self.get("*.isHuman")) {
-        self.set("*.isMortal", true);
-    }
-    done();
-});
-
-engine.set("socrates.isHuman", true);
-
-// launches inference
-engine.infer(callback() {
-	// will print "true"
-	console.log(engine.get("socrates.isMortal"));
-});
-``` 
-
-This is how to do it with a semi-defined context:
-
-```javascript
-var InfernalEngine = require("infernal-engine");
-var engine = new InfernalEngine();
-
-engine.addRule("humanMortal", function(self, done) {
-    if (self.get("planetEarth.*.isHuman")) {
-        self.set("*.isMortal", true);
-    }
-    done();
-});
-
-engine.set("planetEarth.socrates.isHuman", true);
-engine.set("valhalla.odin.isHuman", true);
-
-// launches inference
-engine.infer(callback() {
-	// will print "true"
-	console.log(engine.get("planetEarth.socrates.isMortal"));
-	
-    // will print "undefined"
-	console.log(engine.get("valhalla.odin.isMortal"));
-});
-``` 
-
-In this particular case, the "humanMortal" rule do not apply to the "valhalla"
-context, which is fine. Note that when you get a value from a undefined or 
-semi-defined context, you can't get out of the given context other than to 
-set fully defined fact values. Every other "get" calls have to be done in the
-same context definition. Then setting a contextualized value can be done with
-the asterisk notation. In this particular case, the asterisk refer to the full 
-context.
-
-You can not access any variable outside the current scope with the "get"
-method. But it's still possible to `peek` a value using `self.peek(fact)`.
-By doing this, accessing a fully defined fact will not create a relation 
-between the given fact and the current rule.
-
-## Tracing and Debugging Execution
-
-The infernal-engine offers a very simple tracing macanism. To receive trace 
-messages, register to the *trace* event and do whatever you like with the 
-message. The most obvious option would be to write the message to the console 
-or to a file.
-
-```javascript
-var engine = new InfernalEngine();
-engine.on("trace", function(message) {
-    console.log(message);
-});
-
-```
-
-Tracing is quite slow. Don't expect great performances while doing it!
-
-To debug it is quite easy. Since infernal-engine is a Nodejs application,
-simply start your program with `node debug` or your favorite Nodejs debugger.
+## 
