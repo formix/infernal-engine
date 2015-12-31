@@ -79,10 +79,13 @@ rule context. To refer to a relative fact, use the fact context without the
 leading "/" in the fact name. For eaxmple a rule named 
 `/hoist/engine/checkPhaseCount` is within the base context 
 `/hoist/engine/`. Accessing any fact without a leading "/", will 
-use the given base context. 
+prepend the given base context. 
 
 It is also possible to move up in the current context using "..". For example,
 given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
 `../liftCapacity` will let the `checkPhaseCount` access `/hoist/liftCapacity`. 
 
-## 
+API
+===
+
+
