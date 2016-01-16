@@ -51,7 +51,11 @@ engine.addRule("increment", function(done) {
 engine.set("i", 1);
 
 // launches inference
-engine.infer(callback() {
+engine.infer(function(err) {
+    if (err) {
+        console.log(err);
+        return;
+    }
 	// will print "5"
 	console.log(engine.get("i"));
 });
