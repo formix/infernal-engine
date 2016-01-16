@@ -85,7 +85,37 @@ It is also possible to move up in the current context using "..". For example,
 given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
 `../liftCapacity` will let the `checkPhaseCount` access `/hoist/liftCapacity`. 
 
-API
-===
+InfernalEngine
+==============
+
+To use this module, install it by calling `npm install infernal-engine --save`.
+Then in your program, do `require('infernal-engine')`.
+
+## Constructor InfernalEngine([timeout])
+
+Creates an InfernalEngine instance.
+
+### Parameters
+
+#### timeout
+
+Optional parameter that sets the number of milliseconds given to the
+inference before timing out. Default 5000 ms.
 
 
+## addRule(ruleName, rule)
+
+Adds a rule to the engine.
+
+### Parameters
+
+#### ruleName
+
+The rule name must be a full path to that rule. For example: 
+"/engine/frame/maxWidth". Within the rule function, all usages to get and
+set will use the current rule home path (in the previous example 
+"/engine/frame/") to access facts.
+
+#### rule
+
+A function that have a single argument (the done function).
