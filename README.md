@@ -142,3 +142,32 @@ The name of the fact we want to get.
 ## InfernalEngine.set(factName, value)
 
 Sets a fact of the given factName to the given value.
+
+### Parameters
+
+#### factName
+
+The name of the fact we want to get.
+
+#### value
+
+The value to set to the fact.
+
+
+## InfernalEngine.infer([timeout], callback)
+
+This method launch the inference with the given optional timeout and a 
+callback executed when the inference is done.
+
+### Parameters
+
+#### [timeout]
+
+Optional parameter. Time out in milliseconds before stopping the inference 
+with a timeout error. If not set, uses the timeout from the given at 
+construction.
+
+#### callback
+
+Called when the inference is done. Prototype `function(err)`. Will receive 
+a value in the error parameter if something wrong happened during inference.
