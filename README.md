@@ -107,7 +107,7 @@ Optional parameter that sets the number of milliseconds given to the
 inference before timing out. Default 5000 ms.
 
 
-## addRule(ruleName, rule)
+## InfernalEngine.addRule(ruleName, rule)
 
 Adds a rule to the engine.
 
@@ -123,3 +123,22 @@ set will use the current rule home path (in the previous example
 #### rule
 
 A function that have a single argument (the done function).
+
+
+## InfernalEngine.get(factName)
+
+Gets the fact value of the given factName. The fact name can be relative (not
+starting by '/') or absolute (starting by '/'). In the context of a rule 
+execution, the current context is the same as the rule. Outside of a rule,
+the context is set to the root ('/').
+
+### Parameters
+
+#### factName
+
+The name of the fact we want to get.
+
+
+## InfernalEngine.set(factName, value)
+
+Sets a fact of the given factName to the given value.
