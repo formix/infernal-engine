@@ -45,20 +45,6 @@ describe("InfernalEngine", function() {
     });
 
 
-    describe("#set", function() {
-
-        it("should create a fact at 'company/department/employees/count'", 
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.set("company/department/employees/count", 10);
-            assert.equal(10, 
-                engine.getFacts().company.department.employees.count);
-            done();
-        });
-
-    });
-
-
     describe("#addRule", function() {
         
         it("should add a relation between fact 'i' and rule 'increment'", 
@@ -89,7 +75,16 @@ describe("InfernalEngine", function() {
     });
 
 
-    describe("#set('i', 1)", function() {
+    describe("#set", function() {
+
+        it("should create a fact at '/company/department/employees/count'", 
+        function(done) {
+            var engine = new InfernalEngine();
+            engine.set("company/department/employees/count", 10);
+            assert.equal(10, 
+                engine.getFacts().company.department.employees.count);
+            done();
+        });
 
         it("should add a rule named 'increment' to the agenda", 
         function(done) {
@@ -100,11 +95,32 @@ describe("InfernalEngine", function() {
             done();
         });
 
+
+        it("should not add the increment rule to the agenda when dates are " +
+           "the same",
+        function(done) {
+            var engine = new InfernalEngine();
+            engine.setFacts({
+                date: new Date(2016, 0, 1),
+                i: 1
+            });
+            engine.addRule("increment_new_date", function(end) {
+                var date = this.get("date");
+                var i = this.get("i") || 0;
+                if (date.getFullYear() > 2015) {
+                    i++;
+                }
+                this.set("i", i);
+            }); 
+            engine.set("/date", new Date(2016, 0, 1));
+            assert(!engine._agenda["/increment_new_date"], 
+                "Increment rule found in the agenda");
+            done();
+        });
     });
 
 
-
-    describe("#infer()", function() {
+    describe("#infer", function() {
 
         it("should set the fact 'i' to 5", function(done) {
             var engine = new InfernalEngine();
