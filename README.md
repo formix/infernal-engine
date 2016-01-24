@@ -171,3 +171,21 @@ construction.
 
 Called when the inference is done. Prototype `function(err)`. Will receive 
 a value in the error parameter if something wrong happened during inference.
+
+
+## InfernalEngine.getFacts()
+
+Returns a copy of the engine's runtime facts in a object.
+
+
+## InfernalEngine.setFacts(newFacts)
+
+Sets the internal facts to the given `newFacts` object. The `newFacts` object
+can be a subset of the current engine facts structure. Any value changed
+by this method call could add a rule to be executed in the agenda.
+
+### Paramters
+
+#### newFacts
+
+The fact object to be applied to the engine's runtime facts.
