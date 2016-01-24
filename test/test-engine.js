@@ -11,11 +11,11 @@ describe("InfernalEngine", function() {
         it("should get the fact value 'Hello world!' inside 'hello/world'", 
         function(done) {
             var engine = new InfernalEngine();
-            engine.facts = {
+            engine.setFacts ({
                 hello: {
                     world: "Hello world!"
                 }
-            };
+            });
             assert.equal(engine.get("hello/world"), "Hello world!")
             done();
         });
@@ -25,7 +25,7 @@ describe("InfernalEngine", function() {
            "'/root/parent/child1/../child2/value'",
         function(done) {
             var engine = new InfernalEngine();
-            engine.facts = {
+            engine.setFacts({
                 root: {
                     parent: {
                         child1: {
@@ -36,7 +36,7 @@ describe("InfernalEngine", function() {
                         }
                     }
                 }
-            };
+            });
             assert.equal("child2", engine.get("/root/parent/child1/" +
                 "../child2/value"));
             done();
@@ -51,7 +51,8 @@ describe("InfernalEngine", function() {
         function(done) {
             var engine = new InfernalEngine();
             engine.set("company/department/employees/count", 10);
-            assert.equal(10, engine.facts.company.department.employees.count);
+            assert.equal(10, 
+                engine.getFacts().company.department.employees.count);
             done();
         });
 
@@ -103,7 +104,7 @@ describe("InfernalEngine", function() {
 
 
 
-    describe("#infer", function() {
+    describe("#infer()", function() {
 
         it("should set the fact 'i' to 5", function(done) {
             var engine = new InfernalEngine();
@@ -117,6 +118,51 @@ describe("InfernalEngine", function() {
 
     });
 
+
+    describe("#getFacts", function() {
+    
+        it("should return a copy of the internal facts", function(done) {
+            var engine = new InfernalEngine();
+            engine.set("/first/object/name", "original");
+            engine.set("/first/object/value", 1);
+            
+            var facts = engine.getFacts();
+            facts.first.object.name = "modified";
+            facts.first.object.value = 2;
+            
+            assert.equal(engine.get("/first/object/name"), "original");
+            assert.equal(engine.get("/first/object/value"), 1);
+
+            done();
+        });
+    
+    });
+
+
+    describe("#setFacts", function() {
+    
+        it("should set multiple facts from an object", function(done) {
+            var obj = {
+                my: {
+                    first: {
+                        fact: "factName",
+                        value: 10
+                    },
+                    second: new Date(2016, 0, 23)
+                }
+            };
+
+            var engine = new InfernalEngine();
+            engine.setFacts(obj);
+            assert.equal(engine.get("/my/first/fact"), "factName");
+            assert.equal(engine.get("/my/first/value"), 10);
+            assert.equal(engine.get("my/second").getTime(), 
+                (new Date(2016, 0, 23)).getTime());
+
+            done();
+        });
+    
+    });
 
 });
 
