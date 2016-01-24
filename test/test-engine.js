@@ -65,7 +65,7 @@ describe("InfernalEngine", function() {
         function(done) {
             var engine = new InfernalEngine();
             engine.addRule(increment);
-            assert(engine.relations["/i"]["/increment"]);
+            assert(engine._relations["/i"]["/increment"]);
             done();
         });
 
@@ -96,7 +96,7 @@ describe("InfernalEngine", function() {
             var engine = new InfernalEngine();
             engine.addRule(increment); 
             engine.set("i", 1);
-            assert(engine.agenda["/increment"]);
+            assert(engine._agenda["/increment"]);
             done();
         });
 
