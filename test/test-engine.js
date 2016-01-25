@@ -180,6 +180,28 @@ describe("InfernalEngine", function() {
     
     });
 
+
+    describe("#load", function() {
+
+        it("should load a model and infer properly", function(done) {
+            var engine = new InfernalEngine();
+            engine.load({
+                sub: {
+                    i: 0,
+                    increment: increment
+                }
+            });
+
+            engine.set("/sub/i", 1);
+            engine.infer(function(err) {
+                assert.ifError(err);
+                assert.equal(engine.get("/sub/i"), 5);
+                done();
+            });
+        });
+
+    });
+
 });
 
 
