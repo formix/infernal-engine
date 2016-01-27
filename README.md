@@ -192,12 +192,17 @@ The fact object to be applied to the engine's runtime facts.
 
 ## InfernalEngine.load(model)
 
-Loads a model into the engine. A model is a javacript object that contains 
-both values and functions. Values are added as facts and function as rules
-within their respective contexts.
+Reset the current engine state and loads a model into the engine. A model
+is a javacript object that contains both values and functions. Values are 
+added as facts and function as rules within their respective contexts.
 
 ### Parameters
 
 #### model
 
 A model object composed of facts and rules to be added to the engine.
+
+
+## InfernalEngine.reset()
+
+Resets the engine to its initial state, except for `timeout`.
