@@ -137,7 +137,7 @@ describe("InfernalEngine", function() {
 
     describe("#getFacts", function() {
     
-        it("should return a copy of the internal facts", function(done) {
+        it("should return a copy of internal facts", function(done) {
             var engine = new InfernalEngine();
             engine.set("/first/object/name", "original");
             engine.set("/first/object/value", 1);
