@@ -202,6 +202,69 @@ describe("InfernalEngine", function() {
 
     });
 
+
+    describe("#getDiff", function() {
+    
+        var engine = new InfernalEngine();
+        engine.load({
+            a: 15,
+            b: {
+                c: "test",
+                d: 30,
+                r1: function(done) {
+                    var d = this.get("d");
+                    if (d > 100) {
+                        this.set("c", "TEST");
+                    } else {
+                        this.set("c", "test");
+                    }
+                    done();
+                },
+                r3: function(done) {
+                    var a = this.get("../a");
+                    if (a > 50) {
+                        this.set("msg", "a is greater than 50");
+                    }
+                    done();
+                }
+            },
+            r2: function(done) {
+                var a = this.get("a");
+                this.set("b/d", a * 2);
+                done();
+            }
+        });
+
+
+        it("should return the set of modified facts", function(done) {
+            engine.set("a", 40);
+            engine.infer(function(err) {
+                assert.ifError(err);
+                var diff = engine.getDiff();
+                assert.equal(
+                    JSON.stringify(diff), 
+                    '{"b":{"d":80}}');
+                done();
+            });
+        });
+
+
+        it("should return the set of modified facts, including the new one",
+        function(done) {
+            engine.set("a", 60);
+            engine.infer(function(err) {
+                assert.ifError(err);
+                var diff = engine.getDiff();
+                assert.equal(
+                    JSON.stringify(diff),
+                    '{"b":{"msg":"a is greater than 50","d":120,' +
+                    '"c":"TEST"}}');
+                done();
+            });
+        });
+    
+    });
+
 });
 
 
