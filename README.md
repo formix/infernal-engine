@@ -190,6 +190,12 @@ by this method call could add a rule to be executed in the agenda.
 
 The fact object to be applied to the engine's runtime facts.
 
+
+## InfernalEngine.getDiff()
+
+Returns the graph of modified facts. Facts modified during the last call
+to infer are returned as an object.
+
 ## InfernalEngine.load(model)
 
 Reset the current engine state and loads a model into the engine. A model
