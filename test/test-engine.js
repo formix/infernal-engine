@@ -265,6 +265,28 @@ describe("InfernalEngine", function() {
     
     });
 
+
+    describe("#startTracing", function() {
+
+        it("should set the fact 'i' to 5 and trace execution", function(done) {
+            var engine = new InfernalEngine();
+            engine.startTracing(function(data) {
+                console.log(JSON.stringify(data, null, "  "));
+            });
+            engine.addRule(increment); 
+            engine.set("i", 1);
+            engine.infer(function() {
+                assert.equal(engine.get("i"), 5);
+                done();
+            });
+        });
+
+    });
+
+
+
+
+
 });
 
 
