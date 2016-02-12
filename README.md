@@ -99,8 +99,6 @@ Then in your program, do `require('infernal-engine')`.
 
 Creates an InfernalEngine instance.
 
-### Parameters
-
 #### timeout
 
 Optional parameter that sets the number of milliseconds given to the
@@ -110,8 +108,6 @@ inference before timing out. Default 5000 ms.
 ## InfernalEngine.addRule(ruleName, rule)
 
 Adds a rule to the engine.
-
-### Parameters
 
 #### ruleName
 
@@ -132,8 +128,6 @@ starting by '/') or absolute (starting by '/'). In the context of a rule
 execution, the current context is the same as the rule. Outside of a rule,
 the context is set to the root ('/').
 
-### Parameters
-
 #### factName
 
 The name of the fact we want to get.
@@ -142,8 +136,6 @@ The name of the fact we want to get.
 ## InfernalEngine.set(factName, value)
 
 Sets a fact of the given factName to the given value.
-
-### Parameters
 
 #### factName
 
@@ -158,8 +150,6 @@ The value to set to the fact.
 
 This method launch the inference with the given optional timeout and a 
 callback executed when the inference is done.
-
-### Parameters
 
 #### [timeout]
 
@@ -184,8 +174,6 @@ Sets the internal facts to the given `newFacts` object. The `newFacts` object
 can be a subset of the current engine facts structure. Any value changed
 by this method call could add a rule to be executed in the agenda.
 
-### Paramters
-
 #### newFacts
 
 The fact object to be applied to the engine's runtime facts.
@@ -202,8 +190,6 @@ Reset the current engine state and loads a model into the engine. A model
 is a javacript object that contains both values and functions. Values are 
 added as facts and function as rules within their respective contexts.
 
-### Parameters
-
 #### model
 
 A model object composed of facts and rules to be added to the engine.
@@ -212,3 +198,25 @@ A model object composed of facts and rules to be added to the engine.
 ## InfernalEngine.reset()
 
 Resets the engine to its initial state, except for `timeout`.
+
+
+## InfernalEngine.startTracing(traceFunction)
+
+#### traceFunction
+
+A function that takes a single argument. This argument is a trace data object.
+
+**TraceData**
+
+| Property | Type   | Description |
+| ---      | ---    | ---         |
+| action   | string | Always present. Can be either 'set', 'infer', 'reset' or 'addRule' |
+| rule     | string | Present if **action** is 'addRule' or 'set' during inference. The rule that was added or that affected the fact. |
+| fact     | string | Present if **action** is 'set'. The fact full name affected by the change. |
+| oldValue | varies | Present if **action** is 'set' and if the former value where not *undefined*. The former value of the given fact. |
+| newValue | varies | Present if **action** is 'set' and if the new value is not *undefined*. |
+
+
+## InfernalEngine.stopTracing()
+
+Stops calling the trace function received in a previous call to *startTracing*.
