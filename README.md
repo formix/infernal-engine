@@ -207,6 +207,7 @@ Resets the engine to its initial state, except for `timeout`.
 A function that takes a single argument. This argument is a trace data object.
 
 **TraceData**
+
 | Property | Type   | Description |
 | ---      | ---    | ---         |
 | action   | string | Always present. Can be either 'set', 'infer', 'reset' or 'addRule' |
