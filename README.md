@@ -207,8 +207,8 @@ Resets the engine to its initial state, except for `timeout`.
 A function that takes a single argument. This argument is a trace data object.
 
 **TraceData**
-| Property | Type   |Description |
-| ---      | ---    | ---        |
+| Property | Type   | Description |
+| ---      | ---    | ---         |
 | action   | string | Always present. Can be either 'set', 'infer', 'reset' or 'addRule' |
 | rule     | string | Present if **action** is 'addRule' or 'set' during inference. The rule that was added or that affected the fact. |
 | fact     | string | Present if **action** is 'set'. The fact full name affected by the change. |
