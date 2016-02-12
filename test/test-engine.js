@@ -270,13 +270,30 @@ describe("InfernalEngine", function() {
 
         it("should set the fact 'i' to 5 and trace execution", function(done) {
             var engine = new InfernalEngine();
+
+            var logs = [];
             engine.startTracing(function(data) {
-                console.log(JSON.stringify(data, null, "  "));
+                logs.push(JSON.stringify(data));
             });
+
+            var expectedLogs = [
+                '{"action":"addRule","rule":"/increment"}',
+                '{"action":"set","fact":"/i","newValue":1}',
+                '{"action":"infer"}',
+                '{"action":"set","rule":"/increment","fact":"/i","oldValue":1,"newValue":2}',
+                '{"action":"set","rule":"/increment","fact":"/i","oldValue":2,"newValue":3}',
+                '{"action":"set","rule":"/increment","fact":"/i","oldValue":3,"newValue":4}',
+                '{"action":"set","rule":"/increment","fact":"/i","oldValue":4,"newValue":5}'
+            ];
+
             engine.addRule(increment); 
             engine.set("i", 1);
+
             engine.infer(function() {
-                assert.equal(engine.get("i"), 5);
+                assert.equal(logs.length, expectedLogs.length);
+                for (var i = 0; i < logs.length; i++) {
+                    assert.equal(logs[i], expectedLogs[i]);
+                }   
                 done();
             });
         });
