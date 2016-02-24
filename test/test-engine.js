@@ -312,6 +312,23 @@ describe("InfernalEngine", function() {
             });
         });
 
+
+        it("should not cause a problem to start tracing before loading a model",
+        function(done) {
+            var engine = new InfernalEngine();
+            
+            var logs = [];
+            engine.startTracing(function(data) {
+                logs.push(JSON.stringify(data));
+            });
+
+            engine.load({
+                test: 'a'
+            });
+
+            done();
+        });
+
     });
 
 
