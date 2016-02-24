@@ -200,6 +200,20 @@ describe("InfernalEngine", function() {
             });
         });
 
+
+        it("should not make an object from an array", function(done) {
+            
+            var engine = new InfernalEngine();
+            engine.load({
+                arr: ['A', 'B', 'C']
+            });
+
+            assert(engine.get("/arr") instanceof Array, 
+                "The fact 'arr' should be an array.");
+
+            done();
+        });
+
     });
 
 
