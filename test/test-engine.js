@@ -346,6 +346,76 @@ describe("InfernalEngine", function() {
 
 
 
+    describe("#notify", function() {
+    
+        it("should add the validate rule in the agenda", function(done) {
+            
+            var engine = new InfernalEngine();
+            engine.load({
+                size: {
+                    value: "",
+                    options: ["", "Small", "Medium", "Large"],
+                    validate: function(done) {
+                        var value = this.get("value");
+                        var options = this.get("options");
+                        var index = options.indexOf(value);
+                        if (index === -1) {
+                            done("Invalid Option");
+                        }
+                        done();
+                    }
+                }
+            });
+
+            engine.get("/size/options")[0] = "Tiny";
+            engine.notify("/size/options");
+
+            engine.infer(function(err) {
+                assert.equal(err, "Invalid Option");
+                done();
+            });
+            
+        });
+
+
+        it("should add the validate rule in the agenda during inference", 
+        function(done) {
+            
+            var engine = new InfernalEngine();
+            engine.load({
+                size: {
+                    value: "",
+                    options: ["", "Small", "Medium", "Large"],
+                    validate: function(done) {
+                        var value = this.get("value");
+                        var options = this.get("options");
+                        var index = options.indexOf(value);
+                        if (index === -1) {
+                            done("Invalid Option");
+                        }
+                        done();
+                    }
+                },
+
+                newValueTrigger: function(done) {
+                    var newValue = this.get("newValue"); 
+                    engine.get("/size/options")[0] = newValue;
+                    engine.notify("/size/options");
+                    done();
+                }
+            });
+
+            engine.set("newValue", "Tiny");
+
+            engine.infer(function(err) {
+                assert.equal(err, "Invalid Option");
+                done();
+            });
+            
+        });
+        
+    
+    });
 
 
 });
