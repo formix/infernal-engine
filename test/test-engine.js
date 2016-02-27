@@ -417,7 +417,6 @@ describe("InfernalEngine", function() {
     
     });
 
-
 });
 
 
