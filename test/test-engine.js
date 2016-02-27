@@ -151,6 +151,19 @@ describe("InfernalEngine", function() {
 
             done();
         });
+
+
+        it("should return arrays as array, not as objects", function(done) {
+           
+            var engine = new InfernalEngine();
+            engine.setFacts({
+                arr: ["a", "b", "c"]
+            })
+            var data = engine.getFacts();
+            assert(data.arr instanceof Array, 
+                "The arr property should be an array.");
+            done();
+        });
     
     });
 
