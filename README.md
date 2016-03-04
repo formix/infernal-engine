@@ -1,4 +1,4 @@
-infernal-engine
+Infernal Engine
 ===============
 
 This is the first JavaScript inference engine implementation around. The 
@@ -8,27 +8,11 @@ are used for many artificial intelligence implementations based on knowledge.
 Video games use it to script opponents character AI and industries 
 use the concept to configure complex manufacturing products.
 
-Update Notes
-============
-
-## Version 0.10
-
-This version is a major rewrite of the engine. After a year of self education
-and some professional project developed in NodeJS, I rewrote the library. You 
-will see a lot of algorithmic improvements (if you care about my source code)
-and a better asynchronous API. The major change is the way to declare rule 
-and fact names. Instead of using the "dot" notation (i.e. 
-"department.marketting.updateScore"), we switched to a directory like notation
-(i.e. "/department/marketting/updateScore"). This is a great improvement since
-it is now possible to access facts relative to the current rule context,
-specifiy fact by its absolute name (starting with "/") and move up in the path
-using "..". See the *Usage* section below for more information.
-
 
 Usage
 =====
 
-## Example
+## Using The Engine
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -36,15 +20,15 @@ var engine = new InfernalEngine();
 
 // Adds a rule named "increment" to increment the value of 'i' up to 5.
 engine.addRule("increment", function(done) {
-	var i = this.get("i");
-	if (i < 5) {
-		i++;
-	} else if (i > 5) {
+    var i = this.get("i");
+    if (i < 5) {
+        i++;
+    } else if (i > 5) {
         done(new Error("'i' must be lower or equal to 5."));
         return;
     }
-	this.set("i", i);
-	done();
+    this.set("i", i);
+    done();
 });
 
 // Set a value to the fact "i"
@@ -56,10 +40,91 @@ engine.infer(function(err) {
         console.log(err);
         return;
     }
-	// will print "5"
-	console.log(engine.get("i"));
+    
+    // will print "5"
+    console.log(engine.get("i"));
 });
 ```
+
+
+## Defining a Model
+
+A model is a way to define rules and facts using a simple Javascript object.
+Usually, a model is defined in its own Node module. Alternatively, a single
+module could export a set of related models in the same exports.
+
+```javascript
+// module character.js
+
+module.exports = {
+    playerName: "",
+    name: "",
+
+    race: {
+        selected: "human",
+        options: ["human", "elf", "dwarf", "halfling", "gnome"],
+        valid: true;
+
+        validate: validateSelection
+    },
+
+    class: {
+        selected: "wizard",
+        options: ["fighter", "wizard", "cleric", "rogue"],
+        valid: true,
+
+        validate: validateSelection,
+        
+        updateOptions: function(done) {
+            // update available classes based on AD&D 1st and 2nd edition
+            var race = this.get("../race/selected");
+            var options = [];
+            if (race === "dwarf" || race === "halfling") {
+                options = ["fighter", "rogue"];
+            } else if (race === "elf" || race === "gnome") {
+                options = ["fighter", "rogue", "wizard"];
+            } else if (race === "human") {
+                options: ["fighter", "wizard", "cleric", "rogue"],
+            }
+            this.set("options", options);
+            done();
+        }
+    }
+};
+
+
+function validateSelection(done) {
+    var selected = this.get("selected");
+    var options = this.get("options");
+    var index = options.indexOf(selected);
+    var valid = (index > -1);
+    this.set("valid", valid);
+    done();
+}
+```
+
+The previous example will insure that the selected option is valid for both
+race and class. This is done using the same function reference 
+`validateSelection` as the validation rule.
+
+With the *Infernal Engine* You can reuse predefined functions
+anywhere in your model as long as the model's fact structure supports that rule
+reference requirements. Each rule is executed in its own context, even if the
+same reference is used.
+
+Changing the `race` value for "halfling" will in turn:
+
+ 1. launch the rule "/race/validate"
+ 2. set the fact "/race/valid" to true
+ 3. launch the rule "/class/updateOptions"
+ 4. change the fact "/class/options" to ["fighter", "rogue"]
+ 5. launch the rule "/class/validate"
+ 6. set the fact "/class/valid" to false
+
+So changin the race from "human" to "halfling" while keeping the class 
+"wizard" puts the character class in an invalid state since an halfling cannot
+be a wizard!
+
 
 ## Calling `done` Within a Rule
 
@@ -89,134 +154,3 @@ It is also possible to move up in the current context using "..". For example,
 given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
 `../liftCapacity` will let the `checkPhaseCount` access `/hoist/liftCapacity`. 
 
-InfernalEngine
-==============
-
-To use this module, install it by calling `npm install infernal-engine --save`.
-Then in your program, do `require('infernal-engine')`.
-
-## Constructor InfernalEngine([timeout])
-
-Creates an InfernalEngine instance.
-
-#### timeout
-
-Optional parameter that sets the number of milliseconds given to the
-inference before timing out. Default 5000 ms.
-
-
-## InfernalEngine.addRule(ruleName, rule)
-
-Adds a rule to the engine.
-
-#### ruleName
-
-The rule name must be a full path to that rule. For example: 
-"/engine/frame/maxWidth". Within the rule function, all usages to get and
-set will use the current rule home path (in the previous example 
-"/engine/frame/") to access facts.
-
-#### rule
-
-A function that have a single argument (the done function).
-
-
-## InfernalEngine.get(factName)
-
-Gets the fact value of the given factName. The fact name can be relative (not
-starting by '/') or absolute (starting by '/'). In the context of a rule 
-execution, the current context is the same as the rule. Outside of a rule,
-the context is set to the root ('/').
-
-#### factName
-
-The name of the fact we want to get.
-
-
-## InfernalEngine.set(factName, value)
-
-Sets a fact of the given factName to the given value.
-
-#### factName
-
-The name of the fact we want to get.
-
-#### value
-
-The value to set to the fact.
-
-
-## InfernalEngine.infer([timeout], callback)
-
-This method launch the inference with the given optional timeout and a 
-callback executed when the inference is done.
-
-#### [timeout]
-
-Optional parameter. Time out in milliseconds before stopping the inference 
-with a timeout error. If not set, uses the timeout from the given at 
-construction.
-
-#### callback
-
-Called when the inference is done. Prototype `function(err)`. Will receive 
-a value in the error parameter if something wrong happened during inference.
-
-
-## InfernalEngine.getFacts()
-
-Returns a copy of the engine's runtime facts in a object.
-
-
-## InfernalEngine.setFacts(newFacts)
-
-Sets the internal facts to the given `newFacts` object. The `newFacts` object
-can be a subset of the current engine facts structure. Any value changed
-by this method call could add a rule to be executed in the agenda.
-
-#### newFacts
-
-The fact object to be applied to the engine's runtime facts.
-
-
-## InfernalEngine.getDiff()
-
-Returns the graph of modified facts. Facts modified during the last call
-to infer are returned as an object.
-
-## InfernalEngine.load(model)
-
-Reset the current engine state and loads a model into the engine. A model
-is a javacript object that contains both values and functions. Values are 
-added as facts and function as rules within their respective contexts.
-
-#### model
-
-A model object composed of facts and rules to be added to the engine.
-
-
-## InfernalEngine.reset()
-
-Resets the engine to its initial state, except for `timeout`.
-
-
-## InfernalEngine.startTracing(traceFunction)
-
-#### traceFunction
-
-A function that takes a single argument. This argument is a trace data object.
-
-**TraceData**
-
-| Property | Type   | Description |
-| ---      | ---    | ---         |
-| action   | string | Always present. Can be either 'set', 'infer', 'reset' or 'addRule' |
-| rule     | string | Present if **action** is 'addRule' or 'set' during inference. The rule that was added or that affected the fact. |
-| fact     | string | Present if **action** is 'set'. The fact full name affected by the change. |
-| oldValue | varies | Present if **action** is 'set' and if the former value where not *undefined*. The former value of the given fact. |
-| newValue | varies | Present if **action** is 'set' and if the new value is not *undefined*. |
-
-
-## InfernalEngine.stopTracing()
-
-Stops calling the trace function received in a previous call to *startTracing*.
