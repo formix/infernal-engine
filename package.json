@@ -21,9 +21,11 @@
     "url": "https://github.com/formix/infernal-engine.git"
   },
   "scripts": {
+    "dist": "webpack",
     "test": "node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "mocha": "^2.4.2"
+    "mocha": "^2.4.2",
+    "webpack": "^1.12.14"
   }
 }
