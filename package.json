@@ -4,7 +4,7 @@
   "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
-    "inference engine",
+    "engine",
     "expert",
     "system",
     "artificial",
@@ -22,7 +22,8 @@
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/_mocha",
-    "dist": "webpack"
+    "dist": "webpack",
+    "doc": "jsdoc -r %home%/src/infernal-engine/lib %home%/src/infernal-engine/README.md -d %home%/src/infernal-engine/doc"
   },
   "devDependencies": {
     "mocha": "^2.4.2",
