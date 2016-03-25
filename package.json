@@ -1,7 +1,7 @@
 {
   "name": "infernal-engine",
   "version": "0.15.0",
-  "description": "Easy inference engine for Javascript",
+  "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
     "inference engine",
@@ -21,9 +21,11 @@
     "url": "https://github.com/formix/infernal-engine.git"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/_mocha"
+    "test": "./node_modules/mocha/bin/_mocha",
+    "dist": "webpack"
   },
   "devDependencies": {
-    "mocha": "^2.4.2"
+    "mocha": "^2.4.2",
+    "webpack": "^1.12.14"
   }
 }
