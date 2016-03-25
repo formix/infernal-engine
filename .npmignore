@@ -4,5 +4,7 @@
 .jshintrc
 .project
 .tern-project
+.travis.yml
 test
 tmp
+doc

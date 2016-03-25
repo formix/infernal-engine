@@ -1,0 +1,9 @@
+{
+    "source": {
+        "include": ["lib", "README.md"]
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "doc"
+    }
+}

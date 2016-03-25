@@ -1,10 +1,10 @@
 {
   "name": "infernal-engine",
-  "version": "0.14.2",
-  "description": "Easy inference engine for Javascript",
+  "version": "0.15.0",
+  "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
-    "inference engine",
+    "engine",
     "expert",
     "system",
     "artificial",
@@ -12,17 +12,18 @@
     "ai"
   ],
   "license": "MIT",
-  "author": "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
+  "author": "Jean-Philippe Gravel <jpg@formix.org>",
   "main": "lib/index.js",
-  "homepage": "https://github.com/formix/infernal-engine",
+  "homepage": "http://infernal-engine.formix.org",
   "bugs": "https://github.com/formix/infernal-engine/issues",
   "repository": {
     "type": "git",
     "url": "https://github.com/formix/infernal-engine.git"
   },
   "scripts": {
+    "test": "./node_modules/mocha/bin/_mocha",
     "dist": "webpack",
-    "test": "node_modules/mocha/bin/mocha"
+    "doc": "jsdoc -r %home%/src/infernal-engine/lib %home%/src/infernal-engine/README.md -d %home%/src/infernal-engine/doc"
   },
   "devDependencies": {
     "mocha": "^2.4.2",
