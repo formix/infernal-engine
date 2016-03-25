@@ -11,7 +11,7 @@ systems are used for many artificial intelligence implementations based on
 knowledge. Video games use it to script opponents character AI and industries
 use the concept to configure complex manufacturing products.
 
-[Documentation Home](http://infernal-engine.formix.org)
+[InfernalEngine class Reference](http://infernal-engine.formix.org/InfernalEngine.html)
 
 Usage
 =====
