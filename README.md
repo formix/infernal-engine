@@ -3,8 +3,6 @@ Infernal Engine
 
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
 
-[Documentation Home](infernal-engine.formix.org)
-
 This is the first open source JavaScript inference engine implementation
 around. The engine is developed using NodeJS. An inference engine is a tool
 to build [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
@@ -12,6 +10,7 @@ systems are used for many artificial intelligence implementations based on
 knowledge. Video games use it to script opponents character AI and industries
 use the concept to configure complex manufacturing products.
 
+[Documentation Home](http://infernal-engine.formix.org)
 
 Usage
 =====
