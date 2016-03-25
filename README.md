@@ -154,3 +154,4 @@ It is also possible to move up in the current context using "..". For example,
 given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
 `../liftCapacity` within `checkPhaseCount` will access `/hoist/liftCapacity`.
 
+
