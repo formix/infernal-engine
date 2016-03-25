@@ -1,11 +1,11 @@
 Infernal Engine
 ===============
 
-This is the first JavaScript inference engine implementation around. The 
-engine is developed using NodeJS. An inference engine is a tool to build 
-[expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert systems 
-are used for many artificial intelligence implementations based on knowledge.
-Video games use it to script opponents character AI and industries 
+This is the first open source JavaScript inference engine implementation
+around. The engine is developed using NodeJS. An inference engine is a tool
+to build [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
+systems are used for many artificial intelligence implementations based on
+knowledge. Video games use it to script opponents character AI and industries
 use the concept to configure complex manufacturing products.
 
 
@@ -51,7 +51,7 @@ engine.infer(function(err) {
 
 A model is a way to define rules and facts using a simple Javascript object.
 Usually, a model is defined in its own Node module. Alternatively, a single
-module could export a set of related models in the same exports.
+module could export a set of related models in the same export.
 
 ```javascript
 // module character.js
@@ -129,7 +129,7 @@ be a wizard!
 ## Calling `done` Within a Rule
 
 You must call the `done` callback to tell the inference engine that the current
-rule finished executing. Otherwise, the engine will wait until it timeout. You
+rule finished executing. Otherwise, the engine will wait idle until timeout. You
 can call the `done` callback with a single error parameter. This will stop the
 inference and call the `infer` callback with the error parameter you have set.
 
@@ -148,9 +148,9 @@ rule context. To refer to a relative fact, use the fact context without the
 leading "/" in the fact name. For eaxmple a rule named 
 `/hoist/engine/checkPhaseCount` is within the base context 
 `/hoist/engine/`. Accessing any fact without a leading "/", will 
-prepend the given base context. 
+prepend the current rule context to the referenced fact. 
 
 It is also possible to move up in the current context using "..". For example,
 given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
-`../liftCapacity` will let the `checkPhaseCount` access `/hoist/liftCapacity`. 
+`../liftCapacity` within `checkPhaseCount` will access `/hoist/liftCapacity`.
 
