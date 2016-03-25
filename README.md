@@ -1,6 +1,10 @@
 Infernal Engine
 ===============
 
+[![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
+
+[Documentation Home](infernal-engine.formix.org)
+
 This is the first open source JavaScript inference engine implementation
 around. The engine is developed using NodeJS. An inference engine is a tool
 to build [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
