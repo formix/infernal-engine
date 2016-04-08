@@ -135,6 +135,20 @@ describe("InfernalEngine", function() {
     });
 
 
+    describe("#set (with callback)", function() {
+
+        it("should execute the callback after the set is done.", function(done) {
+            var engine = new InfernalEngine();
+            engine.addRule(increment); 
+            engine.set("i", 1, function(err, changes) {
+                assert.equal(changes.i, 5);
+                done();
+            });
+        });
+
+    });
+
+
     describe("#getFacts", function() {
     
         it("should return a copy of internal facts", function(done) {
