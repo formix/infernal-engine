@@ -141,7 +141,7 @@ describe("InfernalEngine", function() {
             var engine = new InfernalEngine();
             engine.addRule(increment); 
             engine.set("i", 1, function(err, changes) {
-                assert.equal(changes.i, 5);
+                assert.equal(changes["/i"], 5);
                 done();
             });
         });
