@@ -1,6 +1,6 @@
 {
   "name": "infernal-engine",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "Javascript Inference Engine",
   "keywords": [
     "inference",

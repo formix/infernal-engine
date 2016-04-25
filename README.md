@@ -107,6 +107,8 @@ function validateSelection(done) {
 }
 ```
 
+[Try it here!](https://tonicdev.com/5708161aed8bd01200bfc216/571e50620ec3e81700655fd1)
+
 The previous example will insure that the selected option is valid for both
 race and class. This is done using the same function reference 
 `validateSelection` as the validation rule.
