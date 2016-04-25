@@ -83,7 +83,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._facts     = {}; // Graph of facts
 	    this._rules     = {}; // Map between rule names and rules (function)
 	    this._relations = {}; // Map between fact names and all related rules
-	    this._diffFacts = null; // A map of fact names that changed
+	    this._changes   = null; // A map of fact names that changed
 	    this._trace     = null; // the tracing function
 	    this._agenda    = new Agenda();
 	    this._infering  = false;
@@ -103,7 +103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._facts     = {};
 	    this._rules     = {};
 	    this._relations = {};
-	    this._diffFacts = null;
+	    this._changes   = null;
 	    this._agenda    = new Agenda();
 	    this._infering  = false;
 	    if (typeof this._trace === "function") {
@@ -141,21 +141,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *
 	 * @param {string} factName - The fact name.
 	 * @param {*} value - The fact value to be set.
+	 * @param {function} [callback] - 
+	 *        The callback(err, changes). Tha changes object is a mapping between
+	 *        every fact names and their final value.
 	 */
-	InfernalEngine.prototype.set = function(factName, value) {
+	InfernalEngine.prototype.set = function(factName, value, callback) {
 	   
 	    if (factName.charAt(0) !== "/") {
-	        return this.set("/" + factName, value);
+	        return this.set("/" + factName, value, callback);
 	    }
 	
 	    var oldValue = this.get(factName);
 	    if (!utils.equals(oldValue, value)) {
 	        var fact = utils.digPath.call(this, this._facts, factName, true);
 	        
-	        if (this._diffFacts) {
-	            this._diffFacts[fact.fullName] = true;
+	        if (this._changes) {
+	            this._changes[fact.fullName] = value;
 	        }
-	        
+	
 	        var oldValue = fact.data[fact.name];
 	        fact.data[fact.name] = value;
 	        
@@ -169,6 +172,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    oldValue: oldValue,
 	                    newValue: value
 	                });
+	            }).bind(this));
+	        }
+	
+	        if (callback) {
+	            this.infer((function(err) {
+	                if (err) {
+	                    callback(err);
+	                    return;
+	                }
+	                callback(null, this.getChanges());
 	            }).bind(this));
 	        }
 	    }
@@ -260,13 +273,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	InfernalEngine.prototype.getDiff = function() {
 	    var diff = {};
-	    for (var factName in this._diffFacts) {
+	    for (var factName in this._changes) {
 	        var fact = utils.digPath(diff, factName, true);
 	        fact.data[fact.name] = this.get(factName);
 	    }
 	    return diff;
 	};
 	
+	
+	/**
+	 * Gets an object mapping the fact full name to the last change the given
+	 * fact got through.
+	 *
+	 * @returns {object} A map of fact paths and their corresponding values.
+	 */
+	InfernalEngine.prototype.getChanges = function() {
+	    return utils.deepCopy(this._changes);
+	};
 	
 	/**
 	 * Gets a deep copy of the internal facts object. When a fact contains an 
@@ -339,7 +362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    if (timeout > 0 ) {
 	        this._infering = true;
-	        this._diffFacts = {};
+	        this._changes = {};
 	        this.timeoutId = setTimeout((function() {
 	            this._infering = false;
 	            callback(new Error( 
