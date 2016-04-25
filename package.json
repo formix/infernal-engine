@@ -1,6 +1,6 @@
 {
   "name": "infernal-engine",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
@@ -23,7 +23,7 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/_mocha",
     "dist": "webpack",
-    "doc": "jsdoc -r %home%/src/infernal-engine/lib %home%/src/infernal-engine/README.md -d %home%/src/infernal-engine/doc"
+    "doc": "jsdoc -c %INFERNAL_SRC%/jsdoc/conf.json -r %INFERNAL_SRC%/lib %INFERNAL_SRC%/README.md -d %INFERNAL_SRC%/../infernal-engine-pages"
   },
   "devDependencies": {
     "mocha": "^2.4.2",
