@@ -17,7 +17,7 @@
     "Jean-Philippe Gravel <jpg@formix.org>"
   ],
   "license": "MIT",
-  "homepage": "infernal-engine.formix.org",
+  "homepage": "http://infernal-engine.formix.org",
   "ignore": [
     "**/.*",
     "node_modules",
