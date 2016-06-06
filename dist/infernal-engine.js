@@ -320,15 +320,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	/**
-	 * Loads a model into the engine. This operation resets the engine and loads
-	 * that model's properties as facts and methods as rules.
+	 * Loads a model into the engine. This operation loads specified model's 
+	 * fields as facts and methods as rules.
 	 *
 	 * @param {object} model - A model object containing facts and rules.
 	 *
 	 * @returns {InfernalEngine} A reference to "this" object for method chaining.
 	 */
 	InfernalEngine.prototype.load = function(model) {
-	    this.reset();
 	    applyFacts.call(this, "", model, true);
 	    return this;
 	};
@@ -356,7 +355,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (this._agenda.isEmpty()) {
 	        this._infering = false;
 	        clearTimeout(this.timeoutId);
-	        callback();
+	        callback(null, this._changes);
 	        return;
 	    }
 	
@@ -473,6 +472,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (rules.hasOwnProperty(ruleName) && 
 	                    (typeof this._agenda[ruleName] === "undefined")) {
 	                this._agenda[ruleName] = new EngineProxy(this, ruleName);
+	                if (typeof this._trace === "function") {
+	                    process.nextTick((function() {
+	                        this._trace({
+	                            action: "agendaUpdate",
+	                            rule: ruleName
+	                        });
+	                    }).bind(this));
+	                }
 	            }
 	        }
 	    }
@@ -522,7 +529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  * @callback traceCallback
 	  * @param {object} trace - The trace data.
 	  * @param {string} trace#action - Can be either 'reset', 'set', 'notify', 
-	  *                                'addRule', 'infer' or 'trace'.
+	  *                                'addRule', 'infer', 'agendaUpdate' or 'trace'.
 	  * @param {string} [trace#rule] - The rule name that generated the trace. This
 	  *                                property is undefined if the trace was not
 	  *                                generated during inference.
@@ -533,7 +540,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  * @param {*} [trace#newValue]  - The new value of the fact if trace action 
 	  *                                is 'set' or 'notify'.
 	  * @param {string} [trace#message] - The message sent by the 
-	  *                                {@ling EngineProxy#trace} method if trace
+	  *                                {@link EngineProxy#trace} method if trace
 	  *                                action is 'trace'.
 	  */
 	
