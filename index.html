@@ -45,27 +45,29 @@
     <section>
         <article><h1>Infernal Engine</h1><p><a href="https://gitter.im/formix/infernal-engine?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/formix/infernal-engine.svg" alt="Join the chat at https://gitter.im/formix/infernal-engine"></a>
 <a href="https://travis-ci.org/formix/infernal-engine"><img src="https://travis-ci.org/formix/infernal-engine.svg?branch=master" alt="Build Status"></a></p>
-<p>This is the first open source JavaScript inference engine implementation
-around. The engine is developed using NodeJS. An inference engine is a tool
-to build <a href="http://en.wikipedia.org/wiki/Expert_system">expert systems</a>. Expert
+<p>This is the simplest and most efficient open source JavaScript inference 
+engine implementation around. The engine is developed using NodeJS. An 
+inference engine is a tool to build 
+<a href="http://en.wikipedia.org/wiki/Expert_system">expert systems</a>. Expert
 systems are used for many artificial intelligence implementations based on
 knowledge. Video games use it to script opponents character AI and industries
-use the concept to configure complex manufacturing products.</p>
+use the concept to configure complex manufacturing products. You can even use
+Infernal Engine to drive your web page UI rendering since it is now a Bower 
+package!</p>
 <p><a href="http://infernal-engine.formix.org/InfernalEngine.html">InfernalEngine class Reference</a></p>
 <h1>Usage</h1><h2>Using The Engine</h2><pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
 var engine = new InfernalEngine();
 
 // Adds a rule named &quot;increment&quot; to increment the value of 'i' up to 5.
-engine.addRule(&quot;increment&quot;, function(done) {
+engine.addRule(&quot;increment&quot;, function(next) {
     var i = this.get(&quot;i&quot;);
     if (i &lt; 5) {
         i++;
     } else if (i > 5) {
-        done(new Error(&quot;'i' must be lower or equal to 5.&quot;));
-        return;
+        return next(new Error(&quot;'i' must be lower or equal to 5.&quot;));
     }
     this.set(&quot;i&quot;, i);
-    done();
+    return next();
 });
 
 // Set a value to the fact &quot;i&quot;
@@ -104,7 +106,7 @@ module.exports = {
 
         validate: validateSelection,
 
-        updateOptions: function(done) {
+        updateOptions: function(next) {
             // update available classes based on AD&D 1st and 2nd edition
             var race = this.get(&quot;../race/selected&quot;);
             var options = [];
@@ -116,19 +118,19 @@ module.exports = {
                 options: [&quot;fighter&quot;, &quot;wizard&quot;, &quot;cleric&quot;, &quot;rogue&quot;],
             }
             this.set(&quot;options&quot;, options);
-            done();
+            return next();
         }
     }
 };
 
 
-function validateSelection(done) {
+function validateSelectionnext {
     var selected = this.get(&quot;selected&quot;);
     var options = this.get(&quot;options&quot;);
     var index = options.indexOf(selected);
     var valid = (index > -1);
     this.set(&quot;valid&quot;, valid);
-    done();
+    return next();
 }</code></pre><p><a href="https://tonicdev.com/5708161aed8bd01200bfc216/571e50620ec3e81700655fd1">Try it here!</a></p>
 <p>The previous example will insure that the selected option is valid for both
 race and class. This is done using the same function reference 
@@ -149,10 +151,20 @@ same reference is used.</p>
 <p>So changin the race from &quot;human&quot; to &quot;halfling&quot; while keeping the class 
 &quot;wizard&quot; puts the character class in an invalid state since an halfling cannot
 be a wizard!</p>
-<h2>Calling <code>done</code> Within a Rule</h2><p>You must call the <code>done</code> callback to tell the inference engine that the current
-rule finished executing. Otherwise, the engine will wait idle until timeout. You
-can call the <code>done</code> callback with a single error parameter. This will stop the
-inference and call the <code>infer</code> callback with the error parameter you have set.</p>
+<h2>Calling <code>next</code> Within a Rule</h2><p>You must return the call to the <code>next</code> callback to instruct the inference 
+engine to execute the next inference step then to exit the current rule. 
+Not returning the <code>next</code> result will cause a timeout error. See code 
+examples above for details.</p>
+<p>You can call the <code>next</code> callback with a single parameter. This will stop the 
+inference and call the initial <code>infer</code> callback with the parameter you have 
+set. Calling next with a parameter instruct the engine that an error happened
+during the rule inference.</p>
+<p><strong>Never execute the</strong> <code>next</code> <strong>callback without returning its result.</strong></p>
+<p><em>Note that this is not a breaking change from version 0.16.2. I introduce the
+<code>return next()</code> paradigm to insure that <code>next</code> (same thing as <code>done</code>) is never
+called twice within the same rule and that the programmer do not forget to
+exit the rule after calling <code>next</code>. The engine does nothing with the result 
+of the <code>next</code> function execution.</em></p>
 <h2>Absolute Fact Reference</h2><p>Absolute fact reference involves using a fact full name, including the 
 leading &quot;/&quot;. As a convention, a fact can be contextualized using a directory
 like notation. For example: <code>/character/race</code> implies that the &quot;race&quot; fact is
@@ -183,7 +195,7 @@ given the rule <code>/hoist/motor/checkPhaseCount</code> accessing the fact
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Jun 05 2016 22:29:54 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Aug 16 2016 13:53:04 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
