@@ -58,10 +58,10 @@ describe("InfernalEngine", function() {
         it("should add a rule that uses relative path correctly",
         function(done) {
             var engine = new InfernalEngine();
-            engine.addRule("/units/convert_lbs_to_kg", function(done) {
+            engine.addRule("/units/convert_lbs_to_kg", function(next) {
                 var lbs = this.get("lbs");
                 this.set("kg", lbs / 2.2);
-                done();
+                return next();
             });
             engine.set("/units/lbs", 110);
             engine.infer(function(err) {
@@ -252,27 +252,27 @@ describe("InfernalEngine", function() {
             b: {
                 c: "test",
                 d: 30,
-                r1: function(done) {
+                r1: function(next) {
                     var d = this.get("d");
                     if (d > 100) {
                         this.set("c", "TEST");
                     } else {
                         this.set("c", "test");
                     }
-                    done();
+                    return next();
                 },
-                r3: function(done) {
+                r3: function(next) {
                     var a = this.get("../a");
                     if (a > 50) {
                         this.set("msg", "a is greater than 50");
                     }
-                    done();
+                    return next();
                 }
             },
-            r2: function(done) {
+            r2: function(next) {
                 var a = this.get("a");
                 this.set("b/d", a * 2);
-                done();
+                return next();
             }
         });
 
@@ -375,14 +375,14 @@ describe("InfernalEngine", function() {
                 size: {
                     value: "",
                     options: ["", "Small", "Medium", "Large"],
-                    validate: function(done) {
+                    validate: function(next) {
                         var value = this.get("value");
                         var options = this.get("options");
                         var index = options.indexOf(value);
                         if (index === -1) {
-                            done("Invalid Option");
+                            return next("Invalid Option");
                         }
-                        done();
+                        return next();
                     }
                 }
             });
@@ -406,14 +406,14 @@ describe("InfernalEngine", function() {
                 size: {
                     value: "",
                     options: ["", "Small", "Medium", "Large"],
-                    validate: function(done) {
+                    validate: function(next) {
                         var value = this.get("value");
                         var options = this.get("options");
                         var index = options.indexOf(value);
                         if (index === -1) {
-                            done("Invalid Option");
+                            return next("Invalid Option");
                         }
-                        done();
+                        return next();
                     }
                 },
 
@@ -441,13 +441,13 @@ describe("InfernalEngine", function() {
 
 
 
-function increment(done) {
+function increment(next) {
     var i = this.get("i");
     if (i < 5) {
         i++;
     }
     this.set("i", i);
-    done();
+    return next();
 }
 
 

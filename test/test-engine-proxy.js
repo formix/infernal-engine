@@ -6,15 +6,15 @@ describe("EngineProxy", function() {
 
     describe("#trace", function() {
 
-        it("shall trace a message during inference", function(done) {
+        it("should trace a message during inference", function(done) {
             
             var engine = new InfernalEngine();
             engine.load({
                
-                testTrace: function(done) {
+                testTrace: function(next) {
                     var msg = this.get("msg");
                     this.trace(msg);
-                    done();
+                    return next();
                 }
 
             });

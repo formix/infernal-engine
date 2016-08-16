@@ -4,12 +4,15 @@ Infernal Engine
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
 
-This is the first open source JavaScript inference engine implementation
-around. The engine is developed using NodeJS. An inference engine is a tool
-to build [expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
+This is the simplest and most efficient open source JavaScript inference 
+engine implementation around. The engine is developed using NodeJS. An 
+inference engine is a tool to build 
+[expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
 systems are used for many artificial intelligence implementations based on
 knowledge. Video games use it to script opponents character AI and industries
-use the concept to configure complex manufacturing products.
+use the concept to configure complex manufacturing products. You can even use
+Infernal Engine to drive your web page UI rendering since it is now a Bower 
+package!
 
 [InfernalEngine class Reference](http://infernal-engine.formix.org/InfernalEngine.html)
 
@@ -23,16 +26,15 @@ var InfernalEngine = require("infernal-engine");
 var engine = new InfernalEngine();
 
 // Adds a rule named "increment" to increment the value of 'i' up to 5.
-engine.addRule("increment", function(done) {
+engine.addRule("increment", function(next) {
     var i = this.get("i");
     if (i < 5) {
         i++;
     } else if (i > 5) {
-        done(new Error("'i' must be lower or equal to 5."));
-        return;
+        return next(new Error("'i' must be lower or equal to 5."));
     }
     this.set("i", i);
-    done();
+    return next();
 });
 
 // Set a value to the fact "i"
@@ -79,7 +81,7 @@ module.exports = {
 
         validate: validateSelection,
         
-        updateOptions: function(done) {
+        updateOptions: function(next) {
             // update available classes based on AD&D 1st and 2nd edition
             var race = this.get("../race/selected");
             var options = [];
@@ -91,19 +93,19 @@ module.exports = {
                 options: ["fighter", "wizard", "cleric", "rogue"],
             }
             this.set("options", options);
-            done();
+            return next();
         }
     }
 };
 
 
-function validateSelection(done) {
+function validateSelectionnext {
     var selected = this.get("selected");
     var options = this.get("options");
     var index = options.indexOf(selected);
     var valid = (index > -1);
     this.set("valid", valid);
-    done();
+    return next();
 }
 ```
 
@@ -132,12 +134,25 @@ So changin the race from "human" to "halfling" while keeping the class
 be a wizard!
 
 
-## Calling `done` Within a Rule
+## Calling `next` Within a Rule
 
-You must call the `done` callback to tell the inference engine that the current
-rule finished executing. Otherwise, the engine will wait idle until timeout. You
-can call the `done` callback with a single error parameter. This will stop the
-inference and call the `infer` callback with the error parameter you have set.
+You must return the call to the `next` callback to instruct the inference 
+engine to execute the next inference step then to exit the current rule. 
+Not returning the `next` result will cause a timeout error. See code 
+examples above for details.
+
+You can call the `next` callback with a single parameter. This will stop the 
+inference and call the initial `infer` callback with the parameter you have 
+set. Calling next with a parameter instruct the engine that an error happened
+during the rule inference.
+
+**Never execute the** `next` **callback without returning its result.**
+
+*Note that this is not a breaking change from version 0.16.2. I introduce the
+`return next()` paradigm to insure that `next` (same thing as `done`) is never
+called twice within the same rule and that the programmer do not forget to
+exit the rule after calling `next`. The engine does nothing with the result 
+of the `next` function execution.*
 
 ## Absolute Fact Reference
 
