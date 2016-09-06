@@ -99,7 +99,7 @@ module.exports = {
 };
 
 
-function validateSelectionnext {
+function validateSelection(next) {
     var selected = this.get("selected");
     var options = this.get("options");
     var index = options.indexOf(selected);
