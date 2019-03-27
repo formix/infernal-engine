@@ -320,22 +320,22 @@ describe("InfernalEngine", function() {
 
             var expectedLogs = [
                 '{"action":"addRule","rule":"/increment"}',
-                '{"action":"agendaUpdate","rule":"/increment"}',
                 '{"action":"set","fact":"/i","newValue":1}',
+                '{"action":"addToAgenda","rule":"/increment"}',
                 '{"action":"infer"}',
-                '{"action":"agendaUpdate","rule":"/increment"}',
-                '{"action":"set","rule":"/increment","fact":"/i","oldValue":1,"newValue":2}',
-                '{"action":"agendaUpdate","rule":"/increment"}',
-                '{"action":"set","rule":"/increment","fact":"/i","oldValue":2,"newValue":3}',
-                '{"action":"agendaUpdate","rule":"/increment"}',
-                '{"action":"set","rule":"/increment","fact":"/i","oldValue":3,"newValue":4}',
-                '{"action":"agendaUpdate","rule":"/increment"}',
-                '{"action":"set","rule":"/increment","fact":"/i","oldValue":4,"newValue":5}'
+                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":1,"newValue":2}',
+                '{"action":"addToAgenda","rule":"/increment"}',
+                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":2,"newValue":3}',
+                '{"action":"addToAgenda","rule":"/increment"}',
+                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":3,"newValue":4}',
+                '{"action":"addToAgenda","rule":"/increment"}',
+                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":4,"newValue":5}',
+                '{"action":"addToAgenda","rule":"/increment"}'
             ];
 
             engine.addRule(increment); 
             engine.set("i", 1);
-
+			
             engine.infer(function() {
                 assert.equal(logs.length, expectedLogs.length);
                 for (var i = 0; i < logs.length; i++) {
