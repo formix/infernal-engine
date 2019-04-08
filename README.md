@@ -31,7 +31,7 @@ bind together different collaborating models to create a runtime super-model.
 A collaborating model can be loaded either between inference execution or 
 during a rule interpretation. After the inference execution, the engine can 
 return its full internal state as a JavaScript object or restraint the returned 
-object to the facts that changed during the last inference execution. In
+object to facts that changed during the last inference execution. In
 both cases, rules are not included in that state.
 
 **Infernal Engine** can have a tracing function attached to help debugging and 
