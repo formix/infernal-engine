@@ -21,7 +21,7 @@
     "url": "https://github.com/formix/infernal-engine.git"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/_mocha",
+    "test": "./node_modules/mocha/bin/mocha",
     "dist": "webpack",
     "doc": "jsdoc -c %INFERNAL_SRC%/jsdoc/conf.json -r %INFERNAL_SRC%/lib %INFERNAL_SRC%/README.md -d %INFERNAL_SRC%/../infernal-engine-pages"
   },
