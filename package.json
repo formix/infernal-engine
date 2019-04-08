@@ -23,7 +23,7 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/_mocha",
     "dist": "webpack",
-    "doc": "jsdoc -c %INFERNAL_SRC%/jsdoc/conf.json -r %INFERNAL_SRC%/lib %INFERNAL_SRC%/README.md -d %INFERNAL_SRC%/../infernal-engine-pages"
+    "doc": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./../infernal-engine-pages"
   },
   "devDependencies": {
     "mocha": "^6.1.1",
