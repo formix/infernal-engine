@@ -48,7 +48,7 @@ Usage
 var InfernalEngine = require("infernal-engine");
 var engine = new InfernalEngine();
 
-// Adds a rule named "increment" to increment the value of 'i' up to 5.
+// Adds a rule named "/increment" to increment the value of 'i' up to 5.
 engine.addRule("increment", function(next) {
     var i = this.get("i");
     if (i < 5) {
@@ -60,7 +60,7 @@ engine.addRule("increment", function(next) {
     return next();
 });
 
-// Set a value to the fact "i"
+// Set a value to the fact "/i"
 engine.set("i", 1);
 
 // launches inference
