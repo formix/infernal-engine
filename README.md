@@ -13,7 +13,7 @@ once per inference iteration for a given agenda.
 
 **Infernal Engine**'s internal facts and rules representation is a mapping 
 between a name and a value or a function. A name is a list of contexts 
-separated by slashes with a leading shash. For example, a fact could be named
+separated by slashes with a leading slash. For example, a fact could be named
 "/engine/torque" and be mapped to the numeric value "175.5". The same goes 
 for a rule named "/engine/maxTorque". The rule name is mapped to the function
 that implements it. In this example, both the fact and the rule are under the 
