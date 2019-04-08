@@ -9,12 +9,14 @@
     "system",
     "artificial",
     "intelligence",
-    "ai"
+    "ai",
+    "forward-chaining",
+    "javascript"
   ],
   "license": "MIT",
   "author": "Jean-Philippe Gravel <jpg@formix.org>",
   "main": "lib/index.js",
-  "homepage": "http://infernal-engine.formix.org",
+  "homepage": "https://formix.github.io/infernal-engine/",
   "bugs": "https://github.com/formix/infernal-engine/issues",
   "repository": {
     "type": "git",

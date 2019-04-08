@@ -4,22 +4,45 @@ Infernal Engine
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
 
-This is the simplest and most efficient open source JavaScript inference 
-engine implementation around. The engine is developed using NodeJS. An 
-inference engine is a tool to build 
-[expert systems](http://en.wikipedia.org/wiki/Expert_system). Expert
-systems are used for many artificial intelligence implementations based on
-knowledge. Video games use it to script opponents character AI and industries
-use the concept to configure complex manufacturing products. You can even use
-Infernal Engine to drive your web page UI rendering since it is now a Bower 
-package!
+The **Infernal Engine** is a 0+ order logic, forward chaining, inference 
+engine. Rules are mapped to each fact that it contains so that when a
+fact is changed, each rule that uses that fact is added to the agenda for the 
+next inference iteration. The agenda maps the rule name to the rule function 
+to be executed which implies that a rule will never be executed more than 
+once per inference iteration for a given agenda.
 
-[InfernalEngine class Reference](http://infernal-engine.formix.org/InfernalEngine.html)
+**Infernal Engine**'s internal facts and rules representation is a mapping 
+between a name and a value or a function. A name is a list of contexts 
+separated by slashes with a leading shash. For example, a fact could be named
+"/engine/torque" and be mapped to the numeric value "175.5". The same goes 
+for a rule named "/engine/maxTorque". The rule name is mapped to the function
+that implements it. In this example, both the fact and the rule are under the 
+same "/engine" context. This context assembly can be leveraged to do 
+*relative fact reference* and *absolut fact reference* within the rule. Those 
+concepts are explained later in this document.
+
+**Infernal Engine**'s inference model can be defined using multiple simple 
+JavaScript objects. A model is a JavaScript object that contains facts 
+(properties) and rules (functions) without syntactic or structural constraints.
+In other words, the model can be a JavaScript object of any depth and have any
+structure. When loading the model, its structure is translated to the 
+forward slash name format explained earlier. It is possible to conditionnaly 
+bind together different collaborating models to create a runtime super-model.
+A collaborating model can be loaded either between inference execution or 
+during a rule interpretation. After the inference execution, the engine can 
+return its full internal state as a JavaScript object or restraint the returned 
+object to the facts that changed during the last inference execution. In
+both cases, rules are not included in that state.
+
+**Infernal Engine** can have a tracing function attached to help debugging and 
+track the inference sequence and actions.
+
+[InfernalEngine class Reference](https://formix.github.io/infernal-engine/)
 
 Usage
 =====
 
-## Using The Engine
+## Using The "Raw" Engine
 
 ```javascript
 var InfernalEngine = require("infernal-engine");
@@ -30,10 +53,10 @@ engine.addRule("increment", function(next) {
     var i = this.get("i");
     if (i < 5) {
         i++;
+        this.set("i", i);
     } else if (i > 5) {
         return next(new Error("'i' must be lower or equal to 5."));
     }
-    this.set("i", i);
     return next();
 });
 
@@ -51,88 +74,23 @@ engine.infer(function(err) {
     console.log(engine.get("i"));
 });
 ```
-
+As you can see, a rule can retrigger itself if it changes a fact that this
+same rule uses. More complex graph of fact-rule-fact relationship could trigger
+that kind of loop and be verry difficult to debug. To prevent infinite loops,
+**Infernal Engine** `infer` method is time limited. If the inference does not 
+execute under 5 seconds, the engine stops and the `infer` callback is called 
+with a timeout error. That timeout period can be changed by passing
+another value (in milliseconds) to the `InfernalEngine` constructor.
 
 ## Defining a Model
 
 A model is a way to define rules and facts using a simple Javascript object.
-Usually, a model is defined in its own Node module. Alternatively, a single
+You can define a model in its own Node module. Alternatively, a single
 module could export a set of related models in the same export.
 
 ```javascript
-// module character.js
-
-module.exports = {
-    playerName: "",
-    name: "",
-
-    race: {
-        selected: "human",
-        options: ["human", "elf", "dwarf", "halfling", "gnome"],
-        valid: true;
-
-        validate: validateSelection
-    },
-
-    class: {
-        selected: "wizard",
-        options: ["fighter", "wizard", "cleric", "rogue"],
-        valid: true,
-
-        validate: validateSelection,
-        
-        updateOptions: function(next) {
-            // update available classes based on AD&D 1st and 2nd edition
-            var race = this.get("../race/selected");
-            var options = [];
-            if (race === "dwarf" || race === "halfling") {
-                options = ["fighter", "rogue"];
-            } else if (race === "elf" || race === "gnome") {
-                options = ["fighter", "rogue", "wizard"];
-            } else if (race === "human") {
-                options: ["fighter", "wizard", "cleric", "rogue"],
-            }
-            this.set("options", options);
-            return next();
-        }
-    }
-};
-
-
-function validateSelection(next) {
-    var selected = this.get("selected");
-    var options = this.get("options");
-    var index = options.indexOf(selected);
-    var valid = (index > -1);
-    this.set("valid", valid);
-    return next();
-}
+// insert the forward chaining wikipedia example implementation here...
 ```
-
-[Try it here!](https://tonicdev.com/5708161aed8bd01200bfc216/571e50620ec3e81700655fd1)
-
-The previous example will insure that the selected option is valid for both
-race and class. This is done using the same function reference 
-`validateSelection` as the validation rule.
-
-With the *Infernal Engine* You can reuse predefined functions
-anywhere in your model as long as the model's fact structure supports that rule
-reference requirements. Each rule is executed in its own context, even if the
-same reference is used.
-
-Changing the `race` value for "halfling" will in turn:
-
- 1. launch the rule "/race/validate"
- 2. set the fact "/race/valid" to true
- 3. launch the rule "/class/updateOptions"
- 4. change the fact "/class/options" to ["fighter", "rogue"]
- 5. launch the rule "/class/validate"
- 6. set the fact "/class/valid" to false
-
-So changin the race from "human" to "halfling" while keeping the class 
-"wizard" puts the character class in an invalid state since an halfling cannot
-be a wizard!
-
 
 ## Calling `next` Within a Rule
 
@@ -143,23 +101,17 @@ examples above for details.
 
 You can call the `next` callback with a single parameter. This will stop the 
 inference and call the initial `infer` callback with the parameter you have 
-set. Calling next with a parameter instruct the engine that an error happened
-during the rule inference.
-
-**Never execute the** `next` **callback without returning its result.**
-
-*Note that this is not a breaking change from version 0.16.2. I introduce the
-`return next()` paradigm to insure that `next` (same thing as `done`) is never
-called twice within the same rule and that the programmer do not forget to
-exit the rule after calling `next`. The engine does nothing with the result 
-of the `next` function execution.*
+set as the error object. Calling next with a parameter instruct the engine 
+that an error happened during the rule inference. As stated above, you must 
+return the `next` callback result even when it is called with an error 
+parameter.
 
 ## Absolute Fact Reference
 
-Absolute fact reference involves using a fact full name, including the 
+Absolute fact reference involves using a fact full name by including the 
 leading "/". As a convention, a fact can be contextualized using a directory
-like notation. For example: `/character/race` implies that the "race" fact is
-within the "character" context starting at the root context. The context can 
+like notation. For example: `/engine/torque` implies that the "torque" fact is
+within the "engine" context starting at the root context. The context can 
 be of any dept and thus form a complex hierarchy of facts.
 
 ## Relative Fact Reference 
@@ -168,11 +120,12 @@ Relative fact reference involves using a fact partial name within the current
 rule context. To refer to a relative fact, use the fact context without the 
 leading "/" in the fact name. For eaxmple a rule named 
 `/hoist/engine/checkPhaseCount` is within the base context 
-`/hoist/engine/`. Accessing any fact without a leading "/", will 
+`/hoist/engine`. Accessing any fact without a leading "/", will 
 prepend the current rule context to the referenced fact. 
 
 It is also possible to move up in the current context using "..". For example,
-given the rule `/hoist/motor/checkPhaseCount` accessing the fact 
-`../liftCapacity` within `checkPhaseCount` will access `/hoist/liftCapacity`.
+given the rule `/hoist/engine/checkPhaseCount` accessing the fact 
+`../liftCapacity` within `checkPhaseCount` will access the 
+`/hoist/liftCapacity` fact.
 
 
