@@ -76,11 +76,12 @@ engine.infer(function(err) {
 ```
 As you can see, a rule can retrigger itself if it changes a fact that this
 same rule uses. More complex graph of fact-rule-fact relationship could trigger
-that kind of loop and be verry difficult to debug. To prevent infinite loops,
-**Infernal Engine** `infer` method is time limited. If the inference does not 
-execute under 5 seconds, the engine stops and the `infer` callback is called 
-with a timeout error. That timeout period can be changed by passing
-another value (in milliseconds) to the `InfernalEngine` constructor.
+any kind of weird loop patterns and be verry difficult to debug. To prevent 
+insane infinite loops, **Infernal Engine** `infer` method is time 
+constrained. If the inference does not execute under 5 seconds, the engine 
+stops and the `infer` callback is called with a timeout error. That timeout 
+period can be changed by passing another value (in milliseconds) to the 
+`InfernalEngine` constructor.
 
 ## Defining a Model
 
