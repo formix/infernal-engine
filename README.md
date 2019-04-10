@@ -103,8 +103,7 @@ to distinguish between the different inference engine order logics.
 ### Model Example
 
 ```javascript
-// This is a critter model.
-var model = {
+var critterModel = {
   
   name: "Fritz",
 
@@ -156,7 +155,7 @@ var model = {
 
 Using a model (or a sub-model) is pretty simple. All you have to do is to call
 the engine's `load` method. Once the engine has some rules in it, changing any
-fact will trigger the corresponding rule uses it. The engine default context 
+fact will trigger the matching rules that use it. The engine default context 
 is always set to the root (`/`) so you don't need to prepend the first 
 forward-slash character within your program, at the engine level.
 
@@ -166,7 +165,7 @@ the inference:
 ```javascript
 var InfernalEngine = require("infernal-engine");
 var engine = new InfernalEngine();
-engine.load(model);
+engine.load(critterModel);
 
 engine.set("sound", "croaks");
 engine.set("eats", "flies");
@@ -182,7 +181,7 @@ engine.infer(function(err) {
 
 ```
 
-Output:
+**Output**
 ```
 {
   "name": "Fritz",
@@ -198,9 +197,9 @@ Output:
 }
 ```
 
-The `Load` method crawls the model object structure and create the matching 
-facts and rules mapings. This is how the fact and rules are mapped in the 
-engine based on the following model:
+The `Load` method crawls the model object structure and creates the matching
+fact and rule mapings. This is how the fact and rules are mapped in the engine
+based on the following model:
 
 ```javascript
 var carModel = {
@@ -237,7 +236,7 @@ var carModel = {
 |"/speed/checklimit"|*\[function\]*|
 
 Before adding the rule to the rule map, the engine parses the function using
-the regex `/this\.get\(\.+\)/`. For each match, it maps the referenced fact 
+the regex `/this\.get\"(\.+\)"/`. For each match, it maps the referenced fact 
 from the match group to the current rule in a multi-map. That allows the 
 engine to match the exact rules to execute whenever a fact is changed. In this
 case, the `checkLimit` rule will be added to the agenda whenever the 
@@ -246,17 +245,21 @@ same inference cycle, the rule is still added only once to the agenda.
 
 I omitted the `userInput` validation in the rule for clarity purpose. To do 
 that check, we could simply wrap the function body in a try/catch statement 
-and call `return next(exception);` within the catch block. We could be gentler
-than that as well by using facts to inform the user about his mistake by doing
-something like `this.set("isValid", false);` and by setting some meaningful 
-error message along with it in the same way.
+and call `return next(exception);` within the catch block. Doing that would 
+kill the inference engine flow and jump directly to the `infer` method 
+callback. To be gentler, we could as well use facts to inform the user about
+his mistake. From there, I bet you already have some idea how to do that.
+Something like `this.set("isValid", false);` and setting some meaningful
+error message fact along with it would do the trick.
 
 ## Calling `next` Within a Rule
 
-You must return the call to the `next` callback to instruct the inference 
-engine to execute the next inference step then to exit the current rule. 
-Not returning the `next` result will stop the inference chain and cause a 
-timeout error. See code examples above for details.
+You must call the `next` callback to instruct the inference engine to execute 
+the following steps. It is also important to leave the rule immediately after 
+that call. Not exiting the rule after the `next` call or calling `next` 
+multimple times in the same rule could cause unpredictable behavior. Keeping 
+the `return` statement in front of the `next()` call (i.e.: `return next();`) 
+is a good way to avoid problems.
 
 You can call the `next` callback with a single parameter. This will stop the 
 inference and call the initial `infer` callback with the parameter you have 
@@ -282,9 +285,81 @@ leading "/" in the fact name. For eaxmple a rule named
 `/hoist/engine`. Accessing any fact without a leading "/", will 
 prepend the current rule context to the referenced fact. 
 
-It is also possible to move up in the current context using "..". For example,
-given the rule `/hoist/engine/checkPhaseCount` accessing the fact 
-`../liftCapacity` within `checkPhaseCount` will access the 
-`/hoist/liftCapacity` fact.
+It is also possible to move up relative to the current context by using 
+the "..". For example, given the rule `/hoist/engine/checkPhaseCount` 
+accessing the fact `../liftCapacity` within `checkPhaseCount` will access 
+the `/hoist/liftCapacity` fact.
 
+## Infernal Debugging
 
+Debugging an inference engine's rule-fact relationship web is always a pain. 
+**Infernal Engine** is no exception. Being tough is not a reason to avoid 
+trying though. To help developpers following the inference steps, it is 
+possible to register a tracing function to the engine. This is done by 
+calling the `startTracing(function)` method. It is also possible to stop tracing by 
+calling `stopTracing()` thereafter.
+
+```javascript
+var InfernalEngine = require("infernal-engine");
+var engine = new InfernalEngine();
+engine.load(model);
+
+engine.startTracing(function(trace) {
+  console.log("-> ", JSON.stringify(trace))
+});
+
+engine.set("sound", "croaks");
+engine.set("eats", "flies");
+
+console.log(JSON.stringify(engine.getFacts(), null, "  "));
+engine.infer(function(err) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+  console.log(JSON.stringify(engine.getFacts(), null, "  "));
+});
+```
+
+**Output**
+```
+{
+  "name": "Fritz",
+  "sound": "croaks",
+  "eats": "flies"
+}
+->  {"action":"set","fact":"/sound","newValue":"croaks"}
+->  {"action":"addToAgenda","rule":"/isForg"}
+->  {"action":"addToAgenda","rule":"/isCanary"}
+->  {"action":"set","fact":"/eats","newValue":"flies"}
+->  {"action":"infer"}
+->  {"action":"set","fromRule":"/isForg","fact":"/species","newValue":"frog"}
+->  {"action":"addToAgenda","rule":"/isGreen"}
+->  {"action":"addToAgenda","rule":"/isYellow"}
+->  {"action":"set","fromRule":"/isGreen","fact":"/color","newValue":"green"}
+{
+  "name": "Fritz",
+  "sound": "croaks",
+  "eats": "flies",
+  "species": "frog",
+  "color": "green"
+}
+```
+
+# Final Note
+
+I think this is the further I could go in term of inference engine using pure
+JavaScript syntax. Doing a first order inference engine woudl involve creating
+a special purpose language. That would require a transpiler to parse that 
+syntax and make it JavaScript. Honestly, I don't know what would be the 
+interest other than doing pure research. I also doubt that a JavaScript
+engine could beat the performance that a native (or byte code) engine could 
+reach.
+
+I do believe though that this engine can be usefull in many cases. Especially 
+when integrating into Web applications. I did not test its perdormances yet. 
+That would be fun to see how (bad?) it would perform compared to 
+[CLIPS](http://clipsrules.sourceforge.net/) or other forward chaining engines.
+
+In any case, your feedbacks are welcome. Please use github issues to do so.
+If you want to get involved, pull requests are welcome for sure!
