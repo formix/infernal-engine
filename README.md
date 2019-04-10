@@ -4,7 +4,7 @@ Infernal Engine
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
 
-The **Infernal Engine** is a 0+ order logic forward chaininginference 
+The **Infernal Engine** is a 0+ order logic forward chaining inference 
 engine. Rules are mapped to each fact that it contains so that when a
 fact is changed, each rule that uses that fact is added to the agenda for the 
 next inference iteration. The agenda maps the rule name to the rule function 
