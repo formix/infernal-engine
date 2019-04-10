@@ -222,17 +222,17 @@ var carModel = {
 ```
 
 **Facts**
-|Name              |Value    |
-|:-----------------|:-------:|
-|"/name"           |"Minivan"|
-|"/speed/userInput"|"0"      |
-|"/speed/limit"    |     140 |
-|"/speed/value"    |       0 |
+| Name               | Value     |
+|:------------------ |:---------:|
+| "/name"            | "Minivan" |
+| "/speed/userInput" | "0"       |
+| "/speed/limit"     |       140 |
+| "/speed/value"     |         0 |
 
 **Rules**
-|Name               |Value         |
-|:------------------|:------------:|
-|"/speed/checklimit"|*\[function\]*|
+| Name                | Value          |
+|:------------------- |:--------------:|
+| "/speed/checklimit" | *\[function\]* |
 
 Before adding the rule to the rule map, the engine parses the function using
 the regex `/this\.get\"(\.+\)"/`. For each match, it maps the referenced fact 
