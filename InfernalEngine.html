@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>InfernalEngine</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>InfernalEngine<span class="signature">(timeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -40,7 +40,9 @@
 
     
 
+    
     <h4 class="name" id="InfernalEngine"><span class="type-signature"></span>new InfernalEngine<span class="signature">(timeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -238,6 +240,8 @@
 
 
 
+
+
     
     </div>
 
@@ -247,7 +251,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -261,7 +267,9 @@
 
     
 
+    
     <h4 class="name" id="addRule"><span class="type-signature"></span>addRule<span class="signature">(ruleName, rule)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -343,7 +351,7 @@
 
             
 
-            <td class="description last">The rule function has only one paramter: the 'next' function. When       the rule evaluation is terminated, the next function must be called       to tell the engine to execute the next rule in the agenda.</td>
+            <td class="description last">The rule function has only one paramter: the 'done' function. When       the rule evaluation is terminated, the done function must be called       to tell the engine to execute the next rule in the agenda.</td>
         </tr>
 
     
@@ -432,12 +440,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="addRule"><span class="type-signature"></span>addRule<span class="signature">(ruleName, rule)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -519,7 +531,7 @@
 
             
 
-            <td class="description last">The rule function has only one paramter: the 'next' function. When       the rule evaluation is terminated, the next function must be called       to tell the engine to execute the next rule in the agenda.</td>
+            <td class="description last">The rule function has only one paramter: the 'done' function. When       the rule evaluation is terminated, the done function must be called       to tell the engine to execute the next rule in the agenda.</td>
         </tr>
 
     
@@ -608,12 +620,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(factName)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    
 
     
 
@@ -761,12 +777,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(factName)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    
 
     
 
@@ -914,12 +934,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getChanges"><span class="type-signature"></span>getChanges<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1018,12 +1042,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getChanges"><span class="type-signature"></span>getChanges<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1122,12 +1150,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getDiff"><span class="type-signature"></span>getDiff<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1226,12 +1258,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getDiff"><span class="type-signature"></span>getDiff<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1330,12 +1366,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getFacts"><span class="type-signature"></span>getFacts<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1434,12 +1474,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getFacts"><span class="type-signature"></span>getFacts<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -1538,19 +1582,23 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="infer"><span class="type-signature"></span>infer<span class="signature">(timeout<span class="signature-attributes">opt</span>, callback)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or because the inference timeout is reached, the callback method is called.
+    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or becaus the inference timeout is reached, the callback method is called.
 </div>
 
 
@@ -1698,7 +1746,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line292">line 292</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -1746,19 +1794,23 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="infer"><span class="type-signature"></span>infer<span class="signature">(timeout<span class="signature-attributes">opt</span>, callback)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or because the inference timeout is reached, the callback method is called.
+    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or becaus the inference timeout is reached, the callback method is called.
 </div>
 
 
@@ -1906,7 +1958,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line292">line 292</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -1954,12 +2006,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(model)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -2059,7 +2115,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line274">line 274</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -2107,12 +2163,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(model)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -2212,7 +2272,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line274">line 274</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -2260,12 +2320,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="notify"><span class="type-signature"></span>notify<span class="signature">(factName)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -2413,12 +2477,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="notify"><span class="type-signature"></span>notify<span class="signature">(factName)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -2566,12 +2634,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -2648,12 +2720,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -2730,12 +2806,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(factName, value, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -2935,12 +3015,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(factName, value, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -3140,12 +3224,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="setFacts"><span class="type-signature"></span>setFacts<span class="signature">(An)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3293,12 +3381,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="setFacts"><span class="type-signature"></span>setFacts<span class="signature">(An)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3446,12 +3538,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="startTracing"><span class="type-signature"></span>startTracing<span class="signature">(traceFunction)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3551,7 +3647,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line361">line 361</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line371">line 371</a>
     </li></ul></dd>
     
 
@@ -3599,12 +3695,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="startTracing"><span class="type-signature"></span>startTracing<span class="signature">(traceFunction)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3704,7 +3804,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line361">line 361</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line371">line 371</a>
     </li></ul></dd>
     
 
@@ -3752,12 +3852,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="stopTracing"><span class="type-signature"></span>stopTracing<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3808,7 +3912,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line375">line 375</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -3856,12 +3960,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="stopTracing"><span class="type-signature"></span>stopTracing<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -3912,7 +4020,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line375">line 375</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -3957,6 +4065,8 @@
 </dl>
 
     
+
+
 
 
 
@@ -3980,7 +4090,7 @@
 
 <header>
     
-        <h2>InfernalEngine</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>InfernalEngine<span class="signature">(timeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -3992,7 +4102,9 @@
 
     
 
+    
     <h4 class="name" id="InfernalEngine"><span class="type-signature"></span>new InfernalEngine<span class="signature">(timeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -4190,6 +4302,8 @@
 
 
 
+
+
     
     </div>
 
@@ -4199,7 +4313,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -4213,7 +4329,9 @@
 
     
 
+    
     <h4 class="name" id="addRule"><span class="type-signature"></span>addRule<span class="signature">(ruleName, rule)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -4295,7 +4413,7 @@
 
             
 
-            <td class="description last">The rule function has only one paramter: the 'next' function. When       the rule evaluation is terminated, the next function must be called       to tell the engine to execute the next rule in the agenda.</td>
+            <td class="description last">The rule function has only one paramter: the 'done' function. When       the rule evaluation is terminated, the done function must be called       to tell the engine to execute the next rule in the agenda.</td>
         </tr>
 
     
@@ -4384,12 +4502,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="addRule"><span class="type-signature"></span>addRule<span class="signature">(ruleName, rule)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -4471,7 +4593,7 @@
 
             
 
-            <td class="description last">The rule function has only one paramter: the 'next' function. When       the rule evaluation is terminated, the next function must be called       to tell the engine to execute the next rule in the agenda.</td>
+            <td class="description last">The rule function has only one paramter: the 'done' function. When       the rule evaluation is terminated, the done function must be called       to tell the engine to execute the next rule in the agenda.</td>
         </tr>
 
     
@@ -4560,12 +4682,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(factName)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    
 
     
 
@@ -4713,12 +4839,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(factName)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    
 
     
 
@@ -4866,12 +4996,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getChanges"><span class="type-signature"></span>getChanges<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -4970,12 +5104,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getChanges"><span class="type-signature"></span>getChanges<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -5074,12 +5212,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getDiff"><span class="type-signature"></span>getDiff<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -5178,12 +5320,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getDiff"><span class="type-signature"></span>getDiff<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -5282,12 +5428,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getFacts"><span class="type-signature"></span>getFacts<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -5386,12 +5536,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getFacts"><span class="type-signature"></span>getFacts<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
 
     
 
@@ -5490,19 +5644,23 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="infer"><span class="type-signature"></span>infer<span class="signature">(timeout<span class="signature-attributes">opt</span>, callback)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or because the inference timeout is reached, the callback method is called.
+    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or becaus the inference timeout is reached, the callback method is called.
 </div>
 
 
@@ -5650,7 +5808,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line292">line 292</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -5698,19 +5856,23 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="infer"><span class="type-signature"></span>infer<span class="signature">(timeout<span class="signature-attributes">opt</span>, callback)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or because the inference timeout is reached, the callback method is called.
+    Starts the inference. The inference executes all rules in the agenda. Oncethe inference is done, either because the agenda is empty or becaus the inference timeout is reached, the callback method is called.
 </div>
 
 
@@ -5858,7 +6020,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line292">line 292</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -5906,12 +6068,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(model)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -6011,7 +6177,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line274">line 274</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -6059,12 +6225,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(model)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -6164,7 +6334,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line274">line 274</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -6212,12 +6382,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="notify"><span class="type-signature"></span>notify<span class="signature">(factName)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -6365,12 +6539,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="notify"><span class="type-signature"></span>notify<span class="signature">(factName)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -6518,12 +6696,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -6600,12 +6782,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -6682,12 +6868,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(factName, value, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -6887,12 +7077,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(factName, value, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -7092,12 +7286,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="setFacts"><span class="type-signature"></span>setFacts<span class="signature">(An)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7245,12 +7443,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="setFacts"><span class="type-signature"></span>setFacts<span class="signature">(An)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7398,12 +7600,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="startTracing"><span class="type-signature"></span>startTracing<span class="signature">(traceFunction)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7503,7 +7709,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line361">line 361</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line371">line 371</a>
     </li></ul></dd>
     
 
@@ -7551,12 +7757,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="startTracing"><span class="type-signature"></span>startTracing<span class="signature">(traceFunction)</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7656,7 +7866,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line361">line 361</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line371">line 371</a>
     </li></ul></dd>
     
 
@@ -7704,12 +7914,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="stopTracing"><span class="type-signature"></span>stopTracing<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7760,7 +7974,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line375">line 375</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -7808,12 +8022,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="stopTracing"><span class="type-signature"></span>stopTracing<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="InfernalEngine.html">InfernalEngine</a>}</span></h4>
+    
 
     
 
@@ -7864,7 +8082,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line375">line 375</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -7909,6 +8127,8 @@
 </dl>
 
     
+
+
 
 
 
@@ -7934,7 +8154,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Aug 16 2016 13:53:04 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 10 2019 15:52:14 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
