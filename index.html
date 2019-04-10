@@ -45,7 +45,7 @@
     <section>
         <article><h1>Infernal Engine</h1><p><a href="https://gitter.im/formix/infernal-engine?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/formix/infernal-engine.svg" alt="Join the chat at https://gitter.im/formix/infernal-engine"></a>
 <a href="https://travis-ci.org/formix/infernal-engine"><img src="https://travis-ci.org/formix/infernal-engine.svg?branch=master" alt="Build Status"></a></p>
-<p>The <strong>Infernal Engine</strong> is a 0+ order logic forward chaininginference 
+<p>The <strong>Infernal Engine</strong> is a 0+ order logic forward chaining inference 
 engine. Rules are mapped to each fact that it contains so that when a
 fact is changed, each rule that uses that fact is added to the agenda for the 
 next inference iteration. The agenda maps the rule name to the rule function 
@@ -115,12 +115,11 @@ period can be changed by passing another value (in milliseconds) to the
 You can define a model in its own Node module. Alternatively, a single
 module could export a set of related models in the same export.</p>
 <p>In the following code block, I have translated the Wikipedia article example
-for (forward chaining inference)[https://en.wikipedia.org/wiki/Forward_chaining)
+for <a href="https://en.wikipedia.org/wiki/Forward\_chaining">forward chaining inference</a>
 into Infernal Engine representation. The WikiPedia example use natural 
 language which is close to a first order logic inference engine while Infernal 
 Engine is a 0+ order logic engine.</p>
-<p>See (Philippe Morignot PDF presentation)[http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf] 
-to distinguish between the different inference engine order logics.</p>
+<p>See <a href="http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf">Philippe Morignot PDF presentation</a> to know more about different inference engine order logics.</p>
 <h3>Model Example</h3><pre class="prettyprint source lang-javascript"><code>var critterModel = {
 
   name: &quot;Fritz&quot;,
@@ -133,7 +132,7 @@ to distinguish between the different inference engine order logics.</p>
   species: undefined,
   sings: undefined,
 
-  isForg: function(next){
+  isFrog: function(next){
     var sound = this.get(&quot;sound&quot;);
     var eats = this.get(&quot;eats&quot;);
     if (sound === &quot;croaks&quot; && eats === &quot;flies&quot;) {
@@ -220,24 +219,55 @@ based on the following model:</p>
       return next();
     }
   }
-}</code></pre><p><strong>Facts</strong>
-|Name              |Value    |
-|:-----------------|:-------:|
-|&quot;/name&quot;           |&quot;Minivan&quot;|
-|&quot;/speed/userInput&quot;|&quot;0&quot;      |
-|&quot;/speed/limit&quot;    |     140 |
-|&quot;/speed/value&quot;    |       0 |</p>
-<p><strong>Rules</strong>
-|Name               |Value         |
-|:------------------|:------------:|
-|&quot;/speed/checklimit&quot;|<em>[function]</em>|</p>
+}</code></pre><p><strong>Facts</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:center">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">&quot;/name&quot;</td>
+<td style="text-align:center">&quot;Minivan&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;/speed/userInput&quot;</td>
+<td style="text-align:center">&quot;0&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;/speed/limit&quot;</td>
+<td style="text-align:center">140</td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;/speed/value&quot;</td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rules</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:center">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">&quot;/speed/checklimit&quot;</td>
+<td style="text-align:center"><em>[function]</em></td>
+</tr>
+</tbody>
+</table>
 <p>Before adding the rule to the rule map, the engine parses the function using
-the regex <code>/this\.get\&quot;(\.+\)&quot;/</code>. For each match, it maps the referenced fact 
+the regex <code>/this\.get\(&quot;(.+)&quot;\)/</code>. For each match, it maps the referenced fact 
 from the match group to the current rule in a multi-map. That allows the 
 engine to match the exact rules to execute whenever a fact is changed. In this
 case, the <code>checkLimit</code> rule will be added to the agenda whenever the 
 <code>userInput</code> or the <code>limit</code> fact is changed. If both facts change during the 
-same inference cycle, the rule is still added only once to the agenda.</p>
+same inference cycle, the rule is added once to the agenda.</p>
 <p>I omitted the <code>userInput</code> validation in the rule for clarity purpose. To do 
 that check, we could simply wrap the function body in a try/catch statement 
 and call <code>return next(exception);</code> within the catch block. Doing that would 
@@ -319,7 +349,7 @@ engine.infer(function(err) {
   &quot;species&quot;: &quot;frog&quot;,
   &quot;color&quot;: &quot;green&quot;
 }</code></pre><h1>Final Note</h1><p>I think this is the further I could go in term of inference engine using pure
-JavaScript syntax. Doing a first order inference engine woudl involve creating
+JavaScript syntax. Doing a first order inference engine would involve creating
 a special purpose language. That would require a transpiler to parse that 
 syntax and make it JavaScript. Honestly, I don't know what would be the 
 interest other than doing pure research. I also doubt that a JavaScript
@@ -330,7 +360,7 @@ when integrating into Web applications. I did not test its perdormances yet.
 That would be fun to see how (bad?) it would perform compared to 
 <a href="http://clipsrules.sourceforge.net/">CLIPS</a> or other forward chaining engines.</p>
 <p>In any case, your feedbacks are welcome. Please use github issues to do so.
-If you want to get involved, pull requests are welcome for sure!</p></article>
+If you want to get involved, pull requests are welcome too!</p></article>
     </section>
 
 
@@ -347,7 +377,7 @@ If you want to get involved, pull requests are welcome for sure!</p></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 10 2019 15:52:14 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 10 2019 16:32:21 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
