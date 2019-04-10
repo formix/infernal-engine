@@ -114,7 +114,7 @@ var critterModel = {
   species: undefined,
   sings: undefined,
 
-  isForg: function(next){
+  isFrog: function(next){
     var sound = this.get("sound");
     var eats = this.get("eats");
     if (sound === "croaks" && eats === "flies") {
