@@ -222,6 +222,7 @@ var carModel = {
 ```
 
 **Facts**
+
 | Name               | Value     |
 |:------------------ |:---------:|
 | "/name"            | "Minivan" |
@@ -230,6 +231,7 @@ var carModel = {
 | "/speed/value"     |         0 |
 
 **Rules**
+
 | Name                | Value          |
 |:------------------- |:--------------:|
 | "/speed/checklimit" | *\[function\]* |
