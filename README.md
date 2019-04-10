@@ -92,12 +92,12 @@ You can define a model in its own Node module. Alternatively, a single
 module could export a set of related models in the same export.
 
 In the following code block, I have translated the Wikipedia article example
-for (forward chaining inference)[https://en.wikipedia.org/wiki/Forward\_chaining)
+for [forward chaining inference](https://en.wikipedia.org/wiki/Forward\_chaining)
 into Infernal Engine representation. The WikiPedia example use natural 
 language which is close to a first order logic inference engine while Infernal 
 Engine is a 0+ order logic engine.
 
-See (Philippe Morignot PDF presentation)[http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf] 
+See [Philippe Morignot PDF presentation](http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf) 
 to distinguish between the different inference engine order logics.
 
 ### Model Example
