@@ -348,7 +348,7 @@ engine.infer(function(err) {
 # Final Note
 
 I think this is the further I could go in term of inference engine using pure
-JavaScript syntax. Doing a first order inference engine woudl involve creating
+JavaScript syntax. Doing a first order inference engine would involve creating
 a special purpose language. That would require a transpiler to parse that 
 syntax and make it JavaScript. Honestly, I don't know what would be the 
 interest other than doing pure research. I also doubt that a JavaScript
@@ -361,4 +361,4 @@ That would be fun to see how (bad?) it would perform compared to
 [CLIPS](http://clipsrules.sourceforge.net/) or other forward chaining engines.
 
 In any case, your feedbacks are welcome. Please use github issues to do so.
-If you want to get involved, pull requests are welcome for sure!
+If you want to get involved, pull requests are welcome too!
