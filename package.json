@@ -14,7 +14,7 @@
     "javascript"
   ],
   "license": "MIT",
-  "author": "Jean-Philippe Gravel <jpg@formix.org>",
+  "author": "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
   "main": "lib/index.js",
   "homepage": "https://formix.github.io/infernal-engine/",
   "bugs": "https://github.com/formix/infernal-engine/issues",
