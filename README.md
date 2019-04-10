@@ -242,7 +242,7 @@ from the match group to the current rule in a multi-map. That allows the
 engine to match the exact rules to execute whenever a fact is changed. In this
 case, the `checkLimit` rule will be added to the agenda whenever the 
 `userInput` or the `limit` fact is changed. If both facts change during the 
-same inference cycle, the rule is still added only once to the agenda.
+same inference cycle, the rule is added once to the agenda.
 
 I omitted the `userInput` validation in the rule for clarity purpose. To do 
 that check, we could simply wrap the function body in a try/catch statement 
