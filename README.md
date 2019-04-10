@@ -237,7 +237,7 @@ var carModel = {
 | "/speed/checklimit" | *\[function\]* |
 
 Before adding the rule to the rule map, the engine parses the function using
-the regex `/this\.get\"(\.+\)"/`. For each match, it maps the referenced fact 
+the regex `/this\.get\("(.+)"\)/`. For each match, it maps the referenced fact 
 from the match group to the current rule in a multi-map. That allows the 
 engine to match the exact rules to execute whenever a fact is changed. In this
 case, the `checkLimit` rule will be added to the agenda whenever the 
