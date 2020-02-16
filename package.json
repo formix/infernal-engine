@@ -28,6 +28,6 @@
     "doc": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./../infernal-engine-pages"
   },
   "devDependencies": {
-    "mocha": "^6.1.1"
+    "mocha": "^6.2.2"
   }
 }
