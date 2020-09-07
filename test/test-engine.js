@@ -260,14 +260,14 @@ describe("InfernalEngine", function() {
                         return next(null, {c:"test"})
                     }
                 },
-                r3: function(next, /*@ a*/ a) {
+                r2: function(next, /*@ /a */ a) {
                     if (a > 50) {
                         return next(null, {msg:"a is greater than 50"})
                     }
                     return next();
                 }
             },
-            r2: function(next, /*@ a*/ a) {
+            r3: function(next, /*@ a */ a) {
                 return next(null, { "b/d": a * 2 });
             }
         });
