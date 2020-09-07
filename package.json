@@ -1,6 +1,6 @@
 {
   "name": "infernal-engine",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
@@ -23,7 +23,7 @@
     "url": "https://github.com/formix/infernal-engine.git"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/_mocha",
+    "test": "node ./node_modules/mocha/bin/mocha",
     "dist": "webpack",
     "doc": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./../infernal-engine-pages"
   },
