@@ -58,7 +58,7 @@ describe("InfernalEngine", function() {
         it("should add a rule that uses relative path correctly",
         function(done) {
             var engine = new InfernalEngine();
-            engine.addRule("/units/convert_lbs_to_kg", function(next, /*@ lbs */ lbs) {
+            engine.addRule("/units/convert_lbs_to_kg", function(next, lbs) {
                 return next(null, {
                     kg: lbs / 2.2
                 });
@@ -413,7 +413,7 @@ describe("InfernalEngine", function() {
                 },
 
                 newValueTrigger: function(done,
-                            /*@ newValue */ newValue,
+                            /*@ newValue */      newValue,
                             /*@ /size/options */ options) {
                     options[0] = newValue;
                     engine.notify("/size/options");
