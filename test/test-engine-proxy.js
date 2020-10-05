@@ -11,8 +11,7 @@ describe("EngineProxy", function() {
             var engine = new InfernalEngine();
             engine.load({
                
-                testTrace: function(next) {
-                    var msg = this.get("msg");
+                testTrace: function(next, /*@ msg */ msg) {
                     this.trace(msg);
                     return next();
                 }
