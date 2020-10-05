@@ -385,7 +385,7 @@ engine.infer(function(err) {
 
 This is the last release of the Infernal Engine for the 0 (pre-release)
 version. The 1.0.0 release will feature a modernized javascript implementation
-using promises with async/await syntax, properties and indexer.
+using promises with async/await syntax, classes, getters, setters, etc.
 
 Your feedbacks are welcome. Please use github issues to do so.
 If you want to get involved, pull requests are welcome too!
