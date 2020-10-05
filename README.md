@@ -125,7 +125,7 @@ var critterModel = {
 
   isCanary: function(next, sound, sings) {
     if ( sings && sound === "chirps" ) {
-      this.set("species", "canary");
+      return next(null, {"species": "canary"});
     }
     return next();
   },
@@ -133,7 +133,7 @@ var critterModel = {
   isGreen: function(next) {
     var species = this.get("species");
     if (species === "frog") {
-      this.set("color", "green");
+      return next(null, {"color": "green"});
     }
     return next();
   },
@@ -141,7 +141,7 @@ var critterModel = {
   isYellow: function(next) {
     var species = this.get("species");
     if (species === "canary") {
-      this.set("color", "yellow");
+      return next(null, {"color": "yellow"});
     }
     return next();
   }
