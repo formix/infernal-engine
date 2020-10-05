@@ -43,58 +43,63 @@
 
 
     <section>
-        <article><h1>Infernal Engine</h1><p><a href="https://gitter.im/formix/infernal-engine?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/formix/infernal-engine.svg" alt="Join the chat at https://gitter.im/formix/infernal-engine"></a>
+        <article><h1>Infernal Engine</h1>
+<p><a href="https://gitter.im/formix/infernal-engine?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/formix/infernal-engine.svg" alt="Join the chat at https://gitter.im/formix/infernal-engine"></a>
 <a href="https://travis-ci.org/formix/infernal-engine"><img src="https://travis-ci.org/formix/infernal-engine.svg?branch=master" alt="Build Status"></a></p>
-<p>The <strong>Infernal Engine</strong> is a 0+ order logic forward chaining inference 
-engine. Rules are mapped to each fact that it contains so that when a
-fact is changed, each rule that uses that fact is added to the agenda for the 
-next inference iteration. The agenda maps the rule name to the rule function 
-to be executed which implies that a rule will never be executed more than 
-once per inference iteration for a given agenda. Moreover, rules that was not
-affected by the last set of changes are not evaluated.</p>
-<p><strong>Infernal Engine</strong>'s internal facts and rules representation is a mapping 
-between a name and a value or a function. A name is a list of contexts 
+<p>The <strong>Infernal Engine</strong> is a 0+ order logic forward chaining inference
+engine. Rules are mapped to facts that are requested by the rule as function
+parameters. The returned fact map is applied back to the fact database.
+Unaffected rules are not evaluated, rules that are triggered more than once
+in the same evaluation are executed only once at the end of the rule execution
+sequence.</p>
+<p><strong>Infernal Engine</strong>'s internal facts and rules representation is a mapping
+between a name and a value or a function. A name is a list of contexts
 separated by slashes with a leading slash. For example, a fact could be named
-&quot;/engine/torque&quot; and be mapped to the numeric value &quot;175.5&quot;. The same goes 
+&quot;/engine/torque&quot; and be mapped to the numeric value &quot;175.5&quot;. The same goes
 for a rule named &quot;/engine/checkTorque&quot;. The rule name is mapped to the function
-that implements it. In this example, both the fact and the rule are under the 
-same &quot;/engine&quot; context. This context assembly can be leveraged to do 
-<em>relative fact reference</em> and <em>absolut fact reference</em> within the rule. Those 
+that implements it. In this example, both the fact and the rule are under the
+same &quot;/engine&quot; context. This context assembly can be leveraged to do
+<em>relative fact reference</em> and <em>absolut fact reference</em> within the rule. Those
 concepts are explained later in this document.</p>
-<p><strong>Infernal Engine</strong>'s inference model can be defined using multiple simple 
-JavaScript objects. A model is a JavaScript object that contains facts 
+<p><strong>Infernal Engine</strong>'s inference model can be defined using multiple simple
+JavaScript objects. A model is a JavaScript object that contains facts
 (properties) and rules (functions) without syntactic or structural constraints.
 In other words, the model can be a JavaScript object of any depth and have any
-structure. When loading the model, its structure is translated to the 
-forward slash name format explained earlier. It is possible to conditionnaly 
+structure. When loading the model, its structure is translated to the
+forward slash name format explained earlier. It is possible to conditionnaly
 bind together different collaborating models to create a runtime super-model.
-A collaborating model can be loaded either between inference execution or 
-during a rule interpretation. After the inference execution, the engine can 
-return its full internal state as a JavaScript object or limit the returned 
+A collaborating model can be loaded either between inference execution or
+during a rule interpretation. After the inference execution, the engine can
+return its full internal state as a JavaScript object or limit the returned
 object to facts that changed during the last inference execution. In
 both cases, rules are not included in that state.</p>
-<p><strong>Infernal Engine</strong> can have a tracing function attached to help debugging and 
+<p><strong>Infernal Engine</strong> can have a tracing function attached to help debugging and
 track the inference sequence and actions.</p>
 <p><a href="https://formix.github.io/infernal-engine/">InfernalEngine class Reference</a></p>
-<h1>Usage</h1><h2>Using The &quot;Raw&quot; Engine</h2><pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
+<h2>Usage</h2>
+<h3>Using The &quot;Raw&quot; Engine</h3>
+<pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
 var engine = new InfernalEngine();
 
-// Adds a rule named &quot;/increment&quot; to increment the value of 'i' up to 5.
-engine.addRule(&quot;increment&quot;, function(next) {
-    var i = this.get(&quot;i&quot;);
+// Adds a rule named &quot;/increment&quot; to increment the value of 'i' up to 5, one
+// increment at time.
+engine.addRule(&quot;increment&quot;, function(next, i) {
     if (i &lt; 5) {
-        i++;
-        this.set(&quot;i&quot;, i);
+        return next(null, {&quot;i&quot;: i + 1});
     } else if (i > 5) {
         return next(new Error(&quot;'i' must be lower or equal to 5.&quot;));
     }
     return next();
 });
 
-// Set a value to the fact &quot;/i&quot;
+// Set a value to the fact &quot;i&quot;. the change from 'unknown' to 1 adds the
+// rule 'increment' to the execution agenda.
 engine.set(&quot;i&quot;, 1);
 
-// launches inference
+// Launch the inference: execute the current agenda and builds the next-agenda
+// when the rule change the fact 'i'. Then set the current agenda to the next
+// agenda. If the current agenda is not empty, execute 'infer' again. if the
+// current agenda is empty, execute the callback function.
 engine.infer(function(err) {
     if (err) {
         console.log(err);
@@ -103,47 +108,49 @@ engine.infer(function(err) {
 
     // will print &quot;5&quot;
     console.log(engine.get(&quot;i&quot;));
-});</code></pre><p>As you can see, a rule can retrigger itself if it changes a fact that this
-same rule uses. More complex graph of fact-rule-fact relationship could trigger
-any kind of weird loop patterns and be verry difficult to debug. To prevent 
-insanity inducing infinite loops, <strong>Infernal Engine</strong> <code>infer</code> method is time 
-constrained. If the inference does not execute under 5 seconds, the engine 
-stops and the <code>infer</code> callback is called with a timeout error. That timeout 
-period can be changed by passing another value (in milliseconds) to the 
-<code>InfernalEngine</code> constructor.</p>
-<h2>Defining a Model</h2><p>A model is a way to define rules and facts using a simple Javascript object.
+});
+</code></pre>
+<p>As you can see, a rule can retrigger itself if it changes a fact that this
+same rule uses. More complex graph of fact to rules relationships can lead to
+infinite loops. To to preserve tour sanity, <strong>Infernal Engine</strong> <code>infer</code> method
+is time constrained. If the inference does not execute under 5 seconds,
+the engine stops and the <code>infer</code> callback is called with a timeout error.
+That timeout period can be changed by passing another value (in milliseconds)
+to the <code>InfernalEngine</code> constructor.</p>
+<h3>Defining a Model</h3>
+<p>A model is a way to define rules and facts using a simple Javascript object.
 You can define a model in its own Node module. Alternatively, a single
-module could export a set of related models in the same export.</p>
+module could export a set of related models.</p>
 <p>In the following code block, I have translated the Wikipedia article example
-for <a href="https://en.wikipedia.org/wiki/Forward\_chaining">forward chaining inference</a>
-into Infernal Engine representation. The WikiPedia example use natural 
-language which is close to a first order logic inference engine while Infernal 
-Engine is a 0+ order logic engine.</p>
-<p>See <a href="http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf">Philippe Morignot PDF presentation</a> to know more about different inference engine order logics.</p>
-<h3>Model Example</h3><pre class="prettyprint source lang-javascript"><code>var critterModel = {
+for <a href="https://en.wikipedia.org/wiki/Forward_chaining">forward chaining inference</a>
+into Infernal Engine representation. The WikiPedia example use natural
+language which is close to a first order logic inference engine. Infernal Engine
+is a 0+ order logic engine.</p>
+<p>See <a href="http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf">Philippe Morignot PDF presentation</a>
+to know more about different inference engine order logics.</p>
+<h4>Model Example</h4>
+<pre class="prettyprint source lang-javascript"><code>var critterModel = {
 
   name: &quot;Fritz&quot;,
 
   // We agree that setting a property to undefined is equivalent to not
-  // defining anything. This is just for syntax reference.
+  // defining anything. This is just for syntax reference. These properties
+  // do not have to be defined in the model.
   sound: undefined,
   eats: undefined,
   color: undefined,
   species: undefined,
   sings: undefined,
 
-  isFrog: function(next){
-    var sound = this.get(&quot;sound&quot;);
-    var eats = this.get(&quot;eats&quot;);
+  isFrog: function(next, sound, eats){
+    let species = &quot;unknown&quot;;
     if (sound === &quot;croaks&quot; && eats === &quot;flies&quot;) {
-      this.set(&quot;species&quot;, &quot;frog&quot;);
+      species = &quot;frog&quot;;
     }
-    return next();
+    return next(null, {&quot;species&quot;: species})
   },
 
-  isCanary: function(next) {
-    var sound = this.get(&quot;sound&quot;);
-    var sings = this.get(&quot;sings&quot;);
+  isCanary: function(next, sound, sings) {
     if ( sings && sound === &quot;chirps&quot; ) {
       this.set(&quot;species&quot;, &quot;canary&quot;);
     }
@@ -165,12 +172,15 @@ Engine is a 0+ order logic engine.</p>
     }
     return next();
   }
-};</code></pre><h2>Loading a Model</h2><p>Using a model (or a sub-model) is pretty simple. All you have to do is to call
+};
+</code></pre>
+<h4>Loading a Model</h4>
+<p>Using a model (or a sub-model) is pretty simple. All you have to do is to call
 the engine's <code>load</code> method. Once the engine has some rules in it, changing any
-fact will trigger the matching rules that use it. The engine default context 
-is always set to the root (<code>/</code>) so you don't need to prepend the first 
-forward-slash character within your program, at the engine level.</p>
-<p>The following example displays the critter model before and after executing 
+fact will add any rules that use it to the agenda. The engine default context
+is always set to root (<code>/</code>) so you don't need to prepend the first forward-slash
+character within your program when working at the engine level.</p>
+<p>The following example displays the critter model before and after executing
 the inference:</p>
 <pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
 var engine = new InfernalEngine();
@@ -187,8 +197,9 @@ engine.infer(function(err) {
   }
   console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
 });
-</code></pre><p><strong>Output</strong></p>
-<pre class="prettyprint source"><code>{
+</code></pre>
+<h4>Model structure output</h4>
+<pre class="prettyprint source lang-json"><code>{
   &quot;name&quot;: &quot;Fritz&quot;,
   &quot;sound&quot;: &quot;croaks&quot;,
   &quot;eats&quot;: &quot;flies&quot;
@@ -199,27 +210,29 @@ engine.infer(function(err) {
   &quot;eats&quot;: &quot;flies&quot;,
   &quot;species&quot;: &quot;frog&quot;,
   &quot;color&quot;: &quot;green&quot;
-}</code></pre><p>The <code>Load</code> method crawls the model object structure and creates the matching
+}
+</code></pre>
+<h3>How models are represented internally</h3>
+<p>The <code>Load</code> method crawls the model object structure and creates the matching
 fact and rule mapings. This is how the fact and rules are mapped in the engine
 based on the following model:</p>
-<pre class="prettyprint source lang-javascript"><code>var carModel = {
+<pre class="prettyprint source lang-javascript"><code>let carModel = {
 
   name: &quot;Minivan&quot;,
 
   speed: {
-    userInput: &quot;0&quot;,
+    speedInput: &quot;0&quot;,
     limit: 140,
     value: 0,
 
-    checkLimit: function(next) {
-      var speedInput = Number(this.get(&quot;userInput&quot;));
-      var limit = this.get(&quot;limit&quot;);
-      var value = speedInput > limit ? limit : speedInput;
-      this.set(&quot;value&quot;, value);
-      return next();
+    checkLimit: function(next, speedInput, limit) {
+      var newValue = speedInput > limit ? limit : speedInput;
+      return next(null, {&quot;value&quot;: newValue});
     }
   }
-}</code></pre><p><strong>Facts</strong></p>
+}
+</code></pre>
+<h4>Facts</h4>
 <table>
 <thead>
 <tr>
@@ -246,7 +259,7 @@ based on the following model:</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Rules</strong></p>
+<h4>Rules</h4>
 <table>
 <thead>
 <tr>
@@ -261,53 +274,91 @@ based on the following model:</p>
 </tr>
 </tbody>
 </table>
-<p>Before adding the rule to the rule map, the engine parses the function using
-the regex <code>/this\.get\(&quot;(.+)&quot;\)/</code>. For each match, it maps the referenced fact 
-from the match group to the current rule in a multi-map. That allows the 
-engine to match the exact rules to execute whenever a fact is changed. In this
-case, the <code>checkLimit</code> rule will be added to the agenda whenever the 
-<code>userInput</code> or the <code>limit</code> fact is changed. If both facts change during the 
-same inference cycle, the rule is added once to the agenda.</p>
-<p>I omitted the <code>userInput</code> validation in the rule for clarity purpose. To do 
-that check, we could simply wrap the function body in a try/catch statement 
-and call <code>return next(exception);</code> within the catch block. Doing that would 
-kill the inference engine flow and jump directly to the <code>infer</code> method 
-callback. To be gentler, we could as well use facts to inform the user about
-his mistake. From there, I bet you already have some idea how to do that.
-Something like <code>this.set(&quot;isValid&quot;, false);</code> and setting some meaningful
-error message fact along with it would do the trick.</p>
-<h2>Calling <code>next</code> Within a Rule</h2><p>You must call the <code>next</code> callback to instruct the inference engine to execute 
-the following steps. It is also important to leave the rule immediately after 
-that call. Not exiting the rule after the <code>next</code> call or calling <code>next</code> 
-multimple times in the same rule could cause unpredictable behavior. Keeping 
-the <code>return</code> statement in front of the <code>next()</code> call (i.e.: <code>return next();</code>) 
-is a good way to avoid problems.</p>
-<p>You can call the <code>next</code> callback with a single parameter. This will stop the 
-inference and call the initial <code>infer</code> callback with the parameter you have 
-set as the error object. Calling next with a parameter instruct the engine 
-that an error happened during the rule inference. As stated above, you must 
-return the <code>next</code> callback result even when it is called with an error 
-parameter.</p>
-<h2>Absolute Fact Reference</h2><p>Absolute fact reference involves using a fact full name by including the 
+<p>When adding a rule to the Infernal Engine, the rule's parameters are parsed
+excluding the <code>next</code> callback. These parameter names are expected to exist
+within the same context as the rule. If you want to reference a fact outside
+the current context or to use a different variable name than the same context
+fact, it is possible to use the parameter annotation <code>/*@ {path_to_fact} */</code>.
+See <em>Absolute Fact Reference</em> and <em>Relative Fact Reference</em> for the
+<code>{path_to_fact}</code> syntax.</p>
+<h3>Calling <code>next</code> Within a Rule</h3>
+<p>You must call the <code>next</code> callback to instruct the inference engine to execute
+the following steps. It is also important to leave the rule immediately after
+that call. Not exiting the rule after the <code>next</code> call or calling <code>next</code>
+multimple times in the same rule without returning afterward could cause
+unpredictable behavior. Keeping the <code>return</code> statement in front of the <code>next()</code>
+call (i.e.: <code>return next();</code>) is a good way to avoid problems.</p>
+<p>The <code>next</code> callback first parameter is the error parameter. If set to a
+truthy value, this will stop the inference and call the initial <code>infer</code>
+callback with that error value. The second parameter is an optionnal
+JavaScript object mapping facts to the new values to be set in the engine using
+relative or absolute fact names.</p>
+<h3>Absolute Fact Reference</h3>
+<p>Absolute fact reference involves using a fact full name by including the
 leading &quot;/&quot;. As a convention, a fact can be contextualized using a directory
-like notation. For example: <code>/engine/torque</code> implies that the &quot;torque&quot; fact is
-within the &quot;engine&quot; context starting at the root context. The context can 
-be of any dept and thus form a complex hierarchy of facts.</p>
-<h2>Relative Fact Reference</h2><p>Relative fact reference involves using a fact partial name within the current 
-rule context. To refer to a relative fact, use the fact context without the 
-leading &quot;/&quot; in the fact name. For eaxmple a rule named 
-<code>/hoist/engine/checkPhaseCount</code> is within the base context 
-<code>/hoist/engine</code>. Accessing any fact without a leading &quot;/&quot;, will 
-prepend the current rule context to the referenced fact. </p>
-<p>It is also possible to move up relative to the current context by using 
-the &quot;..&quot;. For example, given the rule <code>/hoist/engine/checkPhaseCount</code> 
-accessing the fact <code>../liftCapacity</code> within <code>checkPhaseCount</code> will access 
-the <code>/hoist/liftCapacity</code> fact.</p>
-<h2>Infernal Debugging</h2><p>Debugging an inference engine's rule-fact relationship web is always a pain. 
-<strong>Infernal Engine</strong> is no exception. Being tough is not a reason to avoid 
-trying though. To help developpers following the inference steps, it is 
-possible to register a tracing function to the engine. This is done by 
-calling the <code>startTracing(function)</code> method. It is also possible to stop tracing by 
+like notation. Given the above minival speed example, lets add a message
+telling the user that the spped limit of the engine is reached:</p>
+<pre class="prettyprint source lang-javascript"><code>let carModel = {
+
+  name: &quot;Minivan&quot;,
+  message: &quot;&quot;,
+
+  speed: {
+    speedInput: &quot;0&quot;,
+    limit: 140,
+    value: 0,
+
+    checkLimit: function(next, speedInput, limit) {
+      var newValue = speedInput > limit ? limit : speedInput;
+      return next(null, {&quot;value&quot;: newValue});
+    },
+
+    // This rule is in the '/speed' context. To reach the /name fact,
+    // it is possible to use the parameter annotation to set the modelName
+    // parameter to the /name absolute fact. The same goes for the returned
+    // /message fact.
+    updateMessage: function(next, value, limit, /*@ /name */ modelName) {
+      if (value === limit) {
+        return next(null, {&quot;/message&quot;: `${modelName} ludicrous speed, GO!`});
+      }
+      return next(null, {&quot;/message&quot;: &quot;&quot;});
+    }
+  }
+}
+</code></pre>
+<h3>Relative Fact Reference</h3>
+<p>Again, just like directory reference in a file system, facts can be referenced
+using their relative path:</p>
+<pre class="prettyprint source lang-javascript"><code>let carModel = {
+
+  name: &quot;Minivan&quot;,
+  message: &quot;&quot;,
+
+  speed: {
+    speedInput: &quot;0&quot;,
+    limit: 140,
+    value: 0,
+
+    checkLimit: function(next, speedInput, limit) {
+      var newValue = speedInput > limit ? limit : speedInput;
+      return next(null, {&quot;value&quot;: newValue});
+    },
+
+    updateMessage: function(next, value, limit, /*@ ../name */ modelName) {
+      if (value === limit) {
+        return next(null, {&quot;../message&quot;: `${modelName} ludicrous speed, GO!`});
+      }
+      return next(null, {&quot;../message&quot;: &quot;&quot;});
+    }
+  }
+}
+</code></pre>
+<h2>Infernal Debugging</h2>
+<p>Debugging an inference engine's rule-fact relationship web is always a pain.
+<strong>Infernal Engine</strong> is no exception. Being tough is not a reason to avoid
+trying though. To help developpers following the inference steps, it is
+possible to register a tracing function to the engine. This is done by
+calling the <code>startTracing(function)</code> method. It is also possible to stop tracing by
 calling <code>stopTracing()</code> thereafter.</p>
 <pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
 var engine = new InfernalEngine();
@@ -327,8 +378,10 @@ engine.infer(function(err) {
     return;
   }
   console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
-});</code></pre><p><strong>Output</strong></p>
-<pre class="prettyprint source"><code>{
+});
+</code></pre>
+<h3>Model structure and debugging outputs</h3>
+<pre class="prettyprint source lang-json"><code>{
   &quot;name&quot;: &quot;Fritz&quot;,
   &quot;sound&quot;: &quot;croaks&quot;,
   &quot;eats&quot;: &quot;flies&quot;
@@ -348,18 +401,13 @@ engine.infer(function(err) {
   &quot;eats&quot;: &quot;flies&quot;,
   &quot;species&quot;: &quot;frog&quot;,
   &quot;color&quot;: &quot;green&quot;
-}</code></pre><h1>Final Note</h1><p>I think this is the further I could go in term of inference engine using pure
-JavaScript syntax. Doing a first order inference engine would involve creating
-a special purpose language. That would require a transpiler to parse that 
-syntax and make it JavaScript. Honestly, I don't know what would be the 
-interest other than doing pure research. I also doubt that a JavaScript
-engine could beat the performance that a native (or byte code) engine could 
-reach.</p>
-<p>I do believe though that this engine can be usefull in many cases. Especially 
-when integrating into Web applications. I did not test its perdormances yet. 
-That would be fun to see how (bad?) it would perform compared to 
-<a href="http://clipsrules.sourceforge.net/">CLIPS</a> or other forward chaining engines.</p>
-<p>In any case, your feedbacks are welcome. Please use github issues to do so.
+}
+</code></pre>
+<h2>Final Note</h2>
+<p>This is the last release of the Infernal Engine for the 0 (pre-release)
+version. The 1.0.0 release will feature a modernized javascript implementation
+using promises with async/await syntax, classes, getters, setters, etc.</p>
+<p>Your feedbacks are welcome. Please use github issues to do so.
 If you want to get involved, pull requests are welcome too!</p></article>
     </section>
 
@@ -377,7 +425,7 @@ If you want to get involved, pull requests are welcome too!</p></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 10 2019 16:32:21 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Oct 04 2020 20:40:35 GMT-0400 (heure avancée de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -114,7 +114,12 @@
 
 
 <div class="description">
-    The done function tells the inference engine that the current rule is terminated and that the next rule shall be executed. If no more rule are inthe agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any parameter. If the done function is called with a parameter, the inference immediately stops (no more rules are executed from the agenda) and the <a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
+    The done function tells the inference engine that the current rule is 
+terminated and that the next rule shall be executed. If no more rule are in
+the agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any 
+parameter. If the done function is called with a parameter, the inference 
+immediately stops (no more rules are executed from the agenda) and the 
+<a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
 </div>
 
 
@@ -181,7 +186,8 @@
 
             
 
-            <td class="description last">The error information to send to the        <a href="global.html#inferenceCallback">inferenceCallback</a></td>
+            <td class="description last">The error information to send to the 
+       <a href="global.html#inferenceCallback">inferenceCallback</a></td>
         </tr>
 
     
@@ -222,7 +228,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line451">line 451</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line479">line 479</a>
     </li></ul></dd>
     
 
@@ -232,6 +238,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -264,7 +272,12 @@
 
 
 <div class="description">
-    The done function tells the inference engine that the current rule is terminated and that the next rule shall be executed. If no more rule are inthe agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any parameter. If the done function is called with a parameter, the inference immediately stops (no more rules are executed from the agenda) and the <a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
+    The done function tells the inference engine that the current rule is 
+terminated and that the next rule shall be executed. If no more rule are in
+the agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any 
+parameter. If the done function is called with a parameter, the inference 
+immediately stops (no more rules are executed from the agenda) and the 
+<a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
 </div>
 
 
@@ -331,7 +344,8 @@
 
             
 
-            <td class="description last">The error information to send to the        <a href="global.html#inferenceCallback">inferenceCallback</a></td>
+            <td class="description last">The error information to send to the 
+       <a href="global.html#inferenceCallback">inferenceCallback</a></td>
         </tr>
 
     
@@ -372,7 +386,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line451">line 451</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line479">line 479</a>
     </li></ul></dd>
     
 
@@ -382,6 +396,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -522,7 +538,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line444">line 444</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line472">line 472</a>
     </li></ul></dd>
     
 
@@ -532,6 +548,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -672,7 +690,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line444">line 444</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line472">line 472</a>
     </li></ul></dd>
     
 
@@ -682,6 +700,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -714,7 +734,13 @@
 
 
 <div class="description">
-    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> instance. It is important to note that before exiting a rule function, thedone callback function has to be called to inform the engine that the nextrule in the agenda has to be executed. Usually after calling the done function the method should exits by explicitely calling 'return' or by letting the execution exit the scope of the function.
+    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback 
+method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> 
+instance. It is important to note that before exiting a rule function, the
+done callback function has to be called to inform the engine that the next
+rule in the agenda has to be executed. Usually after calling the done 
+function the method should exits by explicitely calling 'return' or by 
+letting the execution exit the scope of the function.
 </div>
 
 
@@ -769,7 +795,8 @@
 
             
 
-            <td class="description last">The done callback to call when the rule terminate                     execution.</td>
+            <td class="description last">The done callback to call when the rule terminate
+                     execution.</td>
         </tr>
 
     
@@ -810,7 +837,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line465">line 465</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line493">line 493</a>
     </li></ul></dd>
     
 
@@ -820,6 +847,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -852,7 +881,13 @@
 
 
 <div class="description">
-    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> instance. It is important to note that before exiting a rule function, thedone callback function has to be called to inform the engine that the nextrule in the agenda has to be executed. Usually after calling the done function the method should exits by explicitely calling 'return' or by letting the execution exit the scope of the function.
+    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback 
+method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> 
+instance. It is important to note that before exiting a rule function, the
+done callback function has to be called to inform the engine that the next
+rule in the agenda has to be executed. Usually after calling the done 
+function the method should exits by explicitely calling 'return' or by 
+letting the execution exit the scope of the function.
 </div>
 
 
@@ -907,7 +942,8 @@
 
             
 
-            <td class="description last">The done callback to call when the rule terminate                     execution.</td>
+            <td class="description last">The done callback to call when the rule terminate
+                     execution.</td>
         </tr>
 
     
@@ -948,7 +984,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line465">line 465</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line493">line 493</a>
     </li></ul></dd>
     
 
@@ -958,6 +994,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -990,7 +1028,8 @@
 
 
 <div class="description">
-    The trace callback is called when an event changing the engine state is hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
+    The trace callback is called when an event changing the engine state is 
+hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
 </div>
 
 
@@ -1083,7 +1122,8 @@
 
             
 
-            <td class="description last">Can be either 'reset', 'set', 'notify',                                'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
+            <td class="description last">Can be either 'reset', 'set', 'notify', 
+                               'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
         </tr>
 
     
@@ -1116,7 +1156,9 @@
 
             
 
-            <td class="description last">The rule name that generated the trace. This                               property is undefined if the trace was not                               generated during inference.</td>
+            <td class="description last">The rule name that generated the trace. This
+                               property is undefined if the trace was not
+                               generated during inference.</td>
         </tr>
 
     
@@ -1149,7 +1191,8 @@
 
             
 
-            <td class="description last">The fact name if the trace action is 'set'                                or 'notify'.</td>
+            <td class="description last">The fact name if the trace action is 'set' 
+                               or 'notify'.</td>
         </tr>
 
     
@@ -1182,7 +1225,8 @@
 
             
 
-            <td class="description last">The previous value of the fact if the trace                               action is 'set'.</td>
+            <td class="description last">The previous value of the fact if the trace
+                               action is 'set'.</td>
         </tr>
 
     
@@ -1215,7 +1259,8 @@
 
             
 
-            <td class="description last">The new value of the fact if trace action                                is 'set' or 'notify'.</td>
+            <td class="description last">The new value of the fact if trace action 
+                               is 'set' or 'notify'.</td>
         </tr>
 
     
@@ -1248,7 +1293,9 @@
 
             
 
-            <td class="description last">The message sent by the                                <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace                               action is 'trace'.</td>
+            <td class="description last">The message sent by the 
+                               <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace
+                               action is 'trace'.</td>
         </tr>
 
     
@@ -1289,7 +1336,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line480">line 480</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line508">line 508</a>
     </li></ul></dd>
     
 
@@ -1299,6 +1346,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1331,7 +1380,8 @@
 
 
 <div class="description">
-    The trace callback is called when an event changing the engine state is hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
+    The trace callback is called when an event changing the engine state is 
+hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
 </div>
 
 
@@ -1424,7 +1474,8 @@
 
             
 
-            <td class="description last">Can be either 'reset', 'set', 'notify',                                'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
+            <td class="description last">Can be either 'reset', 'set', 'notify', 
+                               'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
         </tr>
 
     
@@ -1457,7 +1508,9 @@
 
             
 
-            <td class="description last">The rule name that generated the trace. This                               property is undefined if the trace was not                               generated during inference.</td>
+            <td class="description last">The rule name that generated the trace. This
+                               property is undefined if the trace was not
+                               generated during inference.</td>
         </tr>
 
     
@@ -1490,7 +1543,8 @@
 
             
 
-            <td class="description last">The fact name if the trace action is 'set'                                or 'notify'.</td>
+            <td class="description last">The fact name if the trace action is 'set' 
+                               or 'notify'.</td>
         </tr>
 
     
@@ -1523,7 +1577,8 @@
 
             
 
-            <td class="description last">The previous value of the fact if the trace                               action is 'set'.</td>
+            <td class="description last">The previous value of the fact if the trace
+                               action is 'set'.</td>
         </tr>
 
     
@@ -1556,7 +1611,8 @@
 
             
 
-            <td class="description last">The new value of the fact if trace action                                is 'set' or 'notify'.</td>
+            <td class="description last">The new value of the fact if trace action 
+                               is 'set' or 'notify'.</td>
         </tr>
 
     
@@ -1589,7 +1645,9 @@
 
             
 
-            <td class="description last">The message sent by the                                <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace                               action is 'trace'.</td>
+            <td class="description last">The message sent by the 
+                               <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace
+                               action is 'trace'.</td>
         </tr>
 
     
@@ -1630,7 +1688,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line480">line 480</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line508">line 508</a>
     </li></ul></dd>
     
 
@@ -1640,6 +1698,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1678,7 +1738,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 10 2019 16:32:21 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Oct 04 2020 20:40:35 GMT-0400 (heure avancée de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>
