@@ -43,15 +43,47 @@ describe("InfernalEngine", async() => {
 
             engine.addRule("s/rule", async (i) => {});
             assert.deepStrictEqual(engine._rules.has("/s/rule"), true,
-            "The rule '/s/rule' was not added to the internal ruleset.");
+                "The rule '/s/rule' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
-            "The relation between the fact '/s/i' and the rule '/s/rule' was not properly established.");
+                "The relation between the fact '/s/i' and the rule '/s/rule' was not properly established.");
 
 
-            // engine.addRule("rule2", async (i, a, b) => {}); // multiple local facts
-            // engine.addRule("rule3", async (x /*@ /another/path */) => {}); // one different path fact
-            // engine.addRule("rule4", async (x /*@ /another/path */, y /*@ /some/other/path */) => {}); // two different path fact
-            // engine.addRule("sub/rule", async (x /*@ ../x */) => {}); // parent path
+            // engine.addRule("sub/rule", async (x /*@ ../rootx */) => {}); // parent path
         });
+
+        it("shall add multiple fact-rule relations given multiple parameters.", async () => {
+            let engine = new InfernalEngine();
+            engine.addRule("rule", async (i, a, b) => {}); // multiple local facts
+            assert.deepStrictEqual(engine._relations.get("/i").has("/rule"), true,
+                "The relation between the fact '/i' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/a").has("/rule"), true,
+                "The relation between the fact '/a' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/b").has("/rule"), true,
+                "The relation between the fact '/b' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referenceing a fact with a specified path", async () => {
+            let engine = new InfernalEngine();
+            engine.addRule("rule", async (/*@ /another/path */ x) => {});
+            assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
+                "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referenceing a fact with a specified path for multiple parameters", async () => {
+            let engine = new InfernalEngine();
+            engine.addRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
+            assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
+                "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/some/other/path").has("/rule"), true,
+                "The relation between the fact '/some/other/path' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referenceing a fact with a specified complex path", async () => {
+            let engine = new InfernalEngine();
+            engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
+            assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
+                "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
+        });
+
     });
 });
