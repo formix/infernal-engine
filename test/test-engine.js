@@ -24,9 +24,9 @@ describe("InfernalEngine", async() => {
         it("shall get an existing fact from the engine.", async () => {
             let engine = new InfernalEngine();
             await engine.set("i", 7, false);
-            let i = await engine.get("i");
+            let i = engine.get("i");
             assert.deepStrictEqual(i, 7);
-            let i2 = await engine.get("/i");
+            let i2 = engine.get("/i");
             assert.deepStrictEqual(i2, 7);
         });
     });
@@ -83,6 +83,23 @@ describe("InfernalEngine", async() => {
             engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
                 "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
+        });
+
+    });
+
+    describe("#infer", () => {
+
+        it("shall count up or down to 5.", async () => {
+            let engine = new InfernalEngine();
+            engine.addRule("count5", async (i) => {
+                if (i < 5) {
+                    return { "i": i + 1 };
+                } else if (i > 5) {
+                    return { "i": i - 1 };
+                }
+            });
+            await engine.set("i", 9);
+            assert.deepStrictEqual(engine.get("i"), 5);
         });
 
     });
