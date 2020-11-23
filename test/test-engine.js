@@ -46,9 +46,6 @@ describe("InfernalEngine", async() => {
                 "The rule '/s/rule' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
                 "The relation between the fact '/s/i' and the rule '/s/rule' was not properly established.");
-
-
-            // engine.addRule("sub/rule", async (x /*@ ../rootx */) => {}); // parent path
         });
 
         it("shall add multiple fact-rule relations given multiple parameters.", async () => {
