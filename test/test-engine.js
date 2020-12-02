@@ -100,4 +100,19 @@ describe("InfernalEngine", async() => {
         });
 
     });
+
+
+    describe("#import", () => {
+
+        it("shall load and infer the animal is agreen frog.", async () => {
+            let engine = new InfernalEngine();
+            let critterModel = require("./critterModel");
+            await engine.import(critterModel);
+            await engine.set("eats", "flies", true);
+            await engine.set("sound", "croaks");
+            assert.deepStrictEqual(engine.get("species"), "frog");
+            assert.deepStrictEqual(engine.get("color"), "green");
+        });
+
+    });
 });
