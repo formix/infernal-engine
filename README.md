@@ -105,7 +105,7 @@ to know more about different inference engine order logics.
 var critterModel = {
 
   name: "Fritz",
-
+  
   // We agree that setting a property to undefined is equivalent to not
   // defining anything. This is just for syntax reference. These properties
   // do not have to be defined in the model.
@@ -114,37 +114,33 @@ var critterModel = {
   color: undefined,
   species: undefined,
   sings: undefined,
-
-  isFrog: function(next, sound, eats){
+  
+  isFrog: async function(sound, eats){
     let species = "unknown";
     if (sound === "croaks" && eats === "flies") {
       species = "frog";
     }
-    return next(null, {"species": species})
+    return {"species": species};
   },
 
-  isCanary: function(next, sound, sings) {
+  isCanary: async function(sound, sings) {
     if ( sings && sound === "chirps" ) {
-      return next(null, {"species": "canary"});
+      return {"species": "canary"};
     }
-    return next();
   },
-
-  isGreen: function(next) {
-    var species = this.get("species");
+  
+  isGreen: async function(species) {
     if (species === "frog") {
-      return next(null, {"color": "green"});
+      return {"color": "green"};
     }
-    return next();
   },
-
-  isYellow: function(next) {
-    var species = this.get("species");
+  
+  isYellow: async function(species) {
     if (species === "canary") {
-      return next(null, {"color": "yellow"});
+      return {"color": "yellow"};
     }
-    return next();
   }
+
 };
 ```
 
