@@ -114,5 +114,54 @@ describe("InfernalEngine", async() => {
             assert.deepStrictEqual(engine.get("color"), "green");
         });
 
+        it("shall load and infer the animal is agreen frog inside the submodel.", async () => {
+            let engine = new InfernalEngine();
+            let critterModel = require("./critterModel");
+            await engine.import("/the/critter/model", critterModel);
+            await engine.set("/the/critter/model/eats", "flies", true);
+            await engine.set("/the/critter/model/sound", "croaks");
+            assert.deepStrictEqual(engine.get("/the/critter/model/species"), "frog");
+            assert.deepStrictEqual(engine.get("/the/critter/model/color"), "green");
+        });
+
+    });
+
+
+    describe("#export", () => {
+
+        it("shall export the same model the one imported.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: 5.5
+                },
+            }
+            await engine.import("/", model, true);
+            let model2 = engine.export();
+            assert.deepStrictEqual(model2, model);
+        });
+
+        it("shall export the same submodel the one imported.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: false
+                },
+            }
+            await engine.import("/", model, true);
+            let model2 = engine.export("/d");
+            assert.deepStrictEqual(model2, model.d);
+        });
+
     });
 });
