@@ -8,13 +8,13 @@ describe("InfernalEngine", async() => {
         let engine = new InfernalEngine();
         it("setting the value 'i' shall add a new fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("i", 5, false);
+            await engine.set("i", 5, true);
             assert.deepStrictEqual(engine._facts.has("/i"), true);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
         it("setting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("/i", 0, false);
+            await engine.set("/i", 0, true);
             assert.deepStrictEqual(engine._facts.get("/i"), 0);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
@@ -23,7 +23,7 @@ describe("InfernalEngine", async() => {
     describe("#get", () => {
         it("shall get an existing fact from the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("i", 7, false);
+            await engine.set("i", 7, true);
             let i = engine.get("i");
             assert.deepStrictEqual(i, 7);
             let i2 = engine.get("/i");
@@ -114,7 +114,7 @@ describe("InfernalEngine", async() => {
             assert.deepStrictEqual(engine.get("color"), "green");
         });
 
-        it("shall load and infer the animal is agreen frog inside the submodel.", async () => {
+        it("shall load and infer the animal is a green frog inside the submodel.", async () => {
             let engine = new InfernalEngine();
             let critterModel = require("./critterModel");
             await engine.import("/the/critter/model", critterModel);
@@ -129,7 +129,7 @@ describe("InfernalEngine", async() => {
 
     describe("#export", () => {
 
-        it("shall export the same model the one imported.", async () => {
+        it("shall export the same model as the one imported.", async () => {
             let engine = new InfernalEngine();
             let model = {
                 a: "a",
@@ -146,7 +146,7 @@ describe("InfernalEngine", async() => {
             assert.deepStrictEqual(model2, model);
         });
 
-        it("shall export the same submodel the one imported.", async () => {
+        it("shall export the same submodel as the one imported.", async () => {
             let engine = new InfernalEngine();
             let model = {
                 a: "a",
