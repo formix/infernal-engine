@@ -10,13 +10,15 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             await engine.set("i", 5, true);
             assert.deepStrictEqual(engine._facts.has("/i"), true);
-            assert.deepStrictEqual(engine._changes.size, 1);
+            // size - 1 because we don't want to deal with the meta fact '_maxDepth'
+            assert.deepStrictEqual(engine._changes.size - 1, 1);
         });
         it("setting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
             await engine.set("/i", 0, true);
             assert.deepStrictEqual(engine._facts.get("/i"), 0);
-            assert.deepStrictEqual(engine._changes.size, 1);
+            // size - 1 because we don't want to deal with the meta fact '_maxDepth'
+            assert.deepStrictEqual(engine._changes.size - 1, 1);
         });
     });
 
@@ -112,8 +114,6 @@ describe("InfernalEngine", async() => {
                 eats: "flies",
                 sound: "croaks"
             });
-            // await engine.set("eats", "flies");
-            // await engine.set("sound", "croaks");
             assert.deepStrictEqual(await engine.get("species"), "frog");
             assert.deepStrictEqual(await engine.get("color"), "green");
         });
@@ -122,7 +122,7 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             let critterModel = require("./critterModel");
             await engine.import("/the/critter/model", critterModel);
-            await engine.set("/the/critter/model/eats", "flies", true);
+            await engine.set("/the/critter/model/eats", "flies");
             await engine.set("/the/critter/model/sound", "croaks");
             assert.deepStrictEqual(await engine.get("/the/critter/model/species"), "frog");
             assert.deepStrictEqual(await engine.get("/the/critter/model/color"), "green");
@@ -147,6 +147,7 @@ describe("InfernalEngine", async() => {
             }
             await engine.import("/", model, true);
             let model2 = await engine.export();
+            delete model2._maxDepth; // we don't want to deal with the meta fact '_maxDepth'
             assert.deepStrictEqual(model2, model);
         });
 
