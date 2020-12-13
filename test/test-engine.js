@@ -24,9 +24,9 @@ describe("InfernalEngine", async() => {
         it("shall get an existing fact from the engine.", async () => {
             let engine = new InfernalEngine();
             await engine.set("i", 7, true);
-            let i = engine.get("i");
+            let i = await engine.get("i");
             assert.deepStrictEqual(i, 7);
-            let i2 = engine.get("/i");
+            let i2 = await engine.get("/i");
             assert.deepStrictEqual(i2, 7);
         });
     });
@@ -35,13 +35,13 @@ describe("InfernalEngine", async() => {
     describe("#addRule", () => {
         it("shall add a rule and interpret the parameters correctly.", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("rule1", async (i) => {});
+            await engine.addRule("rule1", async (i) => {});
             assert.deepStrictEqual(engine._rules.has("/rule1"), true,
                 "The rule '/rule1' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule1"), true,
                 "The relation between the fact '/i' and the rule '/rule1' was not properly established.");
 
-            engine.addRule("s/rule", async (i) => {});
+            await engine.addRule("s/rule", async (i) => {});
             assert.deepStrictEqual(engine._rules.has("/s/rule"), true,
                 "The rule '/s/rule' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
@@ -50,7 +50,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add multiple fact-rule relations given multiple parameters.", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("rule", async (i, a, b) => {}); // multiple local facts
+            await engine.addRule("rule", async (i, a, b) => {}); // multiple local facts
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule"), true,
                 "The relation between the fact '/i' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/a").has("/rule"), true,
@@ -61,14 +61,14 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referenceing a fact with a specified path", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("rule", async (/*@ /another/path */ x) => {});
+            await engine.addRule("rule", async (/*@ /another/path */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
         });
 
         it("shall add a rule referenceing a fact with a specified path for multiple parameters", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
+            await engine.addRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/some/other/path").has("/rule"), true,
@@ -77,7 +77,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referenceing a fact with a specified complex path", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
+            await engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
                 "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
         });
@@ -88,7 +88,7 @@ describe("InfernalEngine", async() => {
 
         it("shall count up or down to 5.", async () => {
             let engine = new InfernalEngine();
-            engine.addRule("count5", async (i) => {
+            await engine.addRule("count5", async (i) => {
                 if (i < 5) {
                     return { "i": i + 1 };
                 } else if (i > 5) {
@@ -96,7 +96,7 @@ describe("InfernalEngine", async() => {
                 }
             });
             await engine.set("i", 9);
-            assert.deepStrictEqual(engine.get("i"), 5);
+            assert.deepStrictEqual(await engine.get("i"), 5);
         });
 
     });
@@ -108,10 +108,14 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             let critterModel = require("./critterModel");
             await engine.import(critterModel);
-            await engine.set("eats", "flies", true);
-            await engine.set("sound", "croaks");
-            assert.deepStrictEqual(engine.get("species"), "frog");
-            assert.deepStrictEqual(engine.get("color"), "green");
+            await engine.import({
+                eats: "flies",
+                sound: "croaks"
+            });
+            // await engine.set("eats", "flies");
+            // await engine.set("sound", "croaks");
+            assert.deepStrictEqual(await engine.get("species"), "frog");
+            assert.deepStrictEqual(await engine.get("color"), "green");
         });
 
         it("shall load and infer the animal is a green frog inside the submodel.", async () => {
@@ -120,8 +124,8 @@ describe("InfernalEngine", async() => {
             await engine.import("/the/critter/model", critterModel);
             await engine.set("/the/critter/model/eats", "flies", true);
             await engine.set("/the/critter/model/sound", "croaks");
-            assert.deepStrictEqual(engine.get("/the/critter/model/species"), "frog");
-            assert.deepStrictEqual(engine.get("/the/critter/model/color"), "green");
+            assert.deepStrictEqual(await engine.get("/the/critter/model/species"), "frog");
+            assert.deepStrictEqual(await engine.get("/the/critter/model/color"), "green");
         });
 
     });
@@ -142,7 +146,7 @@ describe("InfernalEngine", async() => {
                 },
             }
             await engine.import("/", model, true);
-            let model2 = engine.export();
+            let model2 = await engine.export();
             assert.deepStrictEqual(model2, model);
         });
 
@@ -159,7 +163,7 @@ describe("InfernalEngine", async() => {
                 },
             }
             await engine.import("/", model, true);
-            let model2 = engine.export("/d");
+            let model2 = await engine.export("/d");
             assert.deepStrictEqual(model2, model.d);
         });
 
