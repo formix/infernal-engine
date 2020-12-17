@@ -147,7 +147,7 @@ describe("InfernalEngine", async() => {
             }
             await engine.import("/", model, true);
             let model2 = await engine.export();
-            delete model2._maxDepth; // we don't want to deal with the meta fact '_maxDepth'
+            delete model2.$; // we don't want to deal with meta facts in '$''
             assert.deepStrictEqual(model2, model);
         });
 
