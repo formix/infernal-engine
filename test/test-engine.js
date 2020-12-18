@@ -10,15 +10,13 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             await engine.set("i", 5, true);
             assert.deepStrictEqual(engine._facts.has("/i"), true);
-            // size - 1 because we don't want to deal with the meta fact '_maxDepth'
-            assert.deepStrictEqual(engine._changes.size - 1, 1);
+            assert.deepStrictEqual(engine._changes.size, 1);
         });
         it("setting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
             await engine.set("/i", 0, true);
             assert.deepStrictEqual(engine._facts.get("/i"), 0);
-            // size - 1 because we don't want to deal with the meta fact '_maxDepth'
-            assert.deepStrictEqual(engine._changes.size - 1, 1);
+            assert.deepStrictEqual(engine._changes.size, 1);
         });
     });
 
