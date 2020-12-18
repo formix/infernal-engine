@@ -12,17 +12,20 @@ module.exports = {
         if (!isInt) {
           return { "../message": `Error: '${input}' is not a valid integer.` }
         }
-        return { value: Number(input) };
+        return { 
+          "../message": undefined,
+          value: Number(input) 
+        };
       },
       
-      valueIsWithinLimit: async function(value, limit) {
+      valueIsUnderLimit: async function(value, limit) {
         if (value > limit) {
           return {
             value: limit,
             "/message": `WARN: The speed input can not exceed the speed limit of ${limit}.`
           }
         }
-        return { "/message": "" };
       }
+
     }
   }

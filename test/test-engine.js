@@ -106,7 +106,7 @@ describe("InfernalEngine", async() => {
 
         it("shall load and infer the animal is agreen frog.", async () => {
             let engine = new InfernalEngine();
-            let critterModel = require("./critterModel");
+            let critterModel = require("./models/critterModel");
             await engine.import(critterModel);
             await engine.import({
                 eats: "flies",
@@ -118,7 +118,7 @@ describe("InfernalEngine", async() => {
 
         it("shall load and infer the animal is a green frog inside the submodel.", async () => {
             let engine = new InfernalEngine();
-            let critterModel = require("./critterModel");
+            let critterModel = require("./models/critterModel");
             await engine.import("/the/critter/model", critterModel);
             await engine.set("/the/critter/model/eats", "flies");
             await engine.set("/the/critter/model/sound", "croaks");
@@ -143,7 +143,7 @@ describe("InfernalEngine", async() => {
                     z: 5.5
                 },
             }
-            await engine.import("/", model, true);
+            await engine.import("/", model);
             let model2 = await engine.export();
             delete model2.$; // we don't want to deal with meta facts in '$''
             assert.deepStrictEqual(model2, model);
@@ -161,10 +161,60 @@ describe("InfernalEngine", async() => {
                     z: false
                 },
             }
-            await engine.import("/", model, true);
+            await engine.import("/", model);
             let model2 = await engine.export("/d");
             assert.deepStrictEqual(model2, model.d);
         });
 
+    });
+
+
+    describe("#exportChanges", () => {
+
+        it("shall export what changed during inference.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.clear();
+            await engine.set("/speed/input", "50");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                speed: { 
+                    input: "50",
+                    value: 50
+                }
+            });
+        });
+
+        it("shall add a message at the root of the model.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.clear();
+            await engine.set("/speed/input", "invalid number");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                message: "Error: 'invalid number' is not a valid integer.",
+                speed: { 
+                    input: "invalid number"
+                }
+            });
+        });
+
+        it("shall do the conversion and add a message at the root of the model.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.clear();
+            await engine.set("/speed/input", "200");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                message: "WARN: The speed input can not exceed the speed limit of 140.",
+                speed: { 
+                    input: "200",
+                    value: 140
+                }
+            });
+        });
     });
 });
