@@ -59,14 +59,14 @@ describe("InfernalEngine", async() => {
                 "The relation between the fact '/b' and the rule '/rule' was not properly established.");
         });
 
-        it("shall add a rule referenceing a fact with a specified path", async () => {
+        it("shall add a rule referencing a fact with a specified path", async () => {
             let engine = new InfernalEngine();
             await engine.addRule("rule", async (/*@ /another/path */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
         });
 
-        it("shall add a rule referenceing a fact with a specified path for multiple parameters", async () => {
+        it("shall add a rule referencing a fact with a specified path for multiple parameters", async () => {
             let engine = new InfernalEngine();
             await engine.addRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
@@ -75,7 +75,7 @@ describe("InfernalEngine", async() => {
                 "The relation between the fact '/some/other/path' and the rule '/rule' was not properly established.");
         });
 
-        it("shall add a rule referenceing a fact with a specified complex path", async () => {
+        it("shall add a rule referencing a fact with a specified complex path", async () => {
             let engine = new InfernalEngine();
             await engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
@@ -145,7 +145,7 @@ describe("InfernalEngine", async() => {
             }
             await engine.import("/", model);
             let model2 = await engine.export();
-            delete model2.$; // we don't want to deal with meta facts in '$''
+            delete model2.$; // we don't want to deal with meta facts
             assert.deepStrictEqual(model2, model);
         });
 
