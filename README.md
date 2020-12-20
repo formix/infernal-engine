@@ -113,12 +113,11 @@ var critterModel = {
 #### Importing a Model ####
 
 A model is a javascript object with scalar values or arrays and methods.
-Facts and rules paths are built based on their location within the javascrip
-object. The internal representation of a model is explained in the next
-section.
+Facts and rules paths are built based on their location in the object.
+The internal representation of a model is explained in the next section.
 
-The following example displays the critter model before and after executing
-the inference:
+The following example displays the critter model after setting two facts at
+the same time:
 
 ```javascript
 let InfernalEngine = require("infernal-engine");
