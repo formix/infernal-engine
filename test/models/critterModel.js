@@ -2,14 +2,12 @@ module.exports = {
 
   name: "Fritz",
   
-  // We agree that setting a property to undefined is equivalent to not
-  // defining anything. This is just for syntax reference. These properties
-  // do not have to be defined in the model.
-  sound: undefined,
-  eats: undefined,
-  color: undefined,
-  species: undefined,
-  sings: undefined,
+  sound: "",
+  eats: "",
+  sings: false,
+
+  color: "unknown",
+  species: "unknown",
   
   isFrog: async function(sound, eats){
     let species = "unknown";

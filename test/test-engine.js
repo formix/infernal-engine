@@ -89,14 +89,13 @@ describe("InfernalEngine", async() => {
         it("shall count up or down to 5.", async () => {
             let engine = new InfernalEngine();
             await engine.addRule("count5", async (i) => {
-                if (i < 5) {
+                if (typeof i !== "undefined" && i < 5) {
                     return { "i": i + 1 };
-                } else if (i > 5) {
-                    return { "i": i - 1 };
                 }
             });
-            await engine.set("i", 9);
-            assert.deepStrictEqual(await engine.get("i"), 5);
+            await engine.set("i", 1);
+            let final_i = await engine.get("i");
+            assert.deepStrictEqual(final_i, 5);
         });
 
     });
@@ -119,7 +118,7 @@ describe("InfernalEngine", async() => {
         it("shall load and infer the animal is a green frog inside the submodel.", async () => {
             let engine = new InfernalEngine();
             let critterModel = require("./models/critterModel");
-            await engine.import("/the/critter/model", critterModel);
+            await engine.import(critterModel, "/the/critter/model");
             await engine.set("/the/critter/model/eats", "flies");
             await engine.set("/the/critter/model/sound", "croaks");
             assert.deepStrictEqual(await engine.get("/the/critter/model/species"), "frog");
@@ -143,7 +142,7 @@ describe("InfernalEngine", async() => {
                     z: 5.5
                 },
             }
-            await engine.import("/", model);
+            await engine.import(model);
             let model2 = await engine.export();
             delete model2.$; // we don't want to deal with meta facts
             assert.deepStrictEqual(model2, model);
@@ -161,7 +160,7 @@ describe("InfernalEngine", async() => {
                     z: false
                 },
             }
-            await engine.import("/", model);
+            await engine.import(model);
             let model2 = await engine.export("/d");
             assert.deepStrictEqual(model2, model.d);
         });
@@ -175,7 +174,7 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             let carModel = require("./models/carModel");
             await engine.import(carModel);
-            engine.clear();
+            engine.reset();
             await engine.set("/speed/input", "50");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
@@ -190,7 +189,7 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             let carModel = require("./models/carModel");
             await engine.import(carModel);
-            engine.clear();
+            engine.reset();
             await engine.set("/speed/input", "invalid number");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
@@ -205,7 +204,7 @@ describe("InfernalEngine", async() => {
             let engine = new InfernalEngine();
             let carModel = require("./models/carModel");
             await engine.import(carModel);
-            engine.clear();
+            engine.reset();
             await engine.set("/speed/input", "200");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
