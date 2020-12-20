@@ -364,15 +364,29 @@ exact fact path that shall be set to the following parameter. The syntax is:
 
 `path_to_fact` can be either a relative or an absolute path.
 
-### Relative Fact Reference ###
+### Relative and Absolute Fact Reference ###
 
 Just like directory reference in a file system, facts can be referenced
 using their relative path from the context of the executing rule. When
 referencing a fact, "../" does pop up one path element. When the path
 starts with "/", it references an absolute path from the root context.
+To dig down inside the fact tree from the current context, just writhe the
+path elements without a leading "/" like: "child/of/the/current/context".
 
+### Meta facts ###
 
+There is a special kind of facts that lies within the engine. Meta facts
+can be referenced in a rule to know about the context of the current rule
+execution. Meta facts cannot trigger rules that references them. They are
+used to inform the interested rule of the state of the engine. Metafacts are
+in the "/$/" context. For now there is only two meta facts:
 
+  1. `/$/maxDepth` contains the value passed to the InfernalEngine constructor
+     of the same name. It tells how many agenda can be generated in one
+     inference run before failing.
+
+  2. `/$/depth` is the current agenda generation. Its value starts at 1 and is
+     always smaller or equal to `/$/maxDepth`.
 
 
 
