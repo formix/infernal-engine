@@ -4,44 +4,44 @@ const assert = require("assert");
 
 describe("InfernalEngine", async() => {
 
-    describe("#set", async () => {
+    describe("#assert", async () => {
         let engine = new InfernalEngine();
-        it("setting the value 'i' shall add a new fact '/i' in the engine.", async () => {
+        it("asserting the value 'i' shall add a new fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("i", 5, true);
+            await engine.assert("i", 5, true);
             assert.deepStrictEqual(engine._facts.has("/i"), true);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
-        it("setting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
+        it("asserting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("/i", 0, true);
+            await engine.assert("/i", 0, true);
             assert.deepStrictEqual(engine._facts.get("/i"), 0);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
     });
 
-    describe("#get", () => {
+    describe("#peek", () => {
         it("shall get an existing fact from the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.set("i", 7, true);
-            let i = await engine.get("i");
+            await engine.assert("i", 7, true);
+            let i = await engine.peek("i");
             assert.deepStrictEqual(i, 7);
-            let i2 = await engine.get("/i");
+            let i2 = await engine.peek("/i");
             assert.deepStrictEqual(i2, 7);
         });
     });
 
 
-    describe("#addRule", () => {
+    describe("#defRule", () => {
         it("shall add a rule and interpret the parameters correctly.", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("rule1", async (i) => {});
+            await engine.defRule("rule1", async (i) => {});
             assert.deepStrictEqual(engine._rules.has("/rule1"), true,
                 "The rule '/rule1' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule1"), true,
                 "The relation between the fact '/i' and the rule '/rule1' was not properly established.");
 
-            await engine.addRule("s/rule", async (i) => {});
+            await engine.defRule("s/rule", async (i) => {});
             assert.deepStrictEqual(engine._rules.has("/s/rule"), true,
                 "The rule '/s/rule' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
@@ -50,7 +50,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add multiple fact-rule relations given multiple parameters.", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("rule", async (i, a, b) => {}); // multiple local facts
+            await engine.defRule("rule", async (i, a, b) => {}); // multiple local facts
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule"), true,
                 "The relation between the fact '/i' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/a").has("/rule"), true,
@@ -61,14 +61,14 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referencing a fact with a specified path", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("rule", async (/*@ /another/path */ x) => {});
+            await engine.defRule("rule", async (/*@ /another/path */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
         });
 
         it("shall add a rule referencing a fact with a specified path for multiple parameters", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
+            await engine.defRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/some/other/path").has("/rule"), true,
@@ -77,7 +77,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referencing a fact with a specified complex path", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
+            await engine.defRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
             assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
                 "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
         });
@@ -88,13 +88,13 @@ describe("InfernalEngine", async() => {
 
         it("shall count up or down to 5.", async () => {
             let engine = new InfernalEngine();
-            await engine.addRule("count5", async (i) => {
+            await engine.defRule("count5", async (i) => {
                 if (typeof i !== "undefined" && i < 5) {
                     return { "i": i + 1 };
                 }
             });
-            await engine.set("i", 1);
-            let final_i = await engine.get("i");
+            await engine.assert("i", 1);
+            let final_i = await engine.peek("i");
             assert.deepStrictEqual(final_i, 5);
         });
 
@@ -111,18 +111,18 @@ describe("InfernalEngine", async() => {
                 eats: "flies",
                 sound: "croaks"
             });
-            assert.deepStrictEqual(await engine.get("species"), "frog");
-            assert.deepStrictEqual(await engine.get("color"), "green");
+            assert.deepStrictEqual(await engine.peek("species"), "frog");
+            assert.deepStrictEqual(await engine.peek("color"), "green");
         });
 
         it("shall load and infer the animal is a green frog inside the submodel.", async () => {
             let engine = new InfernalEngine();
             let critterModel = require("./models/critterModel");
             await engine.import(critterModel, "/the/critter/model");
-            await engine.set("/the/critter/model/eats", "flies");
-            await engine.set("/the/critter/model/sound", "croaks");
-            assert.deepStrictEqual(await engine.get("/the/critter/model/species"), "frog");
-            assert.deepStrictEqual(await engine.get("/the/critter/model/color"), "green");
+            await engine.assert("/the/critter/model/eats", "flies");
+            await engine.assert("/the/critter/model/sound", "croaks");
+            assert.deepStrictEqual(await engine.peek("/the/critter/model/species"), "frog");
+            assert.deepStrictEqual(await engine.peek("/the/critter/model/color"), "green");
         });
 
     });
@@ -175,7 +175,7 @@ describe("InfernalEngine", async() => {
             let carModel = require("./models/carModel");
             await engine.import(carModel);
             engine.reset();
-            await engine.set("/speed/input", "50");
+            await engine.assert("/speed/input", "50");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
                 speed: { 
@@ -190,7 +190,7 @@ describe("InfernalEngine", async() => {
             let carModel = require("./models/carModel");
             await engine.import(carModel);
             engine.reset();
-            await engine.set("/speed/input", "invalid number");
+            await engine.assert("/speed/input", "invalid number");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
                 message: "Error: 'invalid number' is not a valid integer.",
@@ -205,7 +205,7 @@ describe("InfernalEngine", async() => {
             let carModel = require("./models/carModel");
             await engine.import(carModel);
             engine.reset();
-            await engine.set("/speed/input", "200");
+            await engine.assert("/speed/input", "200");
             let changes = await engine.exportChanges();
             assert.deepStrictEqual(changes, {
                 message: "WARN: The speed input can not exceed the speed limit of 140.",

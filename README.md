@@ -372,13 +372,14 @@ starts with "/", it references an absolute path from the root context.
 To dig down inside the fact tree from the current context, just writhe the
 path elements without a leading "/" like: "child/of/the/current/context".
 
-### Meta facts ###
+### Metafacts ###
 
 There is a special kind of facts that lies within the engine. Meta facts
 can be referenced in a rule to know about the context of the current rule
 execution. Meta facts cannot trigger rules that references them. They are
-used to inform the interested rule of the state of the engine. Metafacts are
-in the "/$/" context. For now there is only two meta facts:
+to be injected into rules that have been triggered by other fact changes.
+Metafacts are in the "/$/" context. For now there is only two meta
+facts:
 
   1. `/$/maxDepth` contains the value passed to the InfernalEngine constructor
      of the same name. It tells how many agenda can be generated in one
@@ -387,63 +388,114 @@ in the "/$/" context. For now there is only two meta facts:
   2. `/$/depth` is the current agenda generation. Its value starts at 1 and is
      always smaller or equal to `/$/maxDepth`.
 
+You can add metafacts as well, they will not trigger any rule either. You can
+even overwrite the aforementionned metafacts, but that change will last one
+inference run or one agenda generation only. Obviously not a good idea but I
+don't care since the engine is providing that information to you for your
+benefits only. These two metafacts do not affect the actual internal state of
+the InfernalEngine.
 
+## Infernal Tracing ##
 
-
-## Infernal Debugging ##
-
-Debugging an inference engine's rule-fact relationship web is always a pain.
-**Infernal Engine** is no exception. Being tough is not a reason to avoid
-trying though. To help developpers following the inference steps, it is
-possible to register a tracing function to the engine. This is done by
-calling the `startTracing(function)` method. It is also possible to stop tracing by
-calling `stopTracing()` thereafter.
+To trace what happens internally, provide a tracing function with one
+parameter to the InfernalEngine constructor's second parameter. The following
+code gives an example of that:
 
 ```javascript
-var InfernalEngine = require("infernal-engine");
-var engine = new InfernalEngine();
-engine.load(model);
+const InfernalEngine = require("infernal-engine");
+const model = require("../models/critterModel");
 
-engine.startTracing(function(trace) {
-  console.log("-> ", JSON.stringify(trace))
-});
-
-engine.set("sound", "croaks");
-engine.set("eats", "flies");
-
-console.log(JSON.stringify(engine.getFacts(), null, "  "));
-engine.infer(function(err) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(JSON.stringify(engine.getFacts(), null, "  "));
-});
+(async () => {
+    let engine = new InfernalEngine(null, 
+        msg => console.log("-> ", JSON.stringify(msg)));
+    
+    console.log("Importing the critterModel:");
+    await engine.import(model);
+    
+    console.log("Initial model:")
+    let initialModel = await engine.export();
+    console.log(JSON.stringify(initialModel, null, "  "));
+    
+    console.log("Importing two facts to be asserted:");
+    await engine.import({
+        sound: "croaks",
+        eats: "flies"
+    })
+    
+    console.log("Inferred model:")
+    let inferredModel = await engine.export();
+    console.log(JSON.stringify(inferredModel, null, "  "));
+})();
 ```
 
-### Model structure and debugging outputs ###
+### Tracing outputs and resulting fact object ###
 
 ```json
+Importing the critterModel:
+->  {"action":"import","object":{"name":"Fritz","sound":"","eats":"","sings":false,"color":"unknown","species":"unknown"}}
+->  {"action":"assert","fact":"/name","newValue":"Fritz"}
+->  {"action":"assert","fact":"/sound","newValue":""}
+->  {"action":"assert","fact":"/eats","newValue":""}
+->  {"action":"assert","fact":"/sings","newValue":false}
+->  {"action":"assert","fact":"/color","newValue":"unknown"}
+->  {"action":"assert","fact":"/species","newValue":"unknown"}
+->  {"action":"defRule","rule":"/isFrog","inputFacts":["/sound","/eats"]}
+->  {"action":"addToAgenda","rule":"/isFrog"}
+->  {"action":"defRule","rule":"/isCanary","inputFacts":["/sound","/sings"]}
+->  {"action":"addToAgenda","rule":"/isCanary"}
+->  {"action":"defRule","rule":"/isGreen","inputFacts":["/species"]}
+->  {"action":"addToAgenda","rule":"/isGreen"}
+->  {"action":"defRule","rule":"/isYellow","inputFacts":["/species"]}
+->  {"action":"addToAgenda","rule":"/isYellow"}
+->  {"action":"infer","maxGen":50}
+->  {"action":"executeAgenda","gen":1,"ruleCount":4}
+->  {"action":"execute","rule":"/isFrog","inputs":["",""]}
+->  {"action":"execute","rule":"/isCanary","inputs":["",false]}
+->  {"action":"execute","rule":"/isGreen","inputs":["unknown"]}
+->  {"action":"execute","rule":"/isYellow","inputs":["unknown"]}
+Initial facts:
 {
   "name": "Fritz",
-  "sound": "croaks",
-  "eats": "flies"
+  "sound": "",
+  "eats": "",
+  "sings": false,
+  "color": "unknown",
+  "species": "unknown",
+  "$": {
+    "maxGen": 50,
+    "gen": 1
+  }
 }
-->  {"action":"set","fact":"/sound","newValue":"croaks"}
-->  {"action":"addToAgenda","rule":"/isForg"}
+Importing two facts to be asserted:
+->  {"action":"import","object":{"sound":"croaks","eats":"flies"}}
+->  {"action":"assert","fact":"/sound","oldValue":"","newValue":"croaks"}
+->  {"action":"addToAgenda","rule":"/isFrog"}
 ->  {"action":"addToAgenda","rule":"/isCanary"}
-->  {"action":"set","fact":"/eats","newValue":"flies"}
-->  {"action":"infer"}
-->  {"action":"set","fromRule":"/isForg","fact":"/species","newValue":"frog"}
+->  {"action":"assert","fact":"/eats","oldValue":"","newValue":"flies"}
+->  {"action":"addToAgenda","rule":"/isFrog"}
+->  {"action":"infer","maxGen":50}
+->  {"action":"executeAgenda","gen":1,"ruleCount":2}
+->  {"action":"execute","rule":"/isFrog","inputs":["croaks","flies"]}
+->  {"action":"assert","fact":"/species","oldValue":"unknown","newValue":"frog"}
 ->  {"action":"addToAgenda","rule":"/isGreen"}
 ->  {"action":"addToAgenda","rule":"/isYellow"}
-->  {"action":"set","fromRule":"/isGreen","fact":"/color","newValue":"green"}
+->  {"action":"execute","rule":"/isCanary","inputs":["croaks",false]}
+->  {"action":"executeAgenda","gen":2,"ruleCount":2}
+->  {"action":"execute","rule":"/isGreen","inputs":["frog"]}
+->  {"action":"assert","fact":"/color","oldValue":"unknown","newValue":"green"}
+->  {"action":"execute","rule":"/isYellow","inputs":["frog"]}
+Inferred facts:
 {
   "name": "Fritz",
   "sound": "croaks",
   "eats": "flies",
+  "sings": false,
+  "color": "green",
   "species": "frog",
-  "color": "green"
+  "$": {
+    "maxGen": 50,
+    "gen": 2
+  }
 }
 ```
 
