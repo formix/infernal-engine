@@ -31,6 +31,40 @@ describe("InfernalEngine", async() => {
         });
     });
 
+    describe("#retract", () => {
+        it("shall retract a single fact from the engine.", async () => {
+            let engine = new InfernalEngine();
+            await engine.assert("i", 7, true);
+            assert.deepStrictEqual(await engine.peek("i"), 7);
+            await engine.retract("i");
+            assert.deepStrictEqual(await engine.peek("i"), undefined);
+        });
+
+        it("shall retract all facts from the given path prefix.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: 5.5
+                },
+            };
+            await engine.import(model);
+            await engine.retract("/d/*");
+            let expectedFacts = {
+                a: "a",
+                b: 1,
+                c: true
+            };
+            let actualFacts = await engine.export();
+            delete actualFacts.$;
+            assert.deepStrictEqual(actualFacts, expectedFacts);
+        });
+
+    });
 
     describe("#defRule", () => {
         it("shall add a rule and interpret the parameters correctly.", async () => {
@@ -84,9 +118,41 @@ describe("InfernalEngine", async() => {
 
     });
 
+    describe("#undefRule", () => {
+
+        it("shall not count up to 5 once the rule is undefined.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i) => {
+                if (typeof i !== "undefined" && i < 5) {
+                    return { "i": i + 1 };
+                }
+            });
+            await engine.undefRule("count5");
+            await engine.assert("i", 1);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 1);
+        });
+
+        it("shall undefine all rules from the carModel", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            await engine.undefRule("/speed/*");
+            engine.reset();
+            await engine.assert("/speed/input", "invalid number");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                speed: { 
+                    input: "invalid number"
+                }
+            });
+        });
+
+    });
+
     describe("#infer", () => {
 
-        it("shall count up or down to 5.", async () => {
+        it("shall count up to 5.", async () => {
             let engine = new InfernalEngine();
             await engine.defRule("count5", async (i) => {
                 if (typeof i !== "undefined" && i < 5) {
@@ -140,7 +206,7 @@ describe("InfernalEngine", async() => {
                     x: "23",
                     y: 42,
                     z: 5.5
-                },
+                }
             }
             await engine.import(model);
             let model2 = await engine.export();
@@ -158,7 +224,7 @@ describe("InfernalEngine", async() => {
                     x: "23",
                     y: 42,
                     z: false
-                },
+                }
             }
             await engine.import(model);
             let model2 = await engine.export("/d");
