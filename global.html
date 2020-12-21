@@ -96,17 +96,15 @@
     
 
     
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
+        <h3 class="subsection-title">Methods</h3>
 
         
-                
+            
 
     
 
     
-    <h4 class="name" id="done"><span class="type-signature"></span>done<span class="signature">(err<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="compilePath"><span class="type-signature"></span>compilePath<span class="signature">(path)</span><span class="type-signature"></span></h4>
     
 
     
@@ -114,12 +112,14 @@
 
 
 <div class="description">
-    The done function tells the inference engine that the current rule is 
-terminated and that the next rule shall be executed. If no more rule are in
-the agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any 
-parameter. If the done function is called with a parameter, the inference 
-immediately stops (no more rules are executed from the agenda) and the 
-<a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
+    Create a compacted fact name from a given fact name. Path do not end with a trailing '/'.
+
+ '../' Denote the parent term. Move up one term in the context or path.
+ './'  Denote the current term. Removed from the context or path.
+
+Examples: 
+
+ '/a/given/../correct/./path' is compiled to '/a/correct/path'
 </div>
 
 
@@ -143,8 +143,6 @@ immediately stops (no more rules are executed from the agenda) and the
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -157,37 +155,23 @@ immediately stops (no more rules are executed from the agenda) and the
 
         <tr>
             
-                <td class="name"><code>err</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
-<span class="param-type">*</span>
+<span class="param-type">String</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The error information to send to the 
-       <a href="global.html#inferenceCallback">inferenceCallback</a></td>
+            <td class="description last">The path or context to compile into a context.</td>
         </tr>
 
     
@@ -228,7 +212,7 @@ immediately stops (no more rules are executed from the agenda) and the
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line479">line 479</a>
+        <a href="infernalUtils.js.html">infernalUtils.js</a>, <a href="infernalUtils.js.html#line96">line 96</a>
     </li></ul></dd>
     
 
@@ -258,13 +242,13 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 
+        
             
-                
 
     
 
     
-    <h4 class="name" id="done"><span class="type-signature"></span>done<span class="signature">(err<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="equals"><span class="type-signature"></span>equals<span class="signature">(a, b)</span><span class="type-signature"></span></h4>
     
 
     
@@ -272,12 +256,8 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 <div class="description">
-    The done function tells the inference engine that the current rule is 
-terminated and that the next rule shall be executed. If no more rule are in
-the agenda, the <a href="global.html#inferenceCallback">inferenceCallback</a> function is called without any 
-parameter. If the done function is called with a parameter, the inference 
-immediately stops (no more rules are executed from the agenda) and the 
-<a href="global.html#inferenceCallback">inferenceCallback</a> is called with the same parameter (the error).
+    Compare two values and return true if they are equal. Fix date comparison issue and insure
+both types are the same.
 </div>
 
 
@@ -301,8 +281,6 @@ immediately stops (no more rules are executed from the agenda) and the
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -315,15 +293,12 @@ immediately stops (no more rules are executed from the agenda) and the
 
         <tr>
             
-                <td class="name"><code>err</code></td>
+                <td class="name"><code>a</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
 <span class="param-type">*</span>
 
 
@@ -331,21 +306,33 @@ immediately stops (no more rules are executed from the agenda) and the
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
 
-                
+            
 
+            <td class="description last">The first value used to compare.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>b</code></td>
+            
+
+            <td class="type">
+            
                 
-                </td>
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
             
 
             
 
-            <td class="description last">The error information to send to the 
-       <a href="global.html#inferenceCallback">inferenceCallback</a></td>
+            <td class="description last">The second value used to caompare.</td>
         </tr>
 
     
@@ -386,7 +373,7 @@ immediately stops (no more rules are executed from the agenda) and the
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line479">line 479</a>
+        <a href="infernalUtils.js.html">infernalUtils.js</a>, <a href="infernalUtils.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -416,13 +403,13 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 
+        
             
-                
 
     
 
     
-    <h4 class="name" id="inferenceCallback"><span class="type-signature"></span>inferenceCallback<span class="signature">(err<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getContext"><span class="type-signature"></span>getContext<span class="signature">(compiledPath)</span><span class="type-signature"></span></h4>
     
 
     
@@ -430,7 +417,8 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 <div class="description">
-    The inference callback function.
+    Extracts the context from the fact or rule name. Must be a compiled path, not a path that
+contains "../" or "./".
 </div>
 
 
@@ -454,8 +442,6 @@ immediately stops (no more rules are executed from the agenda) and the
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -468,36 +454,23 @@ immediately stops (no more rules are executed from the agenda) and the
 
         <tr>
             
-                <td class="name"><code>err</code></td>
+                <td class="name"><code>compiledPath</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
-<span class="param-type">*</span>
+<span class="param-type">String</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The error information if something wrong happened.</td>
+            <td class="description last">The compiled path to extract the context from.</td>
         </tr>
 
     
@@ -538,7 +511,7 @@ immediately stops (no more rules are executed from the agenda) and the
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line472">line 472</a>
+        <a href="infernalUtils.js.html">infernalUtils.js</a>, <a href="infernalUtils.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -567,14 +540,20 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>Given the rule path: '/path/to/some/rule'
+The returned value would be: '/path/to/some'</code></pre>
 
+
+
+        
             
-                
 
     
 
     
-    <h4 class="name" id="inferenceCallback"><span class="type-signature"></span>inferenceCallback<span class="signature">(err<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="parseFactPaths"><span class="type-signature">(generator) </span>parseFactPaths<span class="signature">(rule)</span><span class="type-signature"></span></h4>
     
 
     
@@ -582,7 +561,9 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 <div class="description">
-    The inference callback function.
+    Generator that parses all fact paths derived from the given rule parameters. Either return the
+parameter name or the path contained by the optional attribute comment. Single parameter lambda
+function must put the parameter between parenthesis to be parsed properly.
 </div>
 
 
@@ -606,8 +587,6 @@ immediately stops (no more rules are executed from the agenda) and the
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -620,36 +599,23 @@ immediately stops (no more rules are executed from the agenda) and the
 
         <tr>
             
-                <td class="name"><code>err</code></td>
+                <td class="name"><code>rule</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
-<span class="param-type">*</span>
+<span class="param-type">AsyncFunction</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The error information if something wrong happened.</td>
+            <td class="description last">The rule</td>
         </tr>
 
     
@@ -690,7 +656,7 @@ immediately stops (no more rules are executed from the agenda) and the
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line472">line 472</a>
+        <a href="infernalUtils.js.html">infernalUtils.js</a>, <a href="infernalUtils.js.html#line52">line 52</a>
     </li></ul></dd>
     
 
@@ -719,1006 +685,22 @@ immediately stops (no more rules are executed from the agenda) and the
 
 
 
-
-            
-                
-
+    <h5>Example</h5>
     
+    <pre class="prettyprint"><code>Using an attribute comment:
 
-    
-    <h4 class="name" id="rule"><span class="type-signature"></span>rule<span class="signature">(done)</span><span class="type-signature"></span></h4>
-    
+    async function(/¤@ /path/to/fact ¤/ param1, param2) {}
 
-    
+In the above example: 
 
-
-
-<div class="description">
-    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback 
-method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> 
-instance. It is important to note that before exiting a rule function, the
-done callback function has to be called to inform the engine that the next
-rule in the agenda has to be executed. Usually after calling the done 
-function the method should exits by explicitely calling 'return' or by 
-letting the execution exit the scope of the function.
-</div>
+  1) ¤ replaces * because using * and / one after the other ends the documentation comment.
+  2) returned fact paths would be ['/path/to/fact', 'param2']</code></pre>
 
 
-
-
-
-
-
-    <h5>This:</h5>
-    <ul><li><a href="EngineProxy.html">EngineProxy</a></li></ul>
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
 
         
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>done</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#done">done</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The done callback to call when the rule terminate
-                     execution.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line493">line 493</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="rule"><span class="type-signature"></span>rule<span class="signature">(done)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    The rule callback is a function that takes a single <a href="global.html#done">done</a> callback 
-method. This method is executed in the context of an <a href="EngineProxy.html">EngineProxy</a> 
-instance. It is important to note that before exiting a rule function, the
-done callback function has to be called to inform the engine that the next
-rule in the agenda has to be executed. Usually after calling the done 
-function the method should exits by explicitely calling 'return' or by 
-letting the execution exit the scope of the function.
-</div>
-
-
-
-
-
-
-
-    <h5>This:</h5>
-    <ul><li><a href="EngineProxy.html">EngineProxy</a></li></ul>
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>done</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#done">done</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The done callback to call when the rule terminate
-                     execution.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line493">line 493</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="traceCallback"><span class="type-signature"></span>traceCallback<span class="signature">(trace, trace#action, trace#fromRule<span class="signature-attributes">opt</span>, trace#fact<span class="signature-attributes">opt</span>, trace#oldValue<span class="signature-attributes">opt</span>, trace#newValue<span class="signature-attributes">opt</span>, trace#message<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    The trace callback is called when an event changing the engine state is 
-hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>trace</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The trace data.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#action</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Can be either 'reset', 'set', 'notify', 
-                               'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#fromRule</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The rule name that generated the trace. This
-                               property is undefined if the trace was not
-                               generated during inference.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#fact</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The fact name if the trace action is 'set' 
-                               or 'notify'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#oldValue</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The previous value of the fact if the trace
-                               action is 'set'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#newValue</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The new value of the fact if trace action 
-                               is 'set' or 'notify'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#message</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The message sent by the 
-                               <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace
-                               action is 'trace'.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line508">line 508</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="traceCallback"><span class="type-signature"></span>traceCallback<span class="signature">(trace, trace#action, trace#fromRule<span class="signature-attributes">opt</span>, trace#fact<span class="signature-attributes">opt</span>, trace#oldValue<span class="signature-attributes">opt</span>, trace#newValue<span class="signature-attributes">opt</span>, trace#message<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    The trace callback is called when an event changing the engine state is 
-hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTracing</a> for details.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>trace</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The trace data.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#action</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Can be either 'reset', 'set', 'notify', 
-                               'addRule', 'infer', 'addToAgenda' or 'trace'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#fromRule</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The rule name that generated the trace. This
-                               property is undefined if the trace was not
-                               generated during inference.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#fact</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The fact name if the trace action is 'set' 
-                               or 'notify'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#oldValue</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The previous value of the fact if the trace
-                               action is 'set'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#newValue</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The new value of the fact if trace action 
-                               is 'set' or 'notify'.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trace#message</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The message sent by the 
-                               <a href="EngineProxy.html#trace">EngineProxy#trace</a> method if trace
-                               action is 'trace'.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line508">line 508</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
     
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
-            
     
 
     
@@ -1732,13 +714,13 @@ hapenning. See <a href="InfernalEngine.html#startTracing">InfernalEngine#startTr
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Agenda.html">Agenda</a></li><li><a href="EngineProxy.html">EngineProxy</a></li><li><a href="InfernalEngine.html">InfernalEngine</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="InfernalEngine.html">InfernalEngine</a></li><li><a href="RuleContext.html">RuleContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compilePath">compilePath</a></li><li><a href="global.html#equals">equals</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#parseFactPaths">parseFactPaths</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Oct 04 2020 21:00:59 GMT-0400 (heure avancée de l’Est)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Dec 21 2020 09:26:38 GMT-0500 (heure normale de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>

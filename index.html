@@ -43,168 +43,280 @@
 
 
     <section>
-        <article><h1>Infernal Engine</h1>
+        <article><h1>Infernal Engine 1.0.0</h1>
 <p><a href="https://gitter.im/formix/infernal-engine?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/formix/infernal-engine.svg" alt="Join the chat at https://gitter.im/formix/infernal-engine"></a>
 <a href="https://travis-ci.org/formix/infernal-engine"><img src="https://travis-ci.org/formix/infernal-engine.svg?branch=master" alt="Build Status"></a></p>
-<p>The <strong>Infernal Engine</strong> is a 0+ order logic forward chaining inference
-engine. Rules are mapped to facts that are requested by the rule as function
-parameters. The returned fact map is applied back to the fact database.
-Unaffected rules are not evaluated, rules that are triggered more than once
-in the same evaluation are executed only once at the end of the rule execution
-sequence.</p>
-<p><strong>Infernal Engine</strong>'s internal facts and rules representation is a mapping
-between a name and a value or a function. A name is a list of contexts
-separated by slashes with a leading slash. For example, a fact could be named
-&quot;/engine/torque&quot; and be mapped to the numeric value &quot;175.5&quot;. The same goes
-for a rule named &quot;/engine/checkTorque&quot;. The rule name is mapped to the function
-that implements it. In this example, both the fact and the rule are under the
-same &quot;/engine&quot; context. This context assembly can be leveraged to do
-<em>relative fact reference</em> and <em>absolut fact reference</em> within the rule. Those
-concepts are explained later in this document.</p>
-<p><strong>Infernal Engine</strong>'s inference model can be defined using multiple simple
-JavaScript objects. A model is a JavaScript object that contains facts
-(properties) and rules (functions) without syntactic or structural constraints.
-In other words, the model can be a JavaScript object of any depth and have any
-structure. When loading the model, its structure is translated to the
-forward slash name format explained earlier. It is possible to conditionnaly
-bind together different collaborating models to create a runtime super-model.
-A collaborating model can be loaded either between inference execution or
-during a rule interpretation. After the inference execution, the engine can
-return its full internal state as a JavaScript object or limit the returned
-object to facts that changed during the last inference execution. In
-both cases, rules are not included in that state.</p>
-<p><strong>Infernal Engine</strong> can have a tracing function attached to help debugging and
-track the inference sequence and actions.</p>
+<p>The <strong>Infernal Engine</strong> is a 1-order logic forward chaining inference
+engine. Inference engine are used to build expert systems to modelise human
+experience using rules. The goal of the engine is to maintain its internal
+fact base concistent with its rules base. Each change to the fact or rule base
+triggers the inference. It is possible to control how and when the inference
+is fired using <em>models</em>.</p>
 <p><a href="https://formix.github.io/infernal-engine/">InfernalEngine class Reference</a></p>
+<p>See <a href="http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf">Philippe Morignot order logic explanations</a>
+to know more about different inference engine order logics.</p>
 <h2>Usage</h2>
 <h3>Using The &quot;Raw&quot; Engine</h3>
 <pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
-var engine = new InfernalEngine();
+let engine = new InfernalEngine();
 
-// Adds a rule named &quot;/increment&quot; to increment the value of 'i' up to 5, one
-// increment at time.
-engine.addRule(&quot;increment&quot;, function(next, i) {
-    if (i &lt; 5) {
-        return next(null, {&quot;i&quot;: i + 1});
-    } else if (i > 5) {
-        return next(new Error(&quot;'i' must be lower or equal to 5.&quot;));
+await engine.defRule(&quot;count5&quot;, async (i) => {
+    if (typeof i !== &quot;undefined&quot; && i &lt; 5) {
+        return { &quot;i&quot;: i + 1 };
     }
-    return next();
 });
 
-// Set a value to the fact &quot;i&quot;. the change from 'unknown' to 1 adds the
-// rule 'increment' to the execution agenda.
-engine.set(&quot;i&quot;, 1);
+await engine.assert(&quot;i&quot;, 1);
 
-// Launch the inference: execute the current agenda and builds the next-agenda
-// when the rule change the fact 'i'. Then set the current agenda to the next
-// agenda. If the current agenda is not empty, execute 'infer' again. if the
-// current agenda is empty, execute the callback function.
-engine.infer(function(err) {
-    if (err) {
-        console.log(err);
-        return;
+let final_i = await engine.peek(&quot;i&quot;);
+
+console.log(final_i); // displays 5
+</code></pre>
+<p>Some things to consider for the above example:</p>
+<ol>
+<li>
+<p>All <strong>InfernalEngine</strong> methods must be called with <em>await</em>.</p>
+</li>
+<li>
+<p>Rules must be async functions or async lambda expressions (with
+parenthesis, even with only one parameter).</p>
+</li>
+<li>
+<p>Defining a rule using the <em>#defRule</em> method triggers the inference for
+that rule. Therefore rules code must be resilient to undefined facts
+unless implemented within a <em>model</em> that has pre-initialized facts.</p>
+</li>
+<li>
+<p>Rules must either return nothing or an object that maps a relative or
+absolute fact reference. Those concepts are explained in details below.</p>
+</li>
+<li>
+<p>Asserting a fact is done using the <em>#assert</em> method. Asserting new facts
+triggers the inference as well. To retract a fact, use <em>#retract</em>.</p>
+</li>
+<li>
+<p>If you want to know a fact value, call the <em>#peek</em> method.</p>
+</li>
+</ol>
+<p>This simple example shows all the atomic inference methods of the
+<strong>InfernalEngine</strong>. You can go from there and have fun building a complex web
+of facts and rules already. But sincerely, your expert system programming
+life would be pretty miserable without the <em>model</em>.</p>
+<h3>Rule</h3>
+<p>Rules are simple Javascript functions. A rule is defined within a context and
+can reference facts within that context that match the function parameter
+names. For example, the rule at path &quot;/speed/maxSpeedReached&quot; is inside the
+context &quot;/speed/&quot;. Given the following model:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+  engine: &quot;V6&quot;,
+  speed: {
+    max: 150,
+    value: 0,
+    maxReached: false,
+
+    maxSpeedReached: async function(value, max) {
+      return { &quot;maxReached&quot;: value === max};
+    },
+
+    user: {
+      input: &quot;&quot;
+    }
+  }
+}
+</code></pre>
+<p>The rule parameters <code>value</code> and <code>max</code> will respectively reference
+&quot;/speed/value&quot; and &quot;/speed/max&quot;. But how can we reference a fact that is
+outside the rule context? Simple, by using the parameter annotation comment
+like this:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+  engine: &quot;V6&quot;,
+  speed: {
+    max: 150,
+    value: 0,
+    maxReached: false,
+
+    maxSpeedReached: async function(value, max) {
+      return { &quot;maxReached&quot;: value === max};
+    },
+
+    translate: function(/*@ user/input */ input) {
+      return {&quot;value&quot;: Number(input)}
     }
 
-    // will print &quot;5&quot;
-    console.log(engine.get(&quot;i&quot;));
+    user: {
+      input: &quot;&quot;,
+    }
+  }
+}
+</code></pre>
+<p>Annotation comments must be placed in front of the annotated parameter.</p>
+<h4>Return Object</h4>
+<p>Rules must return an object or nothing. The simple case is to return an object
+where the key is the fact to update and the value being the valu to assign to
+that fact. You have plenty of examples above.</p>
+<p>What we just explained is a shorthand for the more general case though. The
+equivalent general case would be to return the command '#assert' instead of the
+factpath-value pair. This is the command list available to be returned by a
+rule:</p>
+<ol>
+<li>
+<p>&quot;#assert&quot;: {path:str, value:any}</p>
+</li>
+<li>
+<p>&quot;#retract&quot;: {path:str}</p>
+</li>
+<li>
+<p>&quot;#defRule&quot;: {path:str, value:AsyncFunction}</p>
+</li>
+<li>
+<p>&quot;#undefRule&quot;: {path:str}</p>
+</li>
+<li>
+<p>&quot;#import&quot;: {path:str, value:object}</p>
+</li>
+</ol>
+<p>Each command expects an object with one or two properties which are 'path'
+and 'value'. Example:</p>
+<pre class="prettyprint source lang-javascript"><code>await engine.defRule(&quot;count5&quot;, async (i) => {
+    if (typeof i !== &quot;undefined&quot; && i &lt; 5) {
+      return {
+        &quot;#assert&quot;: {
+          path: &quot;i&quot;,
+          value: i + 1
+        }
+      };
+    }
 });
 </code></pre>
-<p>As you can see, a rule can retrigger itself if it changes a fact that this
-same rule uses. More complex graph of fact to rules relationships can lead to
-infinite loops. To to preserve tour sanity, <strong>Infernal Engine</strong> <code>infer</code> method
-is time constrained. If the inference does not execute under 5 seconds,
-the engine stops and the <code>infer</code> callback is called with a timeout error.
-That timeout period can be changed by passing another value (in milliseconds)
-to the <code>InfernalEngine</code> constructor.</p>
+<p>The shorthand structure works with scalar values and arrays (#assert),
+functions (#defRule) and objects (#import). Thus returning the following
+structure:</p>
+<pre class="prettyprint source lang-javascript"><code>// This rule will execute only once when defined.
+await engine.defRule(&quot;assert_defRule_import&quot;, async () => {
+    let model = require(&quot;./models/someInferenceModel&quot;);
+    return {
+      &quot;/input/quantity&quot;: &quot;23.5&quot;, // #assert
+      &quot;/input/isQuantityNumeric&quot;: async function(/*@ /input/quantity */ quantity) { // #defRule
+        if (Number(quantity) === NaN) {
+          return {
+            message: &quot;Invalid input quantity.&quot;
+          };
+        }
+      },
+      &quot;/submodel&quot;: model // #import
+    };
+});
+</code></pre>
 <h3>Defining a Model</h3>
 <p>A model is a way to define rules and facts using a simple Javascript object.
-You can define a model in its own Node module. Alternatively, a single
-module could export a set of related models.</p>
-<p>In the following code block, I have translated the Wikipedia article example
-for <a href="https://en.wikipedia.org/wiki/Forward_chaining">forward chaining inference</a>
-into Infernal Engine representation. The WikiPedia example use natural
-language which is close to a first order logic inference engine. Infernal Engine
-is a 0+ order logic engine.</p>
-<p>See <a href="http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf">Philippe Morignot PDF presentation</a>
-to know more about different inference engine order logics.</p>
+The following code block translates the Wikipedia article example for
+<a href="https://en.wikipedia.org/wiki/Forward_chaining">forward chaining inference</a>
+into an InfernalEngine <em>model</em> representation.</p>
 <h4>Model Example</h4>
 <pre class="prettyprint source lang-javascript"><code>var critterModel = {
 
   name: &quot;Fritz&quot;,
+  
+  sound: &quot;&quot;,
+  eats: &quot;&quot;,
+  sings: false,
 
-  // We agree that setting a property to undefined is equivalent to not
-  // defining anything. This is just for syntax reference. These properties
-  // do not have to be defined in the model.
-  sound: undefined,
-  eats: undefined,
-  color: undefined,
-  species: undefined,
-  sings: undefined,
-
-  isFrog: function(next, sound, eats){
+  color: &quot;unknown&quot;,
+  species: &quot;unknown&quot;,
+  
+  isFrog: async function(sound, eats){
     let species = &quot;unknown&quot;;
     if (sound === &quot;croaks&quot; && eats === &quot;flies&quot;) {
       species = &quot;frog&quot;;
     }
-    return next(null, {&quot;species&quot;: species})
+    return {&quot;species&quot;: species};
   },
 
-  isCanary: function(next, sound, sings) {
+  isCanary: async function(sound, sings) {
     if ( sings && sound === &quot;chirps&quot; ) {
-      this.set(&quot;species&quot;, &quot;canary&quot;);
+      return {&quot;species&quot;: &quot;canary&quot;};
     }
-    return next();
   },
-
-  isGreen: function(next) {
-    var species = this.get(&quot;species&quot;);
+  
+  isGreen: async function(species) {
     if (species === &quot;frog&quot;) {
-      this.set(&quot;color&quot;, &quot;green&quot;);
+      return {&quot;color&quot;: &quot;green&quot;};
     }
-    return next();
   },
-
-  isYellow: function(next) {
-    var species = this.get(&quot;species&quot;);
+  
+  isYellow: async function(species) {
     if (species === &quot;canary&quot;) {
-      this.set(&quot;color&quot;, &quot;yellow&quot;);
+      return {&quot;color&quot;: &quot;yellow&quot;};
     }
-    return next();
   }
+
 };
 </code></pre>
-<h4>Loading a Model</h4>
-<p>Using a model (or a sub-model) is pretty simple. All you have to do is to call
-the engine's <code>load</code> method. Once the engine has some rules in it, changing any
-fact will add any rules that use it to the agenda. The engine default context
-is always set to root (<code>/</code>) so you don't need to prepend the first forward-slash
-character within your program when working at the engine level.</p>
-<p>The following example displays the critter model before and after executing
-the inference:</p>
-<pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
-var engine = new InfernalEngine();
-engine.load(critterModel);
+<h4>Importing a Model</h4>
+<p>A model is a javascript object with scalar values or arrays and methods.
+Facts and rules paths are built based on their location in the object.
+The internal representation of a model is explained in the next section.</p>
+<p>The following example displays the critter model after setting two facts at
+the same time:</p>
+<pre class="prettyprint source lang-javascript"><code>let InfernalEngine = require(&quot;infernal-engine&quot;);
+let engine = new InfernalEngine();
 
-engine.set(&quot;sound&quot;, &quot;croaks&quot;);
-engine.set(&quot;eats&quot;, &quot;flies&quot;);
+let critterModel = require(&quot;./models/critterModel&quot;);
 
-console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
-engine.infer(function(err) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
+await engine.import(critterModel);
+await engine.import({
+    eats: &quot;flies&quot;,
+    sound: &quot;croaks&quot;
 });
+
+let state = await engine.export();
+console.log(JSON.stringify(state, null, &quot;  &quot;));
 </code></pre>
 <h4>Model structure output</h4>
 <pre class="prettyprint source lang-json"><code>{
   &quot;name&quot;: &quot;Fritz&quot;,
   &quot;sound&quot;: &quot;croaks&quot;,
-  &quot;eats&quot;: &quot;flies&quot;
+  &quot;eats&quot;: &quot;flies&quot;,
+  &quot;species&quot;: &quot;frog&quot;,
+  &quot;color&quot;: &quot;green&quot;
 }
-{
+</code></pre>
+<p>In the above example, the inference runs twice: once after the model is
+imported and another time after the facts <code>eats</code> and <code>sound</code> are imported.</p>
+<p>Given the set of rules, the inference that runs after importing the
+<code>critterModel</code> should not change anything to the internal fact base. On
+another hand, inferring after importing <code>eats</code> and <code>sound</code> facts will update
+the internal fact base.</p>
+<p>This example shows how to set multiple facts at once and have the inferrence
+being triggered only once. Using the <code>#assert</code> method for each fact would have
+worked as well but it would have launched the inference one more time.</p>
+<p>It is also possible to import a model into a different path if the import
+method <code>path</code> parameter was given. For example:</p>
+<pre class="prettyprint source lang-javascript"><code>await engine.import(critterModel, &quot;/some/other/path&quot;);
+</code></pre>
+<p>Doing so would have resulted in the following JSON output:</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;some&quot;: {
+    &quot;other&quot;: {
+      &quot;path&quot; : {
+        &quot;name&quot;: &quot;Fritz&quot;,
+        &quot;sound&quot;: &quot;croaks&quot;,
+        &quot;eats&quot;: &quot;flies&quot;,
+        &quot;species&quot;: &quot;frog&quot;,
+        &quot;color&quot;: &quot;green&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>Finally, the <code>export</code> method also supports the path parameter. When provided,
+the exported model only contains facts that are under it. Given the previous
+<code>import</code> example with a path, exporting the content of <code>&quot;/some/other/path&quot;</code>
+would print the original output. Example:</p>
+<pre class="prettyprint source lang-javascript"><code>let state = await engine.export(&quot;/some/other/path&quot;);
+</code></pre>
+<p>Back to the original result:</p>
+<pre class="prettyprint source lang-json"><code>{
   &quot;name&quot;: &quot;Fritz&quot;,
   &quot;sound&quot;: &quot;croaks&quot;,
   &quot;eats&quot;: &quot;flies&quot;,
@@ -213,7 +325,7 @@ engine.infer(function(err) {
 }
 </code></pre>
 <h3>How models are represented internally</h3>
-<p>The <code>Load</code> method crawls the model object structure and creates the matching
+<p>The <code>import</code> method crawls the model object structure and creates the matching
 fact and rule mapings. This is how the fact and rules are mapped in the engine
 based on the following model:</p>
 <pre class="prettyprint source lang-javascript"><code>let carModel = {
@@ -221,14 +333,30 @@ based on the following model:</p>
   name: &quot;Minivan&quot;,
 
   speed: {
-    speedInput: &quot;0&quot;,
+    input: &quot;0&quot;,
     limit: 140,
     value: 0,
 
-    checkLimit: function(next, speedInput, limit) {
-      var newValue = speedInput > limit ? limit : speedInput;
-      return next(null, {&quot;value&quot;: newValue});
+    inputIsValidInteger: async function(input) {
+      let isInt = /^-?\d+$/.test(input);
+      if (!isInt) {
+        return { &quot;../message&quot;: `Error: '${input}' is not a valid integer.` }
+      }
+      return { 
+        &quot;../message&quot;: undefined,
+        value: Number(input) 
+      };
+    },
+    
+    valueIsUnderLimit: async function(value, limit) {
+      if (value > limit) {
+        return {
+          value: limit,
+          &quot;/message&quot;: `WARN: The speed input can not exceed the speed limit of ${limit}.`
+        }
+      }
     }
+
   }
 }
 </code></pre>
@@ -246,7 +374,7 @@ based on the following model:</p>
 <td style="text-align:center">&quot;Minivan&quot;</td>
 </tr>
 <tr>
-<td style="text-align:left">&quot;/speed/userInput&quot;</td>
+<td style="text-align:left">&quot;/speed/input&quot;</td>
 <td style="text-align:center">&quot;0&quot;</td>
 </tr>
 <tr>
@@ -269,34 +397,49 @@ based on the following model:</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">&quot;/speed/checklimit&quot;</td>
+<td style="text-align:left">&quot;/speed/inputIsValidInteger&quot;</td>
+<td style="text-align:center"><em>[function]</em></td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;/speed/valueIsUnderLimit&quot;</td>
 <td style="text-align:center"><em>[function]</em></td>
 </tr>
 </tbody>
 </table>
-<p>When adding a rule to the Infernal Engine, the rule's parameters are parsed
-excluding the <code>next</code> callback. These parameter names are expected to exist
-within the same context as the rule. If you want to reference a fact outside
-the current context or to use a different variable name than the same context
-fact, it is possible to use the parameter annotation <code>/*@ {path_to_fact} */</code>.
-See <em>Absolute Fact Reference</em> and <em>Relative Fact Reference</em> for the
-<code>{path_to_fact}</code> syntax.</p>
-<h3>Calling <code>next</code> Within a Rule</h3>
-<p>You must call the <code>next</code> callback to instruct the inference engine to execute
-the following steps. It is also important to leave the rule immediately after
-that call. Not exiting the rule after the <code>next</code> call or calling <code>next</code>
-multimple times in the same rule without returning afterward could cause
-unpredictable behavior. Keeping the <code>return</code> statement in front of the <code>next()</code>
-call (i.e.: <code>return next();</code>) is a good way to avoid problems.</p>
-<p>The <code>next</code> callback first parameter is the error parameter. If set to a
-truthy value, this will stop the inference and call the initial <code>infer</code>
-callback with that error value. The second parameter is an optionnal
-JavaScript object mapping facts to the new values to be set in the engine using
-relative or absolute fact names.</p>
+<p>By default rules parameters are fetching facts that have the same name as the
+given parameter from the same rule context. To reach a fact somewhere else in
+the fact tree, a parameter can be prefixed with a special comment that we are
+calling a <strong>Parameter Annotation</strong>. The parameter annotation lets you set the
+exact fact path that shall be set to the following parameter. The syntax is:</p>
+<p><code>/*@ {path_to_fact} */</code></p>
+<p><code>path_to_fact</code> can be either a relative or an absolute path.</p>
+<h3>Path, Context and Name</h3>
+<h4>Path</h4>
+<p>A path is the full name of a fact or a rule. A path always begin with a &quot;/&quot;
+and each segment of the path is separated by &quot;/&quot;. Examples:</p>
+<ul>
+<li>
+<p>/name</p>
+</li>
+<li>
+<p>/speed/input</p>
+</li>
+<li>
+<p>/speed/inputIsValidInteger</p>
+</li>
+</ul>
+<p>Are three valid paths.</p>
+<h4>Name</h4>
+<p>The name of the rule or the fact is the last string after the last &quot;/&quot;
+character. For example, the name in &quot;/speed/input&quot; is &quot;input&quot;.</p>
+<h4>Context</h4>
+<p>The context is the path less the name. For example, the context in
+&quot;/speed/input&quot; is &quot;/speed/&quot;. For &quot;/name&quot; the context is simply &quot;/&quot; (aslo
+called the root context).</p>
 <h3>Absolute Fact Reference</h3>
 <p>Absolute fact reference involves using a fact full name by including the
 leading &quot;/&quot;. As a convention, a fact can be contextualized using a directory
-like notation. Given the above minival speed example, lets add a message
+like notation. Given the above minivan speed example, lets add a message
 telling the user that the spped limit of the engine is reached:</p>
 <pre class="prettyprint source lang-javascript"><code>let carModel = {
 
@@ -304,111 +447,185 @@ telling the user that the spped limit of the engine is reached:</p>
   message: &quot;&quot;,
 
   speed: {
-    speedInput: &quot;0&quot;,
+    input: &quot;0&quot;,
     limit: 140,
     value: 0,
 
-    checkLimit: function(next, speedInput, limit) {
-      var newValue = speedInput > limit ? limit : speedInput;
-      return next(null, {&quot;value&quot;: newValue});
+    inputIsValidInteger: async function(input) {
+      let isInt = /^-?\d+$/.test(input);
+      if (!isInt) {
+        return { &quot;../message&quot;: `Error: '${input}' is not a valid integer.` }
+      }
+      return { 
+        &quot;../message&quot;: undefined,
+        value: Number(input) 
+      };
     },
+    
+    valueIsUnderLimit: async function(value, limit) {
+      if (value > limit) {
+        return {
+          value: limit,
+          &quot;/message&quot;: `WARN: The speed input can not exceed the speed limit of ${limit}.`
+        }
+      }
+    }
 
     // This rule is in the '/speed' context. To reach the /name fact,
     // it is possible to use the parameter annotation to set the modelName
     // parameter to the /name absolute fact. The same goes for the returned
-    // /message fact.
-    updateMessage: function(next, value, limit, /*@ /name */ modelName) {
+    // /message2 fact.
+    updateMessage: function(value, limit, /*@ /name */ modelName) {
       if (value === limit) {
-        return next(null, {&quot;/message&quot;: `${modelName} ludicrous speed, GO!`});
+        return {&quot;/message2&quot;: `${modelName} ludicrous speed, GO!`};
       }
-      return next(null, {&quot;/message&quot;: &quot;&quot;});
+      return {&quot;/message2&quot;: undefined};
     }
   }
 }
 </code></pre>
+<p>In the above example, the relative reference &quot;../message&quot; and the absolute
+reference &quot;/message&quot; reference the same &quot;message&quot; fact. Since the &quot;message&quot;
+fact is directly in the root context and the &quot;input&quot; fact is under the
+&quot;/speed/&quot; context, it is easy to see that poping up one directory from
+&quot;/speed/&quot; takes the reference to the root context.</p>
 <h3>Relative Fact Reference</h3>
-<p>Again, just like directory reference in a file system, facts can be referenced
-using their relative path:</p>
-<pre class="prettyprint source lang-javascript"><code>let carModel = {
+<p>Just like directory reference in a file system, facts can be referenced using
+their relative path from the context of the executing rule. This happens when
+the path does not begin with &quot;/&quot;. When referencing a fact, &quot;../&quot; does pop up
+one path element. When the path starts with &quot;/&quot;, it references an absolute
+path from the root context. To dig down inside the fact tree from the current
+context, just write the path elements without a leading &quot;/&quot;
+like: &quot;child/of/the/current/context&quot;.</p>
+<h3>Metafacts</h3>
+<p>There is a special kind of facts that lies within the engine. Meta facts
+can be referenced in a rule to know about the context of the current rule
+execution. Meta facts cannot trigger rules that reference them. They are
+to be injected into rules that have been triggered by any other fact change.
+Metafacts are in the &quot;/$/&quot; context. For now there is only two internal
+metafacts:</p>
+<ol>
+<li>
+<p><code>/$/maxDepth</code> contains the value passed to the InfernalEngine constructor
+of the same name. It tells how many agenda can be generated in one
+inference run before failing.</p>
+</li>
+<li>
+<p><code>/$/depth</code> is the current agenda generation. Its value starts at 1 and is
+always smaller or equal to <code>/$/maxDepth</code>.</p>
+</li>
+</ol>
+<p>You can add metafacts as well, they will not trigger any rule either. You can
+even overwrite the aforementionned metafacts, but that change will last one
+inference run or one agenda generation only. Obviously not a good idea but I
+don't care since the engine is providing that information to you for your
+benefits only. These two metafacts do not affect the actual internal state of
+the InfernalEngine.</p>
+<h2>Infernal Tracing</h2>
+<p>To trace what happens internally, provide a tracing function with one
+parameter to the InfernalEngine constructor's second parameter. The following
+code gives an example of that:</p>
+<pre class="prettyprint source lang-javascript"><code>const InfernalEngine = require(&quot;infernal-engine&quot;);
+const model = require(&quot;../models/critterModel&quot;);
 
-  name: &quot;Minivan&quot;,
-  message: &quot;&quot;,
-
-  speed: {
-    speedInput: &quot;0&quot;,
-    limit: 140,
-    value: 0,
-
-    checkLimit: function(next, speedInput, limit) {
-      var newValue = speedInput > limit ? limit : speedInput;
-      return next(null, {&quot;value&quot;: newValue});
-    },
-
-    updateMessage: function(next, value, limit, /*@ ../name */ modelName) {
-      if (value === limit) {
-        return next(null, {&quot;../message&quot;: `${modelName} ludicrous speed, GO!`});
-      }
-      return next(null, {&quot;../message&quot;: &quot;&quot;});
-    }
-  }
-}
+(async () => {
+    let engine = new InfernalEngine(null, 
+        msg => console.log(&quot;-> &quot;, JSON.stringify(msg)));
+    
+    console.log(&quot;Importing the critterModel:&quot;);
+    await engine.import(model);
+    
+    console.log(&quot;Initial model:&quot;)
+    let initialModel = await engine.export();
+    console.log(JSON.stringify(initialModel, null, &quot;  &quot;));
+    
+    console.log(&quot;Importing two facts to be asserted:&quot;);
+    await engine.import({
+        sound: &quot;croaks&quot;,
+        eats: &quot;flies&quot;
+    })
+    
+    console.log(&quot;Inferred model:&quot;)
+    let inferredModel = await engine.export();
+    console.log(JSON.stringify(inferredModel, null, &quot;  &quot;));
+})();
 </code></pre>
-<h2>Infernal Debugging</h2>
-<p>Debugging an inference engine's rule-fact relationship web is always a pain.
-<strong>Infernal Engine</strong> is no exception. Being tough is not a reason to avoid
-trying though. To help developpers following the inference steps, it is
-possible to register a tracing function to the engine. This is done by
-calling the <code>startTracing(function)</code> method. It is also possible to stop tracing by
-calling <code>stopTracing()</code> thereafter.</p>
-<pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
-var engine = new InfernalEngine();
-engine.load(model);
-
-engine.startTracing(function(trace) {
-  console.log(&quot;-> &quot;, JSON.stringify(trace))
-});
-
-engine.set(&quot;sound&quot;, &quot;croaks&quot;);
-engine.set(&quot;eats&quot;, &quot;flies&quot;);
-
-console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
-engine.infer(function(err) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(JSON.stringify(engine.getFacts(), null, &quot;  &quot;));
-});
-</code></pre>
-<h3>Model structure and debugging outputs</h3>
-<pre class="prettyprint source lang-json"><code>{
-  &quot;name&quot;: &quot;Fritz&quot;,
-  &quot;sound&quot;: &quot;croaks&quot;,
-  &quot;eats&quot;: &quot;flies&quot;
-}
-->  {&quot;action&quot;:&quot;set&quot;,&quot;fact&quot;:&quot;/sound&quot;,&quot;newValue&quot;:&quot;croaks&quot;}
-->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isForg&quot;}
+<h3>Tracing outputs and resulting fact object</h3>
+<pre class="prettyprint source lang-json"><code>Importing the critterModel:
+->  {&quot;action&quot;:&quot;import&quot;,&quot;object&quot;:{&quot;name&quot;:&quot;Fritz&quot;,&quot;sound&quot;:&quot;&quot;,&quot;eats&quot;:&quot;&quot;,&quot;sings&quot;:false,&quot;color&quot;:&quot;unknown&quot;,&quot;species&quot;:&quot;unknown&quot;}}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/name&quot;,&quot;newValue&quot;:&quot;Fritz&quot;}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/sound&quot;,&quot;newValue&quot;:&quot;&quot;}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/eats&quot;,&quot;newValue&quot;:&quot;&quot;}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/sings&quot;,&quot;newValue&quot;:false}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/color&quot;,&quot;newValue&quot;:&quot;unknown&quot;}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/species&quot;,&quot;newValue&quot;:&quot;unknown&quot;}
+->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isFrog&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/eats&quot;]}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isFrog&quot;}
+->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isCanary&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/sings&quot;]}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isCanary&quot;}
-->  {&quot;action&quot;:&quot;set&quot;,&quot;fact&quot;:&quot;/eats&quot;,&quot;newValue&quot;:&quot;flies&quot;}
-->  {&quot;action&quot;:&quot;infer&quot;}
-->  {&quot;action&quot;:&quot;set&quot;,&quot;fromRule&quot;:&quot;/isForg&quot;,&quot;fact&quot;:&quot;/species&quot;,&quot;newValue&quot;:&quot;frog&quot;}
+->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isGreen&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isGreen&quot;}
+->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isYellow&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isYellow&quot;}
+->  {&quot;action&quot;:&quot;infer&quot;,&quot;maxGen&quot;:50}
+->  {&quot;action&quot;:&quot;executeAgenda&quot;,&quot;gen&quot;:1,&quot;ruleCount&quot;:4}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isFrog&quot;,&quot;inputs&quot;:[&quot;&quot;,&quot;&quot;]}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isCanary&quot;,&quot;inputs&quot;:[&quot;&quot;,false]}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isGreen&quot;,&quot;inputs&quot;:[&quot;unknown&quot;]}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isYellow&quot;,&quot;inputs&quot;:[&quot;unknown&quot;]}
+Initial facts:
+{
+  &quot;name&quot;: &quot;Fritz&quot;,
+  &quot;sound&quot;: &quot;&quot;,
+  &quot;eats&quot;: &quot;&quot;,
+  &quot;sings&quot;: false,
+  &quot;color&quot;: &quot;unknown&quot;,
+  &quot;species&quot;: &quot;unknown&quot;,
+  &quot;$&quot;: {
+    &quot;maxGen&quot;: 50,
+    &quot;gen&quot;: 1
+  }
+}
+Importing two facts to be asserted:
+->  {&quot;action&quot;:&quot;import&quot;,&quot;object&quot;:{&quot;sound&quot;:&quot;croaks&quot;,&quot;eats&quot;:&quot;flies&quot;}}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/sound&quot;,&quot;oldValue&quot;:&quot;&quot;,&quot;newValue&quot;:&quot;croaks&quot;}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isFrog&quot;}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isCanary&quot;}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/eats&quot;,&quot;oldValue&quot;:&quot;&quot;,&quot;newValue&quot;:&quot;flies&quot;}
+->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isFrog&quot;}
+->  {&quot;action&quot;:&quot;infer&quot;,&quot;maxGen&quot;:50}
+->  {&quot;action&quot;:&quot;executeAgenda&quot;,&quot;gen&quot;:1,&quot;ruleCount&quot;:2}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isFrog&quot;,&quot;inputs&quot;:[&quot;croaks&quot;,&quot;flies&quot;]}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/species&quot;,&quot;oldValue&quot;:&quot;unknown&quot;,&quot;newValue&quot;:&quot;frog&quot;}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isGreen&quot;}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isYellow&quot;}
-->  {&quot;action&quot;:&quot;set&quot;,&quot;fromRule&quot;:&quot;/isGreen&quot;,&quot;fact&quot;:&quot;/color&quot;,&quot;newValue&quot;:&quot;green&quot;}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isCanary&quot;,&quot;inputs&quot;:[&quot;croaks&quot;,false]}
+->  {&quot;action&quot;:&quot;executeAgenda&quot;,&quot;gen&quot;:2,&quot;ruleCount&quot;:2}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isGreen&quot;,&quot;inputs&quot;:[&quot;frog&quot;]}
+->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/color&quot;,&quot;oldValue&quot;:&quot;unknown&quot;,&quot;newValue&quot;:&quot;green&quot;}
+->  {&quot;action&quot;:&quot;execute&quot;,&quot;rule&quot;:&quot;/isYellow&quot;,&quot;inputs&quot;:[&quot;frog&quot;]}
+Inferred facts:
 {
   &quot;name&quot;: &quot;Fritz&quot;,
   &quot;sound&quot;: &quot;croaks&quot;,
   &quot;eats&quot;: &quot;flies&quot;,
+  &quot;sings&quot;: false,
+  &quot;color&quot;: &quot;green&quot;,
   &quot;species&quot;: &quot;frog&quot;,
-  &quot;color&quot;: &quot;green&quot;
+  &quot;$&quot;: {
+    &quot;maxGen&quot;: 50,
+    &quot;gen&quot;: 2
+  }
 }
 </code></pre>
-<h2>Final Note</h2>
-<p>This is the last release of the Infernal Engine for the 0 (pre-release)
-version. The 1.0.0 release will feature a modernized javascript implementation
-using promises with async/await syntax, classes, getters, setters, etc.</p>
-<p>Your feedbacks are welcome. Please use github issues to do so.
-If you want to get involved, pull requests are welcome too!</p></article>
+<h2>Change Note</h2>
+<h3>Version 1.0.0 - 2020/12/21</h3>
+<ul>
+<li>Complete rewrite of the engine with ECMAScript 2016.</li>
+<li>Method names have been changed to align with other inference engines (namely by <a href="http://www.clipsrules.net/">CLIPS</a>)</li>
+<li>Added the possibility to retract facts and undefine rules with wildcards.</li>
+<li>Improved tracing.</li>
+</ul></article>
     </section>
 
 
@@ -419,13 +636,13 @@ If you want to get involved, pull requests are welcome too!</p></article>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Agenda.html">Agenda</a></li><li><a href="EngineProxy.html">EngineProxy</a></li><li><a href="InfernalEngine.html">InfernalEngine</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="InfernalEngine.html">InfernalEngine</a></li><li><a href="RuleContext.html">RuleContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compilePath">compilePath</a></li><li><a href="global.html#equals">equals</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#parseFactPaths">parseFactPaths</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Oct 04 2020 21:00:59 GMT-0400 (heure avancée de l’Est)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Dec 21 2020 09:26:38 GMT-0500 (heure normale de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>
