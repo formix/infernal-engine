@@ -1,6 +1,6 @@
 {
     "source": {
-        "include": ["lib", "README.md"]
+        "include": ["lib/index.js", "README.md"]
     },
     "opts": {
         "encoding": "utf8"

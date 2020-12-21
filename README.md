@@ -1,4 +1,4 @@
-# Infernal Engine #
+# Infernal Engine 1.0.0 #
 
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
@@ -486,7 +486,7 @@ There is a special kind of facts that lies within the engine. Meta facts
 can be referenced in a rule to know about the context of the current rule
 execution. Meta facts cannot trigger rules that reference them. They are
 to be injected into rules that have been triggered by any other fact change.
-Metafacts are in the "/$/" context. For now there is only two internal 
+Metafacts are in the "/$/" context. For now there is only two internal
 metafacts:
 
   1. `/$/maxDepth` contains the value passed to the InfernalEngine constructor
