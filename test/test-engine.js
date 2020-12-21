@@ -164,6 +164,126 @@ describe("InfernalEngine", async() => {
             assert.deepStrictEqual(final_i, 5);
         });
 
+        it("#assert.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i) => {
+                if (typeof i !== "undefined" && i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 7);
+        });
+
+        it("#retract.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count7", async (i) => {
+                if (typeof i !== "undefined" && i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+            });
+            await engine.defRule("retract_i", async (i) => {
+                return {
+                    "#retract": {
+                        path: "i"
+                    }
+                }
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, undefined);
+        });
+
+        it("#defrule", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i, added) => {
+                if (typeof i === "undefined") return;
+                if (i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+                else if (i < 14) {
+                    return {
+                        "#defRule": {
+                            path: "mult2",
+                            value: async function(i) {
+                                return {
+                                    "j": i * 2
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            await engine.assert("i", 4);
+            let final_j = await engine.peek("j");
+            assert.deepStrictEqual(final_j, 14);
+        });
+
+        it("#undefRule.", async () => {
+            let engine = new InfernalEngine();
+            await engine.import({
+                count7: async (i) => {
+                    if (typeof i !== "undefined" && i < 7) {
+                        return {
+                            "#assert": {
+                                path: "i",
+                                value: i + 1
+                            }
+                        };
+                    }
+                },
+                undef: async (i) => {
+                    return {
+                        "#undefRule": {
+                            path: "count7"
+                        }
+                    }
+                }
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 4);
+        });
+
+        it("#import", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("addCarModel", async function() {
+                let carModel = require("./models/carModel");
+                return {
+                    "#import": {
+                        path: "car",
+                        value: carModel
+                    }
+                }
+            });
+            let carModelExported = await engine.export("/car");
+            delete carModelExported.$;
+            assert.deepStrictEqual(carModelExported, {
+                    name: "Minivan",
+                    speed: {
+                      input: "0",
+                      limit: 140,
+                      value: 0
+                    }
+            });
+        });
+
     });
 
 

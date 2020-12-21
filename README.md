@@ -23,15 +23,15 @@ to know more about different inference engine order logics.
 var InfernalEngine = require("infernal-engine");
 let engine = new InfernalEngine();
 
-await engine.addRule("count5", async (i) => {
+await engine.defRule("count5", async (i) => {
     if (typeof i !== "undefined" && i < 5) {
         return { "i": i + 1 };
     }
 });
 
-await engine.set("i", 1);
+await engine.assert("i", 1);
 
-let final_i = await engine.get("i");
+let final_i = await engine.peek("i");
 
 console.log(final_i); // displays 5
 ```
@@ -43,22 +43,137 @@ Some things to consider for the above example:
   2. Rules must be async functions or async lambda expressions (with
      parenthesis, even with only one parameter).
 
-  3. Defining a rule using the *#addRule* method triggers the inference for
+  3. Defining a rule using the *#defRule* method triggers the inference for
      that rule. Therefore rules code must be resilient to undefined facts
      unless implemented within a *model* that has pre-initialized facts.
 
   4. Rules must either return nothing or an object that maps a relative or
      absolute fact reference. Those concepts are explained in details below.
 
-  5. Asserting a fact is done using the *#set* method. Asserting new facts
-     triggers the inference as well.
+  5. Asserting a fact is done using the *#assert* method. Asserting new facts
+     triggers the inference as well. To retract a fact, use *#retract*.
 
-  6. If you want to know a fact value, call the *#get* method.
+  6. If you want to know a fact value, call the *#peek* method.
 
 This simple example shows all the atomic inference methods of the
 **InfernalEngine**. You can go from there and have fun building a complex web
 of facts and rules already. But sincerely, your expert system programming
 life would be pretty miserable without the *model*.
+
+### Rule ###
+
+Rules are simple Javascript functions. A rule is defined within a context and
+can reference facts within that context that match the function parameter
+names. For example, the rule at path "/speed/maxSpeedReached" is inside the
+context "/speed/". Given the following model:
+
+```javascript
+{
+  engine: "V6",
+  speed: {
+    max: 150,
+    value: 0,
+    maxReached: false,
+
+    maxSpeedReached: async function(value, max) {
+      return { "maxReached": value === max};
+    },
+
+    user: {
+      input: ""
+    }
+  }
+}
+```
+
+The rule parameters `value` and `max` will respectively reference
+"/speed/value" and "/speed/max". But how can we reference a fact that is
+outside the rule context? Simple, by using the parameter annotation comment
+like this:
+
+```javascript
+{
+  engine: "V6",
+  speed: {
+    max: 150,
+    value: 0,
+    maxReached: false,
+
+    maxSpeedReached: async function(value, max) {
+      return { "maxReached": value === max};
+    },
+
+    translate: function(/*@ user/input */ input) {
+      return {"value": Number(input)}
+    }
+
+    user: {
+      input: "",
+    }
+  }
+}
+```
+
+Annotation comments must be placed in front of the annotated parameter.
+
+#### Return Object ####
+
+Rules must return an object or nothing. The simple case is to return an object
+where the key is the fact to update and the value being the valu to assign to
+that fact. You have plenty of examples above.
+
+What we just explained is a shorthand for the more general case though. The
+equivalent general case would be to return the command '#assert' instead of the
+factpath-value pair. This is the command list available to be returned by a
+rule:
+
+  1. "#assert": {path:str, value:any}
+
+  2. "#retract": {path:str}
+
+  3. "#defRule": {path:str, value:AsyncFunction}
+
+  4. "#undefRule": {path:str}
+
+  5. "#import": {path:str, value:object}
+
+Each command expects an object with one or two properties which are 'path'
+and 'value'. Example:
+
+```javascript
+await engine.defRule("count5", async (i) => {
+    if (typeof i !== "undefined" && i < 5) {
+      return {
+        "#assert": {
+          path: "i",
+          value: i + 1
+        }
+      };
+    }
+});
+```
+
+The shorthand structure works with scalar values and arrays (#assert),
+functions (#defRule) and objects (#import). Thus returning the following
+structure:
+
+```javascript
+// This rule will execute only once when defined.
+await engine.defRule("assert_defRule_import", async () => {
+    let model = require("./models/someInferenceModel");
+    return {
+      "/input/quantity": "23.5", // #assert
+      "/input/isQuantityNumeric": async function(/*@ /input/quantity */ quantity) { // #defRule
+        if (Number(quantity) === NaN) {
+          return {
+            message: "Invalid input quantity."
+          };
+        }
+      },
+      "/submodel": model // #import
+    };
+});
+```
 
 ### Defining a Model ###
 
@@ -156,7 +271,7 @@ another hand, inferring after importing `eats` and `sound` facts will update
 the internal fact base.
 
 This example shows how to set multiple facts at once and have the inferrence
-being triggered only once. Using the `#set` method for each fact would have
+being triggered only once. Using the `#assert` method for each fact would have
 worked as well but it would have launched the inference one more time.
 
 It is also possible to import a model into a different path if the import
@@ -261,19 +376,22 @@ let carModel = {
 | "/speed/inputIsValidInteger" | *\[function\]* |
 | "/speed/valueIsUnderLimit"   | *\[function\]* |
 
-When adding a rule to the InfernalEngine, its parameters are parsed.
-These parameter names are expected to exist within the same context as the
-rule. If you want to reference a fact outside the current context or to use a
-different variable name than the same context fact, it is possible to use the
-parameter annotation `/*@ {path_to_fact} */`. See *Absolute Fact Reference*
-and *Relative Fact Reference* for the `{path_to_fact}` syntax.
+By default rules parameters are fetching facts that have the same name as the
+given parameter from the same rule context. To reach a fact somewhere else in
+the fact tree, a parameter can be prefixed with a special comment that we are
+calling a **Parameter Annotation**. The parameter annotation lets you set the
+exact fact path that shall be set to the following parameter. The syntax is:
+
+`/*@ {path_to_fact} */`
+
+`path_to_fact` can be either a relative or an absolute path.
 
 ### Path, Context and Name ###
 
 #### Path ####
 
 A path is the full name of a fact or a rule. A path always begin with a "/"
-and each segment of the path is separated by "/". Example:
+and each segment of the path is separated by "/". Examples:
 
 - /name
 
@@ -346,40 +464,30 @@ let carModel = {
 }
 ```
 
-In the above example, "../message" and "/message" reference the same
-"message" fact. Since the "message" fact is directly in the root context and
-the "input" fact is under the "/speed/" context, it is easy to see that poping
-up one directory from "/speed/" takes the reference to the root context.
+In the above example, the relative reference "../message" and the absolute
+reference "/message" reference the same "message" fact. Since the "message"
+fact is directly in the root context and the "input" fact is under the
+"/speed/" context, it is easy to see that poping up one directory from
+ "/speed/" takes the reference to the root context.
 
-### Rule Parameters and Parameter Annotations ###
+### Relative Fact Reference ###
 
-By default rules parameters are fetching facts that have the same name as the
-given parameter from the same rule context. To reach a fact somewhere else in
-the fact tree, a parameter can be prefixed with a special comment that we are
-calling a **Parameter Annotation**. The parameter annotation lets you set the
-exact fact path that shall be set to the following parameter. The syntax is:
-
-`/*@ {path_to_fact} */`
-
-`path_to_fact` can be either a relative or an absolute path.
-
-### Relative and Absolute Fact Reference ###
-
-Just like directory reference in a file system, facts can be referenced
-using their relative path from the context of the executing rule. When
-referencing a fact, "../" does pop up one path element. When the path
-starts with "/", it references an absolute path from the root context.
-To dig down inside the fact tree from the current context, just writhe the
-path elements without a leading "/" like: "child/of/the/current/context".
+Just like directory reference in a file system, facts can be referenced using
+their relative path from the context of the executing rule. This happens when
+the path does not begin with "/". When referencing a fact, "../" does pop up
+one path element. When the path starts with "/", it references an absolute
+path from the root context. To dig down inside the fact tree from the current
+context, just write the path elements without a leading "/"
+like: "child/of/the/current/context".
 
 ### Metafacts ###
 
 There is a special kind of facts that lies within the engine. Meta facts
 can be referenced in a rule to know about the context of the current rule
-execution. Meta facts cannot trigger rules that references them. They are
-to be injected into rules that have been triggered by other fact changes.
-Metafacts are in the "/$/" context. For now there is only two meta
-facts:
+execution. Meta facts cannot trigger rules that reference them. They are
+to be injected into rules that have been triggered by any other fact change.
+Metafacts are in the "/$/" context. For now there is only two internal 
+metafacts:
 
   1. `/$/maxDepth` contains the value passed to the InfernalEngine constructor
      of the same name. It tells how many agenda can be generated in one
@@ -499,11 +607,11 @@ Inferred facts:
 }
 ```
 
-## Final Note ##
+## Change Note ##
 
-This is the last release of the Infernal Engine for the 0 (pre-release)
-version. The 1.0.0 release will feature a modernized javascript implementation
-using promises with async/await syntax, classes, getters, setters, etc.
+### Version 1.0.0 - 2020/12/21 ###
 
-Your feedbacks are welcome. Please use github issues to do so.
-If you want to get involved, pull requests are welcome too!
+- Complete rewrite of the engine with ECMAScript 2016.
+- Method names have been changed to align with other inference engines (namely by [CLIPS](http://www.clipsrules.net/))
+- Added the possibility to retract facts and undefine rules with wildcards.
+- Improved tracing.
