@@ -1,6 +1,6 @@
 {
   "name": "infernal-engine",
-  "version": "0.19.1",
+  "version": "1.0.0",
   "description": "Javascript Inference Engine",
   "keywords": [
     "inference",
@@ -10,8 +10,7 @@
     "artificial",
     "intelligence",
     "ai",
-    "forward-chaining",
-    "javascript"
+    "forward-chaining"
   ],
   "license": "MIT",
   "author": "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
@@ -28,6 +27,7 @@
     "doc": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./../infernal-engine-pages"
   },
   "devDependencies": {
-    "mocha": "^6.2.3"
+    "mocha": "^6.2.3",
+    "nyc": "^15.1.0"
   }
 }

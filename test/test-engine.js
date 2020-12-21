@@ -1,460 +1,405 @@
-var assert = require("assert");
-var InfernalEngine = require("../lib/index.js");
-
-/* jshint ignore:start */
+const InfernalEngine = require("../lib/index");
+const assert = require("assert");
 
 
-describe("InfernalEngine", function() {
+describe("InfernalEngine", async() => {
 
-    describe("#get", function() {
-        
-        it("should get the fact value 'Hello world!' inside 'hello/world'", 
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.setFacts ({
-                hello: {
-                    world: "Hello world!"
-                }
-            });
-            assert.equal(engine.get("hello/world"), "Hello world!")
-            done();
+    describe("#assert", async () => {
+        let engine = new InfernalEngine();
+        it("asserting the value 'i' shall add a new fact '/i' in the engine.", async () => {
+            let engine = new InfernalEngine();
+            await engine.assert("i", 5, true);
+            assert.deepStrictEqual(engine._facts.has("/i"), true);
+            assert.deepStrictEqual(engine._changes.size, 1);
         });
-
-
-        it("should get the fact with the parent folder notation at " +
-           "'/root/parent/child1/../child2/value'",
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.setFacts({
-                root: {
-                    parent: {
-                        child1: {
-                            value: "child1"
-                        },
-                        child2: {
-                            value: "child2"
-                        }
-                    }
-                }
-            });
-            assert.equal("child2", engine.get("/root/parent/child1/" +
-                "../child2/value"));
-            done();
-        });
-
-    });
-
-
-    describe("#addRule", function() {
-        
-        it("should add a relation between fact 'i' and rule 'increment'", 
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.addRule(increment);
-            assert(engine._relations["/i"]["/increment"]);
-            done();
-        });
-
-        it("should add a rule that uses relative path correctly",
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.addRule("/units/convert_lbs_to_kg", function(next, lbs) {
-                return next(null, {
-                    kg: lbs / 2.2
-                });
-            });
-            engine.set("/units/lbs", 110);
-            engine.infer(function(err) {
-                assert.ifError(err);
-                var kg = Math.round(engine.get("/units/kg"));
-                assert.equal(kg, 50);
-                done();
-            });
-        });
-
-    });
-
-
-    describe("#set", function() {
-
-        it("should create a fact at '/company/department/employees/count'", 
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.set("company/department/employees/count", 10);
-            assert.equal(10, 
-                engine.getFacts().company.department.employees.count);
-            done();
-        });
-
-        it("should add a rule named 'increment' to the agenda", 
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.addRule(increment); 
-            engine.set("i", 1);
-            assert(engine._agenda["/increment"]);
-            done();
-        });
-
-
-        it("should not add the increment rule to the agenda when dates are " +
-           "the same",
-        function(done) {
-            var engine = new InfernalEngine();
-            engine.setFacts({
-                date: new Date(2016, 0, 1),
-                i: 1
-            });
-            engine.addRule("increment_new_date", function(end) {
-                var date = this.get("date");
-                var i = this.get("i") || 0;
-                if (date.getFullYear() > 2015) {
-                    i++;
-                }
-                this.set("i", i);
-            }); 
-            engine.set("/date", new Date(2016, 0, 1));
-            assert(!engine._agenda["/increment_new_date"], 
-                "Increment rule found in the agenda");
-            done();
+        it("asserting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
+            let engine = new InfernalEngine();
+            await engine.assert("/i", 0, true);
+            assert.deepStrictEqual(engine._facts.get("/i"), 0);
+            assert.deepStrictEqual(engine._changes.size, 1);
         });
     });
 
-
-    describe("#infer", function() {
-
-        it("should set the fact 'i' to 5", function(done) {
-            var engine = new InfernalEngine();
-            engine.addRule(increment); 
-            engine.set("i", 1);
-            engine.infer(function() {
-                assert.equal(engine.get("i"), 5);
-                done();
-            });
+    describe("#peek", () => {
+        it("shall get an existing fact from the engine.", async () => {
+            let engine = new InfernalEngine();
+            await engine.assert("i", 7, true);
+            let i = await engine.peek("i");
+            assert.deepStrictEqual(i, 7);
+            let i2 = await engine.peek("/i");
+            assert.deepStrictEqual(i2, 7);
         });
-
     });
 
-
-    describe("#set (with callback)", function() {
-
-        it("should execute the callback after the set is done.", function(done) {
-            var engine = new InfernalEngine();
-            engine.addRule(increment); 
-            engine.set("i", 1, function(err, changes) {
-                assert.equal(changes["/i"], 5);
-                done();
-            });
+    describe("#retract", () => {
+        it("shall retract a single fact from the engine.", async () => {
+            let engine = new InfernalEngine();
+            await engine.assert("i", 7, true);
+            assert.deepStrictEqual(await engine.peek("i"), 7);
+            await engine.retract("i");
+            assert.deepStrictEqual(await engine.peek("i"), undefined);
         });
 
-    });
-
-
-    describe("#getFacts", function() {
-    
-        it("should return a copy of internal facts", function(done) {
-            var engine = new InfernalEngine();
-            engine.set("/first/object/name", "original");
-            engine.set("/first/object/value", 1);
-            
-            var facts = engine.getFacts();
-            facts.first.object.name = "modified";
-            facts.first.object.value = 2;
-            
-            assert.equal(engine.get("/first/object/name"), "original");
-            assert.equal(engine.get("/first/object/value"), 1);
-
-            done();
-        });
-
-
-        it("should return arrays as array, not as objects", function(done) {
-           
-            var engine = new InfernalEngine();
-            engine.setFacts({
-                arr: ["a", "b", "c"]
-            })
-            var data = engine.getFacts();
-            assert(data.arr instanceof Array, 
-                "The arr property should be an array.");
-            done();
-        });
-    
-    });
-
-
-    describe("#setFacts", function() {
-    
-        it("should set multiple facts from an object", function(done) {
-            var obj = {
-                my: {
-                    first: {
-                        fact: "factName",
-                        value: 10
-                    },
-                    second: new Date(2016, 0, 23)
-                }
+        it("shall retract all facts from the given path prefix.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: 5.5
+                },
             };
-
-            var engine = new InfernalEngine();
-            engine.setFacts(obj);
-            assert.equal(engine.get("/my/first/fact"), "factName");
-            assert.equal(engine.get("/my/first/value"), 10);
-            assert.equal(engine.get("my/second").getTime(), 
-                (new Date(2016, 0, 23)).getTime());
-
-            done();
+            await engine.import(model);
+            await engine.retract("/d/*");
+            let expectedFacts = {
+                a: "a",
+                b: 1,
+                c: true
+            };
+            let actualFacts = await engine.export();
+            delete actualFacts.$;
+            assert.deepStrictEqual(actualFacts, expectedFacts);
         });
-    
+
     });
 
+    describe("#defRule", () => {
+        it("shall add a rule and interpret the parameters correctly.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("rule1", async (i) => {});
+            assert.deepStrictEqual(engine._rules.has("/rule1"), true,
+                "The rule '/rule1' was not added to the internal ruleset.");
+            assert.deepStrictEqual(engine._relations.get("/i").has("/rule1"), true,
+                "The relation between the fact '/i' and the rule '/rule1' was not properly established.");
 
-    describe("#load", function() {
+            await engine.defRule("s/rule", async (i) => {});
+            assert.deepStrictEqual(engine._rules.has("/s/rule"), true,
+                "The rule '/s/rule' was not added to the internal ruleset.");
+            assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
+                "The relation between the fact '/s/i' and the rule '/s/rule' was not properly established.");
+        });
 
-        it("should load a model and infer properly", function(done) {
-            var engine = new InfernalEngine();
-            engine.load({
-                sub: {
-                    i: 0,
-                    increment: increment
+        it("shall add multiple fact-rule relations given multiple parameters.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("rule", async (i, a, b) => {}); // multiple local facts
+            assert.deepStrictEqual(engine._relations.get("/i").has("/rule"), true,
+                "The relation between the fact '/i' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/a").has("/rule"), true,
+                "The relation between the fact '/a' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/b").has("/rule"), true,
+                "The relation between the fact '/b' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referencing a fact with a specified path", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("rule", async (/*@ /another/path */ x) => {});
+            assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
+                "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referencing a fact with a specified path for multiple parameters", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
+            assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
+                "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
+            assert.deepStrictEqual(engine._relations.get("/some/other/path").has("/rule"), true,
+                "The relation between the fact '/some/other/path' and the rule '/rule' was not properly established.");
+        });
+
+        it("shall add a rule referencing a fact with a specified complex path", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
+            assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
+                "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
+        });
+
+    });
+
+    describe("#undefRule", () => {
+
+        it("shall not count up to 5 once the rule is undefined.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i) => {
+                if (typeof i !== "undefined" && i < 5) {
+                    return { "i": i + 1 };
                 }
             });
-
-            engine.set("/sub/i", 1);
-            engine.infer(function(err) {
-                assert.ifError(err);
-                assert.equal(engine.get("/sub/i"), 5);
-                done();
-            });
+            await engine.undefRule("count5");
+            await engine.assert("i", 1);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 1);
         });
 
-
-        it("should not make an object from an array", function(done) {
-            
-            var engine = new InfernalEngine();
-            engine.load({
-                arr: ['A', 'B', 'C']
+        it("shall undefine all rules from the carModel", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            await engine.undefRule("/speed/*");
+            engine.reset();
+            await engine.assert("/speed/input", "invalid number");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                speed: { 
+                    input: "invalid number"
+                }
             });
-
-            assert(engine.get("/arr") instanceof Array, 
-                "The fact 'arr' should be an array.");
-
-            done();
         });
 
     });
 
+    describe("#infer", () => {
 
-    describe("#getDiff", function() {
-    
-        var engine = new InfernalEngine();
-        engine.load({
-            a: 15,
-            b: {
-                c: "test",
-                d: 30,
-                r1: function(next, /*@ d */ d) {
-                    let c = null;
-                    if (d > 100) {
-                        return next(null, {c:"TEST"})
-                    } else {
-                        return next(null, {c:"test"})
+        it("shall count up to 5.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i) => {
+                if (typeof i !== "undefined" && i < 5) {
+                    return { "i": i + 1 };
+                }
+            });
+            await engine.assert("i", 1);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 5);
+        });
+
+        it("#assert.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i) => {
+                if (typeof i !== "undefined" && i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 7);
+        });
+
+        it("#retract.", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count7", async (i) => {
+                if (typeof i !== "undefined" && i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+            });
+            await engine.defRule("retract_i", async (i) => {
+                return {
+                    "#retract": {
+                        path: "i"
+                    }
+                }
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, undefined);
+        });
+
+        it("#defrule", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("count5", async (i, added) => {
+                if (typeof i === "undefined") return;
+                if (i < 7) {
+                    return {
+                        "#assert": {
+                            path: "i",
+                            value: i + 1
+                        }
+                    };
+                }
+                else if (i < 14) {
+                    return {
+                        "#defRule": {
+                            path: "mult2",
+                            value: async function(i) {
+                                return {
+                                    "j": i * 2
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            await engine.assert("i", 4);
+            let final_j = await engine.peek("j");
+            assert.deepStrictEqual(final_j, 14);
+        });
+
+        it("#undefRule.", async () => {
+            let engine = new InfernalEngine();
+            await engine.import({
+                count7: async (i) => {
+                    if (typeof i !== "undefined" && i < 7) {
+                        return {
+                            "#assert": {
+                                path: "i",
+                                value: i + 1
+                            }
+                        };
                     }
                 },
-                r2: function(next, /*@ /a */ a) {
-                    if (a > 50) {
-                        return next(null, {msg:"a is greater than 50"})
+                undef: async (i) => {
+                    return {
+                        "#undefRule": {
+                            path: "count7"
+                        }
                     }
-                    return next();
                 }
-            },
-            r3: function(next, /*@ a */ a) {
-                return next(null, { "b/d": a * 2 });
+            });
+            await engine.assert("i", 4);
+            let final_i = await engine.peek("i");
+            assert.deepStrictEqual(final_i, 4);
+        });
+
+        it("#import", async () => {
+            let engine = new InfernalEngine();
+            await engine.defRule("addCarModel", async function() {
+                let carModel = require("./models/carModel");
+                return {
+                    "#import": {
+                        path: "car",
+                        value: carModel
+                    }
+                }
+            });
+            let carModelExported = await engine.export("/car");
+            delete carModelExported.$;
+            assert.deepStrictEqual(carModelExported, {
+                    name: "Minivan",
+                    speed: {
+                      input: "0",
+                      limit: 140,
+                      value: 0
+                    }
+            });
+        });
+
+    });
+
+
+    describe("#import", () => {
+
+        it("shall load and infer the animal is agreen frog.", async () => {
+            let engine = new InfernalEngine();
+            let critterModel = require("./models/critterModel");
+            await engine.import(critterModel);
+            await engine.import({
+                eats: "flies",
+                sound: "croaks"
+            });
+            assert.deepStrictEqual(await engine.peek("species"), "frog");
+            assert.deepStrictEqual(await engine.peek("color"), "green");
+        });
+
+        it("shall load and infer the animal is a green frog inside the submodel.", async () => {
+            let engine = new InfernalEngine();
+            let critterModel = require("./models/critterModel");
+            await engine.import(critterModel, "/the/critter/model");
+            await engine.assert("/the/critter/model/eats", "flies");
+            await engine.assert("/the/critter/model/sound", "croaks");
+            assert.deepStrictEqual(await engine.peek("/the/critter/model/species"), "frog");
+            assert.deepStrictEqual(await engine.peek("/the/critter/model/color"), "green");
+        });
+
+    });
+
+
+    describe("#export", () => {
+
+        it("shall export the same model as the one imported.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: 5.5
+                }
             }
+            await engine.import(model);
+            let model2 = await engine.export();
+            delete model2.$; // we don't want to deal with meta facts
+            assert.deepStrictEqual(model2, model);
         });
 
-
-        it("should return the set of modified facts", function(next, ) {
-            engine.set("a", 40);
-            engine.infer(function(err) {
-                assert.ifError(err);
-                var diff = engine.getDiff();
-                assert.equal(
-                    JSON.stringify(diff), 
-                    '{"b":{"d":80}}');
-                return next();
-            });
-        });
-
-
-        it("should return the set of modified facts, including the new one",
-        function(done) {
-            engine.set("a", 60);
-            engine.infer(function(err) {
-                assert.ifError(err);
-                var diff = engine.getDiff();
-                assert.equal(
-                    JSON.stringify(diff),
-                    '{"b":{"msg":"a is greater than 50","d":120,"c":"TEST"}}');
-                done();
-            });
-        });
-    
-    });
-
-
-    describe("#startTracing", function() {
-
-        it("should set the fact 'i' to 5 and trace execution", function(done) {
-            var engine = new InfernalEngine();
-
-            var logs = [];
-            engine.startTracing(function(data) {
-                logs.push(JSON.stringify(data));
-                //console.log(JSON.stringify(data));
-            });
-
-            var expectedLogs = [
-                '{"action":"addRule","rule":"/increment"}',
-                '{"action":"set","fact":"/i","newValue":1}',
-                '{"action":"addToAgenda","rule":"/increment"}',
-                '{"action":"infer"}',
-                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":1,"newValue":2}',
-                '{"action":"addToAgenda","rule":"/increment"}',
-                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":2,"newValue":3}',
-                '{"action":"addToAgenda","rule":"/increment"}',
-                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":3,"newValue":4}',
-                '{"action":"addToAgenda","rule":"/increment"}',
-                '{"action":"set","fromRule":"/increment","fact":"/i","oldValue":4,"newValue":5}',
-                '{"action":"addToAgenda","rule":"/increment"}'
-            ];
-
-            engine.addRule(increment); 
-            engine.set("i", 1);
-			
-            engine.infer(function() {
-                assert.equal(logs.length, expectedLogs.length);
-                for (var i = 0; i < logs.length; i++) {
-                    assert.equal(logs[i], expectedLogs[i]);
-                }   
-                done();
-            });
-        });
-
-
-        it("should not cause a problem to start tracing before loading a model",
-        function(done) {
-            var engine = new InfernalEngine();
-            
-            var logs = [];
-            engine.startTracing(function(data) {
-                logs.push(JSON.stringify(data));
-            });
-
-            engine.load({
-                test: 'a'
-            });
-
-            done();
+        it("shall export the same submodel as the one imported.", async () => {
+            let engine = new InfernalEngine();
+            let model = {
+                a: "a",
+                b: 1,
+                c: true,
+                d: {
+                    x: "23",
+                    y: 42,
+                    z: false
+                }
+            }
+            await engine.import(model);
+            let model2 = await engine.export("/d");
+            assert.deepStrictEqual(model2, model.d);
         });
 
     });
 
 
+    describe("#exportChanges", () => {
 
-    describe("#notify", function() {
-    
-        it("should add the validate rule in the agenda", function(done) {
-            
-            var engine = new InfernalEngine();
-            engine.load({
-                size: {
-                    value: "",
-                    options: ["", "Small", "Medium", "Large"],
-                    validate: function(next, 
-                            /*@ value */    value, 
-                            /*@ options */  options) {
-                        var index = options.indexOf(value);
-                        if (index === -1) {
-                            return next("Invalid Option");
-                        }
-                        return next();
-                    }
+        it("shall export what changed during inference.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.reset();
+            await engine.assert("/speed/input", "50");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                speed: { 
+                    input: "50",
+                    value: 50
                 }
             });
-
-            engine.get("/size/options")[0] = "Tiny";
-            engine.notify("/size/options");
-
-            engine.infer(function(err) {
-                assert.equal(err, "Invalid Option");
-                done();
-            });
-            
         });
 
-
-        it("should add the validate rule in the agenda during inference", 
-        function(done) {
-            
-            var engine = new InfernalEngine();
-            engine.load({
-                size: {
-                    value: "",
-                    options: ["", "Small", "Medium", "Large"],
-                    validate: function(next, 
-                            /*@ value */    value, 
-                            /*@ options */  options) {
-                        var index = options.indexOf(value);
-                        if (index === -1) {
-                            return next("Invalid Option");
-                        }
-                        return next();
-                    }
-                },
-
-                newValueTrigger: function(done,
-                            /*@ newValue */      newValue,
-                            /*@ /size/options */ options) {
-                    options[0] = newValue;
-                    engine.notify("/size/options");
-                    done();
+        it("shall add a message at the root of the model.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.reset();
+            await engine.assert("/speed/input", "invalid number");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                message: "Error: 'invalid number' is not a valid integer.",
+                speed: { 
+                    input: "invalid number"
                 }
             });
-
-            engine.set("newValue", "Tiny");
-
-            engine.infer(function(err) {
-                assert.equal(err, "Invalid Option");
-                done();
-            });
-            
         });
-        
-    
-    });
 
+        it("shall do the conversion and add a message at the root of the model.", async () => {
+            let engine = new InfernalEngine();
+            let carModel = require("./models/carModel");
+            await engine.import(carModel);
+            engine.reset();
+            await engine.assert("/speed/input", "200");
+            let changes = await engine.exportChanges();
+            assert.deepStrictEqual(changes, {
+                message: "WARN: The speed input can not exceed the speed limit of 140.",
+                speed: { 
+                    input: "200",
+                    value: 140
+                }
+            });
+        });
+    });
 });
-
-
-
-function increment(next, /*@ i*/ i) {
-    if (i < 5) {
-        i++;
-    }
-    return next(null, {
-        i: i
-    });
-}
-
-
-function tolerance(oldValue, newValue, decimals) {
-    var mult = Math.pow(10, decimals);
-    var oldVal = oldValue * mult;
-    var newVal = newValue * mult;
-    return Math.abs(oldVal - newVal) >= 1;
-}
-
-
-
-
-/* jshint ignore:end */
