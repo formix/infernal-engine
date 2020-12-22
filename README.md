@@ -23,7 +23,7 @@ to know more about different inference engine order logics.
 var InfernalEngine = require("infernal-engine");
 let engine = new InfernalEngine();
 
-await engine.defRule("count5", async (i) => {
+await engine.defRule("count5", async function(i) {
     if (typeof i !== "undefined" && i < 5) {
         return { "i": i + 1 };
     }
@@ -40,8 +40,8 @@ Some things to consider for the above example:
 
   1. All **InfernalEngine** methods must be called with *await*.
 
-  2. Rules must be async functions or async lambda expressions (with
-     parenthesis, even with only one parameter).
+  2. Rules must be **async function**! the parser do not recognize lambda
+     parameters pattern yet.
 
   3. Defining a rule using the *#defRule* method triggers the inference for
      that rule. Therefore rules code must be resilient to undefined facts
@@ -141,7 +141,7 @@ Each command expects an object with one or two properties which are 'path'
 and 'value'. Example:
 
 ```javascript
-await engine.defRule("count5", async (i) => {
+await engine.defRule("count5", async function(i) {
     if (typeof i !== "undefined" && i < 5) {
       return {
         "#assert": {
@@ -159,7 +159,7 @@ structure:
 
 ```javascript
 // This rule will execute only once when defined.
-await engine.defRule("assert_defRule_import", async () => {
+await engine.defRule("assert_defRule_import", async function() {
     let model = require("./models/someInferenceModel");
     return {
       "/input/quantity": "23.5", // #assert
