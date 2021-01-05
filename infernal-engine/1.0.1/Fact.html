@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: RuleContext</title>
+    <title>JSDoc: Class: Fact</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: RuleContext</h1>
+    <h1 class="page-title">Class: Fact</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>RuleContext<span class="signature">(engine, rule, path)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Fact<span class="signature">(path, value)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">This class is not exposed. Put a rule into its context to streamline rule execution.</div>
+            <div class="class-description">The Fact class stores the path and the value of a Fact instance.</div>
         
     
 </header>
@@ -45,16 +45,12 @@
     
 
     
-    <h4 class="name" id="RuleContext"><span class="type-signature"></span>new RuleContext<span class="signature">(engine, rule, path)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Fact"><span class="type-signature"></span>new Fact<span class="signature">(path, value)</span><span class="type-signature"></span></h4>
     
 
     
 
 
-
-<div class="description">
-    Creates an instance of the rule context with the engine, the rule and its path.
-</div>
 
 
 
@@ -89,59 +85,13 @@
 
         <tr>
             
-                <td class="name"><code>engine</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="InfernalEngine.html">InfernalEngine</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The parent InfernalEngine</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>rule</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The rule to execute.</td>
-        </tr>
-
-    
-
-        <tr>
-            
                 <td class="name"><code>path</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
             
@@ -151,7 +101,31 @@
 
             
 
-            <td class="description last">The path of the rule.</td>
+            <td class="description last">The mandatory path of the fact.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">any</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The optional value of the fact. If letft undefined, the fact will be
+                 retracted if it exists.</td>
         </tr>
 
     
@@ -192,7 +166,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RuleContext.js.html">RuleContext.js</a>, <a href="RuleContext.js.html#line6">line 6</a>
+        <a href="Fact.js.html">Fact.js</a>, <a href="Fact.js.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -238,33 +212,18 @@
     
 
     
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Members</h3>
 
         
             
+<h4 class="name" id="path"><span class="type-signature"></span>path<span class="type-signature"></span></h4>
 
-    
-
-    
-    <h4 class="name" id="execute"><span class="type-signature">(async) </span>execute<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    Execute the rule within its context returning the 
-resulting object to their respective contextualized facts.
+    Gets the fact path.
 </div>
-
-
-
-
-
-
 
 
 
@@ -301,7 +260,7 @@ resulting object to their respective contextualized facts.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RuleContext.js.html">RuleContext.js</a>, <a href="RuleContext.js.html#line30">line 30</a>
+        <a href="Fact.js.html">Fact.js</a>, <a href="Fact.js.html#line26">line 26</a>
     </li></ul></dd>
     
 
@@ -317,6 +276,16 @@ resulting object to their respective contextualized facts.
 
 
 
+        
+            
+<h4 class="name" id="value"><span class="type-signature"></span>value<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Gets the fact value.
+</div>
 
 
 
@@ -324,7 +293,45 @@ resulting object to their respective contextualized facts.
 
 
 
+<dl class="details">
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Fact.js.html">Fact.js</a>, <a href="Fact.js.html#line33">line 33</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -332,6 +339,8 @@ resulting object to their respective contextualized facts.
 
 
         
+    
+
     
 
     
@@ -353,7 +362,7 @@ resulting object to their respective contextualized facts.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Jan 04 2021 22:33:26 GMT-0500 (heure normale de l’Est)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Jan 04 2021 22:27:38 GMT-0500 (heure normale de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>
