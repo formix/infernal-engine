@@ -1,4 +1,4 @@
-# Infernal Engine 1.0.0 #
+# Infernal Engine #
 
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
@@ -607,7 +607,13 @@ Inferred facts:
 }
 ```
 
-## Change Note ##
+## Change Notes ##
+
+### Version 1.0.1 - 2021/01/04 ###
+
+- Added the *InfernalEngine#assertAll* method.
+- Added the *InfernalEngine#fact* static method to create facts to be consumed by *assertAll*.
+- Improved code documentation.
 
 ### Version 1.0.0 - 2020/12/21 ###
 
