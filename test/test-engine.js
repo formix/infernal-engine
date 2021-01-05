@@ -86,13 +86,13 @@ describe("InfernalEngine", async() => {
     describe("#defRule", () => {
         it("shall add a rule and interpret the parameters correctly.", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("rule1", async (i) => {});
+            await engine.defRule("rule1", async function(i) {});
             assert.deepStrictEqual(engine._rules.has("/rule1"), true,
                 "The rule '/rule1' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule1"), true,
                 "The relation between the fact '/i' and the rule '/rule1' was not properly established.");
 
-            await engine.defRule("s/rule", async (i) => {});
+            await engine.defRule("s/rule", async function(i) {});
             assert.deepStrictEqual(engine._rules.has("/s/rule"), true,
                 "The rule '/s/rule' was not added to the internal ruleset.");
             assert.deepStrictEqual(engine._relations.get("/s/i").has("/s/rule"), true,
@@ -101,7 +101,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add multiple fact-rule relations given multiple parameters.", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("rule", async (i, a, b) => {}); // multiple local facts
+            await engine.defRule("rule", async function(i, a, b) {}); // multiple local facts
             assert.deepStrictEqual(engine._relations.get("/i").has("/rule"), true,
                 "The relation between the fact '/i' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/a").has("/rule"), true,
@@ -112,14 +112,14 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referencing a fact with a specified path", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("rule", async (/*@ /another/path */ x) => {});
+            await engine.defRule("rule", async function(/*@ /another/path */ x) {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
         });
 
         it("shall add a rule referencing a fact with a specified path for multiple parameters", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("rule", async (/*@ /another/path */ x, /*@ /some/other/path */ y) => {});
+            await engine.defRule("rule", async function(/*@ /another/path */ x, /*@ /some/other/path */ y) {});
             assert.deepStrictEqual(engine._relations.get("/another/path").has("/rule"), true,
                 "The relation between the fact '/another/path' and the rule '/rule' was not properly established.");
             assert.deepStrictEqual(engine._relations.get("/some/other/path").has("/rule"), true,
@@ -128,7 +128,7 @@ describe("InfernalEngine", async() => {
 
         it("shall add a rule referencing a fact with a specified complex path", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("/a/another/path/rule", async (/*@ ../.././some/./fact */ x) => {});
+            await engine.defRule("/a/another/path/rule", async function(/*@ ../.././some/./fact */ x) {});
             assert.deepStrictEqual(engine._relations.get("/a/some/fact").has("/a/another/path/rule"), true,
                 "The relation between the fact '/a/some/fact' and the rule '/a/another/path/rule' was not properly established.");
         });
@@ -139,7 +139,7 @@ describe("InfernalEngine", async() => {
 
         it("shall not count up to 5 once the rule is undefined.", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("count5", async (i) => {
+            await engine.defRule("count5", async function(i) {
                 if (typeof i !== "undefined" && i < 5) {
                     return { "i": i + 1 };
                 }
@@ -181,9 +181,9 @@ describe("InfernalEngine", async() => {
             assert.deepStrictEqual(final_i, 5);
         });
 
-        it("#assert.", async () => {
+        it("#assert.", async function() {
             let engine = new InfernalEngine();
-            await engine.defRule("count5", async (i) => {
+            await engine.defRule("count5", async function(i) {
                 if (typeof i !== "undefined" && i < 7) {
                     return {
                         "#assert": {
@@ -200,7 +200,7 @@ describe("InfernalEngine", async() => {
 
         it("#retract.", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("count7", async (i) => {
+            await engine.defRule("count7", async function(i) {
                 if (typeof i !== "undefined" && i < 7) {
                     return {
                         "#assert": {
@@ -210,7 +210,7 @@ describe("InfernalEngine", async() => {
                     };
                 }
             });
-            await engine.defRule("retract_i", async (i) => {
+            await engine.defRule("retract_i", async function(i) {
                 return {
                     "#retract": {
                         path: "i"
@@ -224,7 +224,7 @@ describe("InfernalEngine", async() => {
 
         it("#defrule", async () => {
             let engine = new InfernalEngine();
-            await engine.defRule("count5", async (i, added) => {
+            await engine.defRule("count5", async function(i, added) {
                 if (typeof i === "undefined") return;
                 if (i < 7) {
                     return {
@@ -255,7 +255,7 @@ describe("InfernalEngine", async() => {
         it("#undefRule.", async () => {
             let engine = new InfernalEngine();
             await engine.import({
-                count7: async (i) => {
+                count7: async function(i) {
                     if (typeof i !== "undefined" && i < 7) {
                         return {
                             "#assert": {
@@ -265,7 +265,7 @@ describe("InfernalEngine", async() => {
                         };
                     }
                 },
-                undef: async (i) => {
+                undef: async function(i) {
                     return {
                         "#undefRule": {
                             path: "count7"
