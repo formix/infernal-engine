@@ -30,6 +30,7 @@
 const infernalUtils = require("./infernalUtils");
 const RuleContext = require("./RuleContext");
 const util = require("util");
+const Fact = require("./Fact");
 
 
 /**
@@ -48,11 +49,10 @@ class InfernalEngine {
 
     /**
      * Create a new InfernalEngine instance. 
-     * 
-     * @param {Number} maxGen Optional, default fo 50. The maximum number of agenda generation
+     * @param {Number} [maxGen=50] The maximum number of agenda generation
      *                        when executing inference. 
-     * @param {Function} trace An optional tracing function that will be called with a trace
-     *                         object parameter.
+     * @param {Function=} trace A tracing function that will be called with a trace
+     *                          object parameter.
      */
     constructor(maxGen, trace) {
         this._maxGen = maxGen || 50;
@@ -60,10 +60,7 @@ class InfernalEngine {
     }
 
     /**
-     * @method InfernalEngine#peek
-     * @description
      * Returns the fact value for a given path.
-     * 
      * @param {String} path The full path to the desired fact.
      * @return {Promise&lt;*>} The fact value.
      */
@@ -77,7 +74,6 @@ class InfernalEngine {
      * Asserts a new fact or update an existing fact for the given path with
      * the provided value. Asserting a fact with an undefined value will 
      * retract the fact if it exists.
-     * 
      * @param {String} path The full path to the desired fact.
      * @param {*} value The fact value to set, must be a scalar.
      */
@@ -132,8 +128,33 @@ class InfernalEngine {
     }
 
     /**
+     * Asserts all recieved facts.
+     * @param {Array&lt;Fact>} facts A list of facts to assert at in one go.
+     */
+    async assertAll(facts) {
+        if (!(facts instanceof Array)) {
+            throw new Error("The 'facts' parameter must be an Array.");
+        }
+        if (facts.length === 0) {
+            return;
+        }
+        this._busy = true;
+        try {
+            for (const fact of facts) {
+                if (!(fact instanceof Fact)) {
+                    throw new Error("The asserted array must contains objects of type Fact only.");
+                }
+                await this.assert(fact.path, fact.value);
+            }
+        }
+        finally {
+            this.busy = false;
+        }
+        await _infer.call(this);
+    }
+
+    /**
      * Retracts a fact or multiple facts recursively if the path ends with '/*'.
-     * 
      * @param {String} path The path to the fact to retract.
      */
     async retract(path) {
@@ -153,7 +174,6 @@ class InfernalEngine {
 
     /**
      * Add a rule to the engine's ruleset and launche the inference.
-     * 
      * @param {String} path The path where to save the rule at.
      * @param {Function} rule The rule to add. Must be async.
      */
@@ -171,7 +191,7 @@ class InfernalEngine {
                 "already exist. Call 'undefRule' or change the rule path.");
         }
 
-        let ruleContext = new RuleContext(this, rule, context)
+        let ruleContext = new RuleContext(this, rule, compiledRulepath)
         let parameters = infernalUtils.parseParameters(rule);
         for (const param of parameters) {
             let factpath = param.startsWith("/") ? param : context + param;
@@ -206,7 +226,6 @@ class InfernalEngine {
 
     /**
      * Undefine a rule at the given path or a group of rules if the path ends with '/*'.
-     * 
      * @param {String} path The path to the rule to be undefined.
      */
     async undefRule(path) {
@@ -229,9 +248,8 @@ class InfernalEngine {
      * Import the given Javascript object into the engine. Scalar values and arrays as facts,
      * functions as rules. Launches the inference on any new rules and any existing rules
      * triggered by importing the object facts. Infers only when eveything have been imported.
-     * 
      * @param {Object}  obj     The object to import.
-     * @param {String}  context    The path where the object will be imported.
+     * @param {String}  context The path where the object will be imported.
      */
     async import(obj, context) {
         if (this._trace) {
@@ -258,11 +276,8 @@ class InfernalEngine {
     }
 
     /**
-     * Export internal facts from the given optional path as a JSON object. Do not include 
-     * rules.
-     * 
-     * @param {String} context Optional, default "/". The context to export as an object.
-     * 
+     * Export internal facts from the given optional path as a JSON object. Do not export rules.
+     * @param {String} [context="/"] The context to export as an object.
      * @return {object} a JSON object representation of the engine internal state.
      */
     async export(context) {
@@ -286,10 +301,9 @@ class InfernalEngine {
 
 
     /**
-     * Exports all changed facts since the last inference as a Javascript object. Reset the
-     * change tracker.
-     * 
-     * @return a JSON object containing the cumulative changes.
+     * Exports all changed facts since the last call to exportChanges or
+     * [reset]{@link InfernalEngine#reset} as a Javascript object. Reset the change tracker.
+     * @return a JSON object containing the cumulative changes since last call.
      */
     async exportChanges() {
         let obj = {};
@@ -310,6 +324,16 @@ class InfernalEngine {
     async reset() {
         this._changes.clear();
     }
+
+    /**
+     * Create a new Fact with the given path and value.
+     * @param {string} path Mandatory path of the fact.
+     * @param {any} value Value of the fact, can be 'undefined' to retract the given fact.
+     */
+    static fact(path, value) {
+        return new Fact(path, value);
+    }
+
 }
 
 
@@ -361,8 +385,8 @@ async function _infer() {
             }
             let currentAgenda = this._agenda;
             this._agenda = new Map();
-            for (const [path, rulectx] of currentAgenda) {
-                await rulectx.execute(path);
+            for (const [_, rulectx] of currentAgenda) {
+                await rulectx.execute();
             }
         }
     }
@@ -447,13 +471,13 @@ module.exports = InfernalEngine;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="InfernalEngine.html">InfernalEngine</a></li><li><a href="RuleContext.html">RuleContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compilePath">compilePath</a></li><li><a href="global.html#equals">equals</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#parseFactPaths">parseFactPaths</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Fact.html">Fact</a></li><li><a href="InfernalEngine.html">InfernalEngine</a></li><li><a href="RuleContext.html">RuleContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compilePath">compilePath</a></li><li><a href="global.html#equals">equals</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#parseFactPaths">parseFactPaths</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Dec 21 2020 09:26:38 GMT-0500 (heure normale de l’Est)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Jan 04 2021 22:21:32 GMT-0500 (heure normale de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>
