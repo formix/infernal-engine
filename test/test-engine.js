@@ -8,17 +8,34 @@ describe("InfernalEngine", async() => {
         let engine = new InfernalEngine();
         it("asserting the value 'i' shall add a new fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.assert("i", 5, true);
+            await engine.assert("i", 5);
             assert.deepStrictEqual(engine._facts.has("/i"), true);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
         it("asserting the value '/i' shall change the xisting fact '/i' in the engine.", async () => {
             let engine = new InfernalEngine();
-            await engine.assert("/i", 0, true);
+            await engine.assert("/i", 0);
             assert.deepStrictEqual(engine._facts.get("/i"), 0);
             assert.deepStrictEqual(engine._changes.size, 1);
         });
     });
+
+    describe("#assertAll", async () => {
+        let engine = new InfernalEngine();
+        it("asserting '/a', '/b' and '/c/d' all at once shall create the matching model.'", async () => {
+            let engine = new InfernalEngine();
+            await engine.assertAll([
+                InfernalEngine.fact("a", 1),
+                InfernalEngine.fact("/b", 2),
+                InfernalEngine.fact("/c/d", 3)
+            ]);
+            let model = await engine.export();
+            delete model.$;
+            assert.deepStrictEqual(model, {
+                a:1, b:2, c: { d: 3 }
+            });
+        });
+    });    
 
     describe("#peek", () => {
         it("shall get an existing fact from the engine.", async () => {

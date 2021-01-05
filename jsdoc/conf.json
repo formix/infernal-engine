@@ -1,7 +1,4 @@
 {
-    "source": {
-        "include": ["lib/index.js", "README.md"]
-    },
     "opts": {
         "encoding": "utf8"
     }
