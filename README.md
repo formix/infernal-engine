@@ -23,7 +23,7 @@ to know more about different inference engine order logics.
 var InfernalEngine = require("infernal-engine");
 let engine = new InfernalEngine();
 
-await engine.defRule("count5", async function(i) {
+await engine.def("count5", async function(i) {
     if (typeof i !== "undefined" && i < 5) {
         return { "i": i + 1 };
     }
@@ -43,7 +43,7 @@ Some things to consider for the above example:
   2. Rules must be **async function**! the parser do not recognize lambda
      parameters pattern yet.
 
-  3. Defining a rule using the *#defRule* method triggers the inference for
+  3. Defining a rule using the *#def* method triggers the inference for
      that rule. Therefore rules code must be resilient to undefined facts
      unless implemented within a *model* that has pre-initialized facts.
 
@@ -131,9 +131,9 @@ rule:
 
   2. "#retract": {path:str}
 
-  3. "#defRule": {path:str, value:AsyncFunction}
+  3. "#def": {path:str, value:AsyncFunction}
 
-  4. "#undefRule": {path:str}
+  4. "#undef": {path:str}
 
   5. "#import": {path:str, value:object}
 
@@ -141,7 +141,7 @@ Each command expects an object with one or two properties which are 'path'
 and 'value'. Example:
 
 ```javascript
-await engine.defRule("count5", async function(i) {
+await engine.def("count5", async function(i) {
     if (typeof i !== "undefined" && i < 5) {
       return {
         "#assert": {
@@ -154,16 +154,16 @@ await engine.defRule("count5", async function(i) {
 ```
 
 The shorthand structure works with scalar values and arrays (#assert),
-functions (#defRule) and objects (#import). Thus returning the following
+functions (#def) and objects (#import). Thus returning the following
 structure:
 
 ```javascript
 // This rule will execute only once when defined.
-await engine.defRule("assert_defRule_import", async function() {
+await engine.def("assert_def_import", async function() {
     let model = require("./models/someInferenceModel");
     return {
       "/input/quantity": "23.5", // #assert
-      "/input/isQuantityNumeric": async function(/*@ /input/quantity */ quantity) { // #defRule
+      "/input/isQuantityNumeric": async function(/*@ /input/quantity */ quantity) { // #def
         if (Number(quantity) === NaN) {
           return {
             message: "Invalid input quantity."
@@ -547,13 +547,13 @@ Importing the critterModel:
 ->  {"action":"assert","fact":"/sings","newValue":false}
 ->  {"action":"assert","fact":"/color","newValue":"unknown"}
 ->  {"action":"assert","fact":"/species","newValue":"unknown"}
-->  {"action":"defRule","rule":"/isFrog","inputFacts":["/sound","/eats"]}
+->  {"action":"def","rule":"/isFrog","inputFacts":["/sound","/eats"]}
 ->  {"action":"addToAgenda","rule":"/isFrog"}
-->  {"action":"defRule","rule":"/isCanary","inputFacts":["/sound","/sings"]}
+->  {"action":"def","rule":"/isCanary","inputFacts":["/sound","/sings"]}
 ->  {"action":"addToAgenda","rule":"/isCanary"}
-->  {"action":"defRule","rule":"/isGreen","inputFacts":["/species"]}
+->  {"action":"def","rule":"/isGreen","inputFacts":["/species"]}
 ->  {"action":"addToAgenda","rule":"/isGreen"}
-->  {"action":"defRule","rule":"/isYellow","inputFacts":["/species"]}
+->  {"action":"def","rule":"/isYellow","inputFacts":["/species"]}
 ->  {"action":"addToAgenda","rule":"/isYellow"}
 ->  {"action":"infer","maxGen":50}
 ->  {"action":"executeAgenda","gen":1,"ruleCount":4}
@@ -608,6 +608,12 @@ Inferred facts:
 ```
 
 ## Change Notes ##
+
+### Version 1.1.0 - 2021/01/09 ###
+
+- Deprecated *InfernalEngine#defRule* and replaced it by *InfernalEngine#def*
+- Deprecated *InfernalEngine#undefRule* and replaced it by *InfernalEngine#undef*
+- Fixed some documentation sentences
 
 ### Version 1.0.1 - 2021/01/04 ###
 
