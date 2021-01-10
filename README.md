@@ -609,21 +609,25 @@ Inferred facts:
 
 ## Change Notes ##
 
+### Version 1.1.1 - 2021/01/09 ###
+
+- Fix an issue when returning a date or an array from a rule.
+
 ### Version 1.1.0 - 2021/01/09 ###
 
-- Deprecated *InfernalEngine#defRule* and replaced it by *InfernalEngine#def*
-- Deprecated *InfernalEngine#undefRule* and replaced it by *InfernalEngine#undef*
-- Fixed some documentation sentences
+- Deprecate *InfernalEngine#defRule* and replaced it by *InfernalEngine#def*
+- Deprecate *InfernalEngine#undefRule* and replaced it by *InfernalEngine#undef*
+- Fix some documentation sentences
 
 ### Version 1.0.1 - 2021/01/04 ###
 
-- Added the *InfernalEngine#assertAll* method.
-- Added the *InfernalEngine#fact* static method to create facts to be consumed by *assertAll*.
-- Improved code documentation.
+- Add the *InfernalEngine#assertAll* method.
+- Add the *InfernalEngine#fact* static method to create facts to be consumed by *assertAll*.
+- Improve code documentation.
 
 ### Version 1.0.0 - 2020/12/21 ###
 
 - Complete rewrite of the engine with ECMAScript 2016.
 - Method names have been changed to align with other inference engines (namely by [CLIPS](http://www.clipsrules.net/))
-- Added the possibility to retract facts and undefine rules with wildcards.
-- Improved tracing.
+- Add the possibility to retract facts and undefine rules with wildcards.
+- Improve tracing.
