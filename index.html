@@ -60,7 +60,7 @@ to know more about different inference engine order logics.</p>
 <pre class="prettyprint source lang-javascript"><code>var InfernalEngine = require(&quot;infernal-engine&quot;);
 let engine = new InfernalEngine();
 
-await engine.defRule(&quot;count5&quot;, async function(i) {
+await engine.def(&quot;count5&quot;, async function(i) {
     if (typeof i !== &quot;undefined&quot; && i &lt; 5) {
         return { &quot;i&quot;: i + 1 };
     }
@@ -82,7 +82,7 @@ console.log(final_i); // displays 5
 parameters pattern yet.</p>
 </li>
 <li>
-<p>Defining a rule using the <em>#defRule</em> method triggers the inference for
+<p>Defining a rule using the <em>#def</em> method triggers the inference for
 that rule. Therefore rules code must be resilient to undefined facts
 unless implemented within a <em>model</em> that has pre-initialized facts.</p>
 </li>
@@ -166,10 +166,10 @@ rule:</p>
 <p>&quot;#retract&quot;: {path:str}</p>
 </li>
 <li>
-<p>&quot;#defRule&quot;: {path:str, value:AsyncFunction}</p>
+<p>&quot;#def&quot;: {path:str, value:AsyncFunction}</p>
 </li>
 <li>
-<p>&quot;#undefRule&quot;: {path:str}</p>
+<p>&quot;#undef&quot;: {path:str}</p>
 </li>
 <li>
 <p>&quot;#import&quot;: {path:str, value:object}</p>
@@ -177,7 +177,7 @@ rule:</p>
 </ol>
 <p>Each command expects an object with one or two properties which are 'path'
 and 'value'. Example:</p>
-<pre class="prettyprint source lang-javascript"><code>await engine.defRule(&quot;count5&quot;, async function(i) {
+<pre class="prettyprint source lang-javascript"><code>await engine.def(&quot;count5&quot;, async function(i) {
     if (typeof i !== &quot;undefined&quot; && i &lt; 5) {
       return {
         &quot;#assert&quot;: {
@@ -189,14 +189,14 @@ and 'value'. Example:</p>
 });
 </code></pre>
 <p>The shorthand structure works with scalar values and arrays (#assert),
-functions (#defRule) and objects (#import). Thus returning the following
+functions (#def) and objects (#import). Thus returning the following
 structure:</p>
 <pre class="prettyprint source lang-javascript"><code>// This rule will execute only once when defined.
-await engine.defRule(&quot;assert_defRule_import&quot;, async function() {
+await engine.def(&quot;assert_def_import&quot;, async function() {
     let model = require(&quot;./models/someInferenceModel&quot;);
     return {
       &quot;/input/quantity&quot;: &quot;23.5&quot;, // #assert
-      &quot;/input/isQuantityNumeric&quot;: async function(/*@ /input/quantity */ quantity) { // #defRule
+      &quot;/input/isQuantityNumeric&quot;: async function(/*@ /input/quantity */ quantity) { // #def
         if (Number(quantity) === NaN) {
           return {
             message: &quot;Invalid input quantity.&quot;
@@ -559,13 +559,13 @@ const model = require(&quot;../models/critterModel&quot;);
 ->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/sings&quot;,&quot;newValue&quot;:false}
 ->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/color&quot;,&quot;newValue&quot;:&quot;unknown&quot;}
 ->  {&quot;action&quot;:&quot;assert&quot;,&quot;fact&quot;:&quot;/species&quot;,&quot;newValue&quot;:&quot;unknown&quot;}
-->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isFrog&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/eats&quot;]}
+->  {&quot;action&quot;:&quot;def&quot;,&quot;rule&quot;:&quot;/isFrog&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/eats&quot;]}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isFrog&quot;}
-->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isCanary&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/sings&quot;]}
+->  {&quot;action&quot;:&quot;def&quot;,&quot;rule&quot;:&quot;/isCanary&quot;,&quot;inputFacts&quot;:[&quot;/sound&quot;,&quot;/sings&quot;]}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isCanary&quot;}
-->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isGreen&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
+->  {&quot;action&quot;:&quot;def&quot;,&quot;rule&quot;:&quot;/isGreen&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isGreen&quot;}
-->  {&quot;action&quot;:&quot;defRule&quot;,&quot;rule&quot;:&quot;/isYellow&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
+->  {&quot;action&quot;:&quot;def&quot;,&quot;rule&quot;:&quot;/isYellow&quot;,&quot;inputFacts&quot;:[&quot;/species&quot;]}
 ->  {&quot;action&quot;:&quot;addToAgenda&quot;,&quot;rule&quot;:&quot;/isYellow&quot;}
 ->  {&quot;action&quot;:&quot;infer&quot;,&quot;maxGen&quot;:50}
 ->  {&quot;action&quot;:&quot;executeAgenda&quot;,&quot;gen&quot;:1,&quot;ruleCount&quot;:4}
@@ -619,18 +619,28 @@ Inferred facts:
 }
 </code></pre>
 <h2>Change Notes</h2>
+<h3>Version 1.1.1 - 2021/01/09</h3>
+<ul>
+<li>Fix an issue when returning a date or an array from a rule.</li>
+</ul>
+<h3>Version 1.1.0 - 2021/01/09</h3>
+<ul>
+<li>Deprecate <em>InfernalEngine#defRule</em> and replaced it by <em>InfernalEngine#def</em></li>
+<li>Deprecate <em>InfernalEngine#undefRule</em> and replaced it by <em>InfernalEngine#undef</em></li>
+<li>Fix some documentation sentences</li>
+</ul>
 <h3>Version 1.0.1 - 2021/01/04</h3>
 <ul>
-<li>Added the <em>InfernalEngine#assertAll</em> method.</li>
-<li>Added the <em>InfernalEngine#fact</em> static method to create facts to be consumed by <em>assertAll</em>.</li>
-<li>Improved code documentation.</li>
+<li>Add the <em>InfernalEngine#assertAll</em> method.</li>
+<li>Add the <em>InfernalEngine#fact</em> static method to create facts to be consumed by <em>assertAll</em>.</li>
+<li>Improve code documentation.</li>
 </ul>
 <h3>Version 1.0.0 - 2020/12/21</h3>
 <ul>
 <li>Complete rewrite of the engine with ECMAScript 2016.</li>
 <li>Method names have been changed to align with other inference engines (namely by <a href="http://www.clipsrules.net/">CLIPS</a>)</li>
-<li>Added the possibility to retract facts and undefine rules with wildcards.</li>
-<li>Improved tracing.</li>
+<li>Add the possibility to retract facts and undefine rules with wildcards.</li>
+<li>Improve tracing.</li>
 </ul></article>
     </section>
 
@@ -648,7 +658,7 @@ Inferred facts:
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Jan 04 2021 22:33:26 GMT-0500 (heure normale de l’Est)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Jan 31 2021 09:47:13 GMT-0500 (heure normale de l’Est)
 </footer>
 
 <script> prettyPrint(); </script>
