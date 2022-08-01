@@ -609,6 +609,10 @@ Inferred facts:
 
 ## Change Notes ##
 
+### Version 1.1.2 - 2022/08/01 ###
+
+- Fix a tracing issue
+
 ### Version 1.1.1 - 2021/01/09 ###
 
 - Fix an issue when returning a date or an array from a rule.
