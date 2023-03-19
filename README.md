@@ -538,7 +538,7 @@ const model = require("../models/critterModel");
 
 ### Tracing outputs and resulting fact object ###
 
-```json
+```
 Importing the critterModel:
 ->  {"action":"import","object":{"name":"Fritz","sound":"","eats":"","sings":false,"color":"unknown","species":"unknown"}}
 ->  {"action":"assert","fact":"/name","newValue":"Fritz"}
