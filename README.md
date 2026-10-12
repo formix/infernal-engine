@@ -40,8 +40,9 @@ Some things to consider for the above example:
 
   1. All **InfernalEngine** methods must be called with *await*.
 
-  2. Rules must be **async function**! the parser do not recognize lambda
-     parameters pattern yet.
+  2. Rules must be **async**. They can be written either as an
+     `async function` or as an `async` lambda (arrow function). See the
+     *Rule* section below for the supported syntaxes.
 
   3. Defining a rule using the *#def* method triggers the inference for
      that rule. Therefore rules code must be resilient to undefined facts
@@ -87,9 +88,54 @@ context "/speed/". Given the following model:
 ```
 
 The rule parameters `value` and `max` will respectively reference
-"/speed/value" and "/speed/max". But how can we reference a fact that is
-outside the rule context? Simple, by using the parameter annotation comment
-like this:
+"/speed/value" and "/speed/max".
+
+#### Lambda Rules ####
+
+Rules can also be written as `async` lambda (arrow) functions. All the
+following rules are equivalent ways to declare the parameters of a rule:
+
+```javascript
+// Regular function
+await engine.def("count5", async function(i) { /* ... */ });
+
+// Lambda with parenthesis
+await engine.def("count5", async (i) => { /* ... */ });
+
+// Single parameter lambda without parenthesis
+await engine.def("count5", async i => { /* ... */ });
+
+// Lambda with multiple parameters, possibly spanning multiple lines
+await engine.def("maxSpeedReached", async (
+    value,
+    max
+) => ({ "maxReached": value === max }));
+
+// Lambda without any parameter
+await engine.def("init", async () => ({ "ready": true }));
+```
+
+The same goes for rules declared inside a model:
+
+```javascript
+{
+  speed: {
+    max: 150,
+    value: 0,
+    maxReached: false,
+
+    maxSpeedReached: async (value, max) => ({ "maxReached": value === max })
+  }
+}
+```
+
+Keep in mind that the rule must still be `async`: a non async lambda is
+rejected by `def`, just like a non async function.
+
+#### Parameter Annotations ####
+
+But how can we reference a fact that is outside the rule context? Simple, by
+using the parameter annotation comment like this:
 
 ```javascript
 {
@@ -103,9 +149,9 @@ like this:
       return { "maxReached": value === max};
     },
 
-    translate: function(/*@ user/input */ input) {
+    translate: async function(/*@ user/input */ input) {
       return {"value": Number(input)}
-    }
+    },
 
     user: {
       input: "",
@@ -115,6 +161,35 @@ like this:
 ```
 
 Annotation comments must be placed in front of the annotated parameter.
+
+Parameter annotations work the same way with lambda rules, including single
+parameter lambdas written without parenthesis:
+
+```javascript
+{
+  speed: {
+    value: 0,
+
+    // Lambda with parenthesis: each parameter can be annotated.
+    translate: async (/*@ user/input */ input) => ({ "value": Number(input) }),
+
+    // Annotated and non annotated parameters can be mixed.
+    updateMessage: async (value, /*@ /name */ modelName) =>
+      ({ "/message": `${modelName} is going ${value} km/h` }),
+
+    // Single parameter lambda without parenthesis.
+    isStopped: async /*@ value */ speed => ({ "stopped": speed === 0 }),
+
+    user: {
+      input: ""
+    }
+  }
+}
+```
+
+In the above example, `input` is bound to "/speed/user/input", `value` to
+"/speed/value", `modelName` to the absolute fact "/name" and `speed` to
+"/speed/value".
 
 #### Return Object ####
 
@@ -384,7 +459,14 @@ exact fact path that shall be set to the following parameter. The syntax is:
 
 `/*@ {path_to_fact} */`
 
-`path_to_fact` can be either a relative or an absolute path.
+`path_to_fact` can be either a relative or an absolute path. Annotations are
+supported for both regular functions and lambda rules:
+
+```javascript
+async function(/*@ ../message */ msg, /*@ /name */ modelName) { /* ... */ }
+async (/*@ ../message */ msg, /*@ /name */ modelName) => { /* ... */ }
+async /*@ /name */ modelName => { /* ... */ }
+```
 
 ### Path, Context and Name ###
 
@@ -454,7 +536,7 @@ let carModel = {
     // it is possible to use the parameter annotation to set the modelName
     // parameter to the /name absolute fact. The same goes for the returned
     // /message2 fact.
-    updateMessage: function(value, limit, /*@ /name */ modelName) {
+    updateMessage: async function(value, limit, /*@ /name */ modelName) {
       if (value === limit) {
         return {"/message2": `${modelName} ludicrous speed, GO!`};
       }
@@ -608,6 +690,13 @@ Inferred facts:
 ```
 
 ## Change Notes ##
+
+### Unreleased ###
+
+- Rules can be written as `async` lambda (arrow) functions, including single
+  parameter lambdas without parenthesis (`async x => ...`).
+- Parameter annotations (`/*@ path/to/fact */`) are supported in lambda rules.
+- Remove the unused `nyc` dev dependency.
 
 ### Version 1.1.2 - 2022/08/01 ###
 
