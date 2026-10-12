@@ -16,8 +16,11 @@
   "author": "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
   "main": "lib/index.js",
   "files": [
-    "lib"
+    "lib",
+    "dist"
   ],
+  "unpkg": "dist/infernal-engine.js",
+  "jsdelivr": "dist/infernal-engine.js",
   "homepage": "https://formix.github.io/infernal-engine/",
   "bugs": "https://github.com/formix/infernal-engine/issues",
   "repository": {
@@ -26,9 +29,11 @@
   },
   "scripts": {
     "test": "mocha",
+    "test:dist": "mocha test/dist",
     "dist": "webpack",
     "doc": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./../infernal-engine-pages",
     "doc:ci": "jsdoc -c ./jsdoc/conf.json -r ./lib ./README.md -d ./out",
+    "prepack": "npm run dist",
     "prepublishOnly": "npm test"
   },
   "devDependencies": {

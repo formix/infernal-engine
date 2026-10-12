@@ -37,3 +37,6 @@ zeros.txt
 #documentation
 doc
 out
+
+#browser bundle (built by "npm run dist", published to npm)
+/dist
