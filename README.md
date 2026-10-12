@@ -1,7 +1,8 @@
 # Infernal Engine #
 
 [![Join the chat at https://gitter.im/formix/infernal-engine](https://badges.gitter.im/formix/infernal-engine.svg)](https://gitter.im/formix/infernal-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/formix/infernal-engine.svg?branch=master)](https://travis-ci.org/formix/infernal-engine)
+[![CI](https://github.com/formix/infernal-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/formix/infernal-engine/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/infernal-engine.svg)](https://www.npmjs.com/package/infernal-engine)
 
 The **Infernal Engine** is a 1-order logic forward chaining inference
 engine. Inference engine are used to build expert systems to modelise human
@@ -691,12 +692,14 @@ Inferred facts:
 
 ## Change Notes ##
 
-### Unreleased ###
+### Version 1.2.0 - 2026/10/12 ###
 
 - Rules can be written as `async` lambda (arrow) functions, including single
   parameter lambdas without parenthesis (`async x => ...`).
 - Parameter annotations (`/*@ path/to/fact */`) are supported in lambda rules.
 - Remove the unused `nyc` dev dependency.
+- The npm package now only contains the library code (`lib/`), the README and
+  the license.
 
 ### Version 1.1.2 - 2022/08/01 ###
 
