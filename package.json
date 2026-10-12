@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
     "webpack": "^5.11.1",
     "webpack-cli": "^4.3.1"
   }
