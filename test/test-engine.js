@@ -135,6 +135,165 @@ describe("InfernalEngine", async() => {
 
     });
 
+    describe("#def with lambda functions", () => {
+
+        function relatedRules(engine, factPath) {
+            let rules = engine._relations.get(factPath);
+            return rules ? [...rules] : [];
+        }
+
+        it("shall parse a single parameter lambda without parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async i => {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i"]);
+            assert.deepStrictEqual(relatedRules(engine, "/i"), ["/rule"]);
+        });
+
+        it("shall parse a single parameter lambda with an expression body containing parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async i => ({ j: Math.max(i, 0) }));
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i"]);
+        });
+
+        it("shall parse a single parameter lambda with parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("s/rule", async (i) => {});
+            assert.deepStrictEqual(engine._rules.get("/s/rule").facts, ["/s/i"]);
+            assert.deepStrictEqual(relatedRules(engine, "/s/i"), ["/s/rule"]);
+        });
+
+        it("shall parse a lambda with multiple parameters.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async (i, a, b) => {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i", "/a", "/b"]);
+        });
+
+        it("shall parse a lambda with parameters spanning multiple lines.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async (
+                i,
+                a
+            ) => {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i", "/a"]);
+        });
+
+        it("shall parse a lambda without any parameter.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async () => {});
+            assert.deepStrictEqual(engine._rules.has("/rule"), true);
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, []);
+        });
+
+        it("shall parse a lambda without spaces around the arrow.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async(i,a)=>{});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i", "/a"]);
+        });
+
+        it("shall parse attribute comments in a lambda with parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("/a/b/rule", async (/*@ /another/path */ x, /*@ ../some/fact */ y, z) => {});
+            assert.deepStrictEqual(engine._rules.get("/a/b/rule").facts,
+                ["/another/path", "/a/some/fact", "/a/b/z"]);
+        });
+
+        it("shall parse an attribute comment in a single parameter lambda without parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async /*@ /another/path */ x => {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/another/path"]);
+        });
+
+        it("shall infer using a single parameter lambda rule without parenthesis.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("count5", async i => {
+                if (typeof i !== "undefined" && i < 5) {
+                    return { "i": i + 1 };
+                }
+            });
+            await engine.assert("i", 1);
+            assert.deepStrictEqual(await engine.peek("i"), 5);
+        });
+
+        it("shall infer using an expression bodied lambda rule.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("double", async (/*@ /input */ x) => ({ "/output": x * 2 }));
+            await engine.assert("/input", 21);
+            assert.deepStrictEqual(await engine.peek("/output"), 42);
+        });
+
+        it("shall import a model containing lambda rules.", async () => {
+            let engine = new InfernalEngine();
+            await engine.import({
+                celsius: 100,
+                toFahrenheit: async celsius => ({ fahrenheit: celsius * 9 / 5 + 32 })
+            });
+            assert.deepStrictEqual(await engine.peek("fahrenheit"), 212);
+        });
+
+        it("shall still reject a non async lambda.", async () => {
+            let engine = new InfernalEngine();
+            await assert.rejects(engine.def("rule", i => {}),
+                /The rule parameter must be an async function/);
+        });
+
+    });
+
+    describe("#def with regular functions (non regression)", () => {
+
+        it("shall parse a function with a single parameter.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async function(i) {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i"]);
+        });
+
+        it("shall parse a named function with multiple parameters.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async function myRule(i, a, b) { return Math.max(a, b); });
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i", "/a", "/b"]);
+        });
+
+        it("shall parse a function without any parameter.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("rule", async function() {});
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, []);
+        });
+
+        it("shall parse a function with parameters spanning multiple lines and attribute comments.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("/a/b/rule", async function(
+                /*@ /another/path */ x,
+                /*@ ../some/fact */ y,
+                z) {});
+            assert.deepStrictEqual(engine._rules.get("/a/b/rule").facts,
+                ["/another/path", "/a/some/fact", "/a/b/z"]);
+        });
+
+        it("shall parse an object method shorthand rule.", async () => {
+            let engine = new InfernalEngine();
+            let model = { async rule(i, a) {} };
+            await engine.def("rule", model.rule);
+            assert.deepStrictEqual(engine._rules.get("/rule").facts, ["/i", "/a"]);
+        });
+
+        it("shall infer using a regular function rule.", async () => {
+            let engine = new InfernalEngine();
+            await engine.def("count5", async function(i) {
+                if (typeof i !== "undefined" && i < 5) {
+                    return { "i": i + 1 };
+                }
+            });
+            await engine.assert("i", 1);
+            assert.deepStrictEqual(await engine.peek("i"), 5);
+        });
+
+        it("shall still reject a non async function.", async () => {
+            let engine = new InfernalEngine();
+            await assert.rejects(engine.def("rule", function(i) {}),
+                /The rule parameter must be an async function/);
+        });
+
+    });
+
     describe("#undef", () => {
 
         it("shall not count up to 5 once the rule is undefined.", async () => {
