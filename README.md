@@ -700,6 +700,14 @@ Inferred facts:
 - Remove the unused `nyc` dev dependency.
 - The npm package now only contains the library code (`lib/`), the README and
   the license.
+- Rebuild the `dist/` browser bundle with lambda rule support.
+- Replace Travis CI with GitHub Actions: tests run on every push and pull
+  request (Node 20, 22 and 24).
+- Publishing a GitHub release now stages the version on npm (trusted
+  publishing, approved by a maintainer with 2FA) and deploys the documentation
+  to GitHub Pages.
+- Update development dependencies (`brace-expansion`, `fast-uri`,
+  `baseline-browser-mapping`).
 
 ### Version 1.1.2 - 2022/08/01 ###
 
