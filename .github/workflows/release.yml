@@ -18,6 +18,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run dist
+      - run: npm run test:dist
       - name: Check that the tag matches package.json
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -42,9 +44,28 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm install -g npm@latest # staged publishing needs npm >= 11.15.0
       - run: npm ci
+      - run: npm run dist # also run by "prepack"; explicit so the bundle is always built
       # Stages the release: a maintainer must approve it with 2FA on npmjs.com
       # (Staged Packages tab) or with `npm stage approve <stage-id>`.
       - run: npm stage publish
+
+  upload-bundle:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # attach files to the GitHub release
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run dist
+      - name: Attach the browser bundle to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" dist/infernal-engine.js dist/infernal-engine.js.map --clobber --repo "$GITHUB_REPOSITORY"
 
   deploy-docs:
     needs: test

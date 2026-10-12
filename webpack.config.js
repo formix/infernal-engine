@@ -12,6 +12,9 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: "[name].js",
     libraryTarget: "umd",
-    library: "InfernalEngine"
+    library: "InfernalEngine",
+    // Use the global 'this' instead of webpack's default 'self' so the bundle
+    // also loads in Node.js (and web workers), not only in browsers.
+    globalObject: "this"
   }
 };

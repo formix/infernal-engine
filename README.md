@@ -16,6 +16,50 @@ is fired using *models*.
 See [Philippe Morignot order logic explanations](http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf)
 to know more about different inference engine order logics.
 
+## Installation ##
+
+### Node.js ###
+
+```
+npm install infernal-engine
+```
+
+```javascript
+const InfernalEngine = require("infernal-engine");
+```
+
+### Browser ###
+
+The npm package includes a browser bundle, `dist/infernal-engine.js` (about
+7 kB minified), served by the jsDelivr and unpkg CDNs. Loading it with a
+`<script>` tag defines the global `InfernalEngine` class:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/infernal-engine@1/dist/infernal-engine.js"></script>
+<script>
+  (async () => {
+    const engine = new InfernalEngine();
+    await engine.def("count5", async i => {
+      if (typeof i !== "undefined" && i < 5) {
+        return { "i": i + 1 };
+      }
+    });
+    await engine.assert("i", 1);
+    console.log(await engine.peek("i")); // displays 5
+  })();
+</script>
+```
+
+The same file is available from unpkg at
+`https://unpkg.com/infernal-engine@1/dist/infernal-engine.js`. Replace `@1`
+with an exact version (for example `@1.3.0`) to pin a release. The bundle and
+its source map are also attached to each
+[GitHub release](https://github.com/formix/infernal-engine/releases).
+
+The bundle is a UMD module: it also works with AMD loaders and with
+`require()`. To build it yourself, run `npm run dist`; the files are written to
+the `dist/` directory.
+
 ## Usage ##
 
 ### Using The "Raw" Engine ###
@@ -691,6 +735,17 @@ Inferred facts:
 ```
 
 ## Change Notes ##
+
+### Unreleased ###
+
+- The npm package includes the browser bundle (`dist/infernal-engine.js` and
+  its source map), so it is served by the jsDelivr and unpkg CDNs.
+- The browser bundle also loads in Node.js and web workers.
+- Each GitHub release has the browser bundle attached.
+- `dist/` is no longer committed to the repository; it is built when packaging
+  (`npm pack`, `npm publish`) and by the release workflow.
+- Document installation for Node.js and the browser.
+- Fix `npm test` with mocha 12 and update development dependencies.
 
 ### Version 1.2.0 - 2026/10/12 ###
 
