@@ -4,7 +4,7 @@
 [![CI](https://github.com/formix/infernal-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/formix/infernal-engine/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/infernal-engine.svg)](https://www.npmjs.com/package/infernal-engine)
 
-## How to use ##
+## Installation ##
 
 ### In a Node.js project ###
 
@@ -786,7 +786,7 @@ Inferred facts:
 - Each GitHub release has the browser bundle attached.
 - `dist/` is no longer committed to the repository; it is built when packaging
   (`npm pack`, `npm publish`) and by the release workflow.
-- New "How to use" section at the top of the README: adding the library to
+- New "Installation" section at the top of the README: adding the library to
   a Node.js project and referencing the browser bundle from a CDN.
 - Fix `npm test` with mocha 12 and update development dependencies.
 
