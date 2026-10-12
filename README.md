@@ -778,7 +778,7 @@ Inferred facts:
 
 ## Change Notes ##
 
-### Unreleased ###
+### Version 1.3.0 - 2026/10/12 ###
 
 - The npm package includes the browser bundle (`dist/infernal-engine.js` and
   its source map), so it is served by the jsDelivr and unpkg CDNs.
