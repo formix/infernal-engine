@@ -4,38 +4,50 @@
 [![CI](https://github.com/formix/infernal-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/formix/infernal-engine/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/infernal-engine.svg)](https://www.npmjs.com/package/infernal-engine)
 
-The **Infernal Engine** is a 1-order logic forward chaining inference
-engine. Inference engine are used to build expert systems to modelise human
-experience using rules. The goal of the engine is to maintain its internal
-fact base concistent with its rules base. Each change to the fact or rule base
-triggers the inference. It is possible to control how and when the inference
-is fired using *models*.
+## How to use ##
 
-[InfernalEngine class Reference](https://formix.github.io/infernal-engine/)
+### In a Node.js project ###
 
-See [Philippe Morignot order logic explanations](http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf)
-to know more about different inference engine order logics.
-
-## Installation ##
-
-### Node.js ###
+Add the library to your project with npm:
 
 ```
-npm install infernal-engine
+npm install infernal-engine@1.3.0
 ```
+
+Or, with Yarn or pnpm:
+
+```
+yarn add infernal-engine@1.3.0
+pnpm add infernal-engine@1.3.0
+```
+
+This adds `"infernal-engine": "^1.3.0"` to the `dependencies` of your
+`package.json`. Then load it in your code:
 
 ```javascript
 const InfernalEngine = require("infernal-engine");
+
+(async () => {
+    const engine = new InfernalEngine();
+    await engine.def("count5", async i => {
+        if (typeof i !== "undefined" && i < 5) {
+            return { "i": i + 1 };
+        }
+    });
+    await engine.assert("i", 1);
+    console.log(await engine.peek("i")); // displays 5
+})();
 ```
 
-### Browser ###
+The library has no runtime dependencies.
 
-The npm package includes a browser bundle, `dist/infernal-engine.js` (about
-7 kB minified), served by the jsDelivr and unpkg CDNs. Loading it with a
-`<script>` tag defines the global `InfernalEngine` class:
+### In the browser ###
+
+Reference version 1.3.0 of the browser bundle from a CDN with a `<script>`
+tag. It defines the global `InfernalEngine` class:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/infernal-engine@1/dist/infernal-engine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/infernal-engine@1.3.0/dist/infernal-engine.js"></script>
 <script>
   (async () => {
     const engine = new InfernalEngine();
@@ -50,15 +62,45 @@ The npm package includes a browser bundle, `dist/infernal-engine.js` (about
 </script>
 ```
 
-The same file is available from unpkg at
-`https://unpkg.com/infernal-engine@1/dist/infernal-engine.js`. Replace `@1`
-with an exact version (for example `@1.3.0`) to pin a release. The bundle and
-its source map are also attached to each
-[GitHub release](https://github.com/formix/infernal-engine/releases).
+The same file is available from unpkg:
 
-The bundle is a UMD module: it also works with AMD loaders and with
-`require()`. To build it yourself, run `npm run dist`; the files are written to
-the `dist/` directory.
+```html
+<script src="https://unpkg.com/infernal-engine@1.3.0/dist/infernal-engine.js"></script>
+```
+
+About the version in the URL:
+
+- `@1.3.0` always serves exactly version 1.3.0. This is the recommended form
+  for production.
+- `@1.3` serves the latest 1.3.x patch release, and `@1` the latest 1.x
+  release.
+
+To host the file yourself, download `infernal-engine.js` (and optionally
+`infernal-engine.js.map`) from the
+[1.3.0 GitHub release](https://github.com/formix/infernal-engine/releases/tag/1.3.0)
+and reference your copy:
+
+```html
+<script src="/js/infernal-engine.js"></script>
+```
+
+The bundle is a minified UMD module (about 7 kB, 2.5 kB gzipped): it also works
+with AMD loaders and with `require()`. To build it from the source, run
+`npm run dist`; the files are written to the `dist/` directory.
+
+## About ##
+
+The **Infernal Engine** is a 1-order logic forward chaining inference
+engine. Inference engine are used to build expert systems to modelise human
+experience using rules. The goal of the engine is to maintain its internal
+fact base concistent with its rules base. Each change to the fact or rule base
+triggers the inference. It is possible to control how and when the inference
+is fired using *models*.
+
+[InfernalEngine class Reference](https://formix.github.io/infernal-engine/)
+
+See [Philippe Morignot order logic explanations](http://philippe.morignot.free.fr/Articles/KnowledgeIFPschool.pdf)
+to know more about different inference engine order logics.
 
 ## Usage ##
 
@@ -744,7 +786,8 @@ Inferred facts:
 - Each GitHub release has the browser bundle attached.
 - `dist/` is no longer committed to the repository; it is built when packaging
   (`npm pack`, `npm publish`) and by the release workflow.
-- Document installation for Node.js and the browser.
+- New "How to use" section at the top of the README: adding the library to
+  a Node.js project and referencing the browser bundle from a CDN.
 - Fix `npm test` with mocha 12 and update development dependencies.
 
 ### Version 1.2.0 - 2026/10/12 ###
